@@ -4,7 +4,7 @@ import pyrant.rant_lexer as RantLexer
 
 class RantLexerTest(unittest.TestCase):
     def test_brackets(self):
-        test_string = "angle brackets <> curly brackets{  } square brackets []plaintext"
+        test_string = "angle brackets <> curly brackets{  } square brackets []plaintext-hello|"
         result = RantLexer.lex(test_string)
 
         expected_result = []
@@ -19,6 +19,9 @@ class RantLexerTest(unittest.TestCase):
         expected_result.append(RantToken(RantTokenType.LEFT_SQUARE_BRACKET))
         expected_result.append(RantToken(RantTokenType.RIGHT_SQUARE_BRACKET))
         expected_result.append(RantToken(RantTokenType.PLAIN_TEXT,"plaintext"))
+        expected_result.append(RantToken(RantTokenType.HYPHEN))
+        expected_result.append(RantToken(RantTokenType.PLAIN_TEXT,"hello"))
+        expected_result.append(RantToken(RantTokenType.PIPE))
 
         i=0
         self.assertEqual(len(result), len(expected_result))

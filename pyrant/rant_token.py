@@ -7,6 +7,8 @@ class RantTokenType(Enum):
     RIGHT_CURLY_BRACKET = auto()
     LEFT_SQUARE_BRACKET = auto()
     RIGHT_SQUARE_BRACKET = auto()
+    PIPE = auto()
+    HYPHEN = auto()
     PLAIN_TEXT = auto()
 
 

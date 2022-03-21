@@ -27,6 +27,8 @@ def _get_token_type(input_char: str) -> RantToken:
         case '}': return RantTokenType.RIGHT_CURLY_BRACKET
         case '[': return RantTokenType.LEFT_SQUARE_BRACKET
         case ']': return RantTokenType.RIGHT_SQUARE_BRACKET
+        case '|': return RantTokenType.PIPE
+        case '-': return RantTokenType.HYPHEN
         case _: return RantTokenType.PLAIN_TEXT
 
 
