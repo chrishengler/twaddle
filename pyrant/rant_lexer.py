@@ -46,7 +46,8 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
                     return RantTokenType.SLASH, 2
                 elif input_str[1] == 'd':
                     return RantTokenType.DIGIT, 2
-                raise RantLexerException(f"Unknown escape code '\\{input_str[1]}'")
+                raise RantLexerException(
+                    f"Unknown escape code '\\{input_str[1]}'")
             else:
                 raise RantLexerException(f"Tried to escape nothing")
         case '"': return RantTokenType.QUOTE, 1
@@ -54,12 +55,8 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
 
 
 def _consume_plain_text(input_str: str) -> tuple[str, int]:
-    print("entering _consume_plain_text")
-    print(input_str)
-
     i = 0
     while i < len(input_str):
-        print(f"{i}: {input_str[i:]}")
         next_type, _ = _get_token_type(input_str[i:])
         if next_type is not RantTokenType.PLAIN_TEXT:
             return RantToken(RantTokenType.PLAIN_TEXT, input_str[:i]), i
@@ -67,7 +64,3 @@ def _consume_plain_text(input_str: str) -> tuple[str, int]:
             i += 1
 
     return RantToken(RantTokenType.PLAIN_TEXT, input_str), len(input_str)
-
-
-if __name__ == "__main__":
-    lex("hello")

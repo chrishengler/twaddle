@@ -70,17 +70,19 @@ def test_colon():
 
     expected_result = RantToken(RantTokenType.COLON)
 
-    assert len(result)==1
+    assert len(result) == 1
     assert result[0] == expected_result
+
 
 def test_double_colon():
     test_string = '::'
     result = RantLexer.lex(test_string)
-    
+
     expected_result = RantToken(RantTokenType.DOUBLE_COLON)
-    
+
     assert len(result) == 1
     assert result[0] == expected_result
+
 
 def test_quote():
     test_string = '"'
@@ -131,7 +133,7 @@ def test_digit():
     assert len(result) == 1
     assert result[0] == expected_result
 
-    
+
 def test_plaintext():
     test_string = 'hello'
     result = RantLexer.lex(test_string)
@@ -180,11 +182,11 @@ def test_realistic_sentence():
     result = RantLexer.lex(test_string)
 
     expected_result = []
-    expected_result.append( RantToken(RantTokenType.PLAIN_TEXT, "I work as "))
-    expected_result.append( RantToken(RantTokenType.INDEFINITE_ARTICLE))
+    expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "I work as "))
+    expected_result.append(RantToken(RantTokenType.INDEFINITE_ARTICLE))
     expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, " "))
     expected_result.append(RantToken(RantTokenType.LEFT_ANGLE_BRACKET))
-    expected_result.append(RantToken(RantTokenType.PLAIN_TEXT,"noun"))
+    expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "noun"))
     expected_result.append(RantToken(RantTokenType.HYPHEN))
     expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "job"))
     expected_result.append(RantToken(RantTokenType.RIGHT_ANGLE_BRACKET))
@@ -192,13 +194,14 @@ def test_realistic_sentence():
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
         assert actual == expected
-                          
+
 
 def test_throws_on_invalid_escape():
     test_string = r'\m'
     with pytest.raises(RantLexerException) as rle:
         result = RantLexer.lex(test_string)
     assert rle.value.message == f"Unknown escape code '\\m'"
+
 
 def test_throws_when_escaping_nothing():
     test_string = '\\'
