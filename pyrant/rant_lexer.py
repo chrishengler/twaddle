@@ -1,3 +1,4 @@
+from rant_exceptions import RantLexerException
 from rant_token import RantToken, RantTokenType
 
 
@@ -45,7 +46,9 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
                     return RantTokenType.SLASH, 2
                 elif input_str[1] == 'd':
                     return RantTokenType.DIGIT, 2
-            return RantTokenType.PLAIN_TEXT, 1
+                raise RantLexerException(f"Unknown escape code '\\{input_str[1]}'")
+            else:
+                raise RantLexerException(f"Tried to escape nothing")
         case '"': return RantTokenType.QUOTE, 1
         case _: return RantTokenType.PLAIN_TEXT, 0
 

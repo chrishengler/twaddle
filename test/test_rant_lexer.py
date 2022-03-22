@@ -1,5 +1,7 @@
-import unittest
+import pytest
+
 from rant_token import RantToken, RantTokenType
+from rant_exceptions import RantLexerException
 import rant_lexer as RantLexer
 
 
@@ -171,3 +173,16 @@ def test_long_string():
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
         assert actual == expected
+
+
+def test_throws_on_invalid_escape():
+    test_string = r'\m'
+    with pytest.raises(RantLexerException) as rle:
+        result = RantLexer.lex(test_string)
+    assert rle.value.message == f"Unknown escape code '\\m'"
+
+def test_throws_when_escaping_nothing():
+    test_string = '\\'
+    with pytest.raises(RantLexerException) as rle:
+        result = RantLexer.lex(test_string)
+    assert rle.value.message == f"Tried to escape nothing"
