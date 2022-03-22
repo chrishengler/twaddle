@@ -13,7 +13,6 @@ def lex(input_str: str) -> list[RantToken]:
             i += length
         else:
             text, length = _consume_plain_text(input_str[i:])
-            print(length)
             output.append(text)
             i += length
 
