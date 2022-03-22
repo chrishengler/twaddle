@@ -1,4 +1,4 @@
-from pyrant.rant_token import RantToken, RantTokenType
+from rant_token import RantToken, RantTokenType
 
 def lex(input_str: str) -> list[RantToken]:
     output = []

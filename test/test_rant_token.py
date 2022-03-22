@@ -1,6 +1,6 @@
 import unittest
 
-from pyrant.rant_token import RantToken, RantTokenType
+from rant_token import RantToken, RantTokenType
 
 class RantTokenTest(unittest.TestCase):
     def testRantTokenEquality(self):

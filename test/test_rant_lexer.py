@@ -1,6 +1,6 @@
 import unittest
-from pyrant.rant_token import RantToken, RantTokenType
-import pyrant.rant_lexer as RantLexer
+from rant_token import RantToken, RantTokenType
+import rant_lexer as RantLexer
 
 class RantLexerTest(unittest.TestCase):
     def test_brackets(self):
@@ -24,9 +24,9 @@ class RantLexerTest(unittest.TestCase):
         expected_result.append(RantToken(RantTokenType.PIPE))
 
         i=0
-        self.assertEqual(len(result), len(expected_result))
+        assert(len(result) == len(expected_result))
         for i, res in enumerate(result):
-            self.assertEqual(res,expected_result[i])
+            assert(res == expected_result[i])
 
 
 if __name__ == "main":
