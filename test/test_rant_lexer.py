@@ -175,6 +175,25 @@ def test_long_string():
         assert actual == expected
 
 
+def test_realistic_sentence():
+    test_string = r'I work as \a <noun-job>'
+    result = RantLexer.lex(test_string)
+
+    expected_result = []
+    expected_result.append( RantToken(RantTokenType.PLAIN_TEXT, "I work as "))
+    expected_result.append( RantToken(RantTokenType.INDEFINITE_ARTICLE))
+    expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, " "))
+    expected_result.append(RantToken(RantTokenType.LEFT_ANGLE_BRACKET))
+    expected_result.append(RantToken(RantTokenType.PLAIN_TEXT,"noun"))
+    expected_result.append(RantToken(RantTokenType.HYPHEN))
+    expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "job"))
+    expected_result.append(RantToken(RantTokenType.RIGHT_ANGLE_BRACKET))
+
+    assert len(result) == len(expected_result)
+    for actual, expected in zip(result, expected_result):
+        assert actual == expected
+                          
+
 def test_throws_on_invalid_escape():
     test_string = r'\m'
     with pytest.raises(RantLexerException) as rle:
