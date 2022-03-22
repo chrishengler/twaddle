@@ -6,34 +6,65 @@ def lex(input_str: str) -> list[RantToken]:
 
     i = 0
     while i < len(input_str):
-        next_char_type = _get_token_type(input_str[i])
-        if next_char_type is not RantTokenType.PLAIN_TEXT:
-            output.append(RantToken(next_char_type))
-            i += 1
+        next_token, length = _get_token_type(input_str[i:])
+        if next_token is not RantTokenType.PLAIN_TEXT:
+            output.append(RantToken(next_token))
+            i += length
         else:
             text, length = _consume_plain_text(input_str[i:])
-            output.append(RantToken(RantTokenType.PLAIN_TEXT, text))
+            print(length)
+            output.append(text)
             i += length
 
     return output
 
 
-def _get_token_type(input_char: str) -> RantToken:
-    assert(len(input_char) != 0)
-    match input_char:
-        case '<': return RantTokenType.LEFT_ANGLE_BRACKET
-        case '>': return RantTokenType.RIGHT_ANGLE_BRACKET
-        case '{': return RantTokenType.LEFT_CURLY_BRACKET
-        case '}': return RantTokenType.RIGHT_CURLY_BRACKET
-        case '[': return RantTokenType.LEFT_SQUARE_BRACKET
-        case ']': return RantTokenType.RIGHT_SQUARE_BRACKET
-        case '|': return RantTokenType.PIPE
-        case '-': return RantTokenType.HYPHEN
-        case _: return RantTokenType.PLAIN_TEXT
+def _get_token_type(input_str: str) -> tuple[RantToken, int]:
+    assert(len(input_str) != 0)
+    match input_str[0]:
+        case '<': return RantTokenType.LEFT_ANGLE_BRACKET, 1
+        case '>': return RantTokenType.RIGHT_ANGLE_BRACKET, 1
+        case '{': return RantTokenType.LEFT_CURLY_BRACKET, 1
+        case '}': return RantTokenType.RIGHT_CURLY_BRACKET, 1
+        case '[': return RantTokenType.LEFT_SQUARE_BRACKET, 1
+        case ']': return RantTokenType.RIGHT_SQUARE_BRACKET, 1
+        case '|': return RantTokenType.PIPE, 1
+        case '-': return RantTokenType.HYPHEN, 1
+        case ':':
+            if len(input_str) > 1 and input_str[1] == ':':
+                return RantTokenType.DOUBLE_COLON, 2
+            else:
+                return RantTokenType.COLON, 1
+        case '\\':
+            if len(input_str) > 1:
+                if input_str[1] == 'n':
+                    return RantTokenType.NEW_LINE, 2
+                elif input_str[1] == 'a':
+                    return RantTokenType.INDEFINITE_ARTICLE, 2
+                elif input_str[1] == '\\':
+                    return RantTokenType.SLASH, 2
+                elif input_str[1] == 'd':
+                    return RantTokenType.DIGIT, 2
+            return RantTokenType.PLAIN_TEXT, 1
+        case '"': return RantTokenType.QUOTE, 1
+        case _: return RantTokenType.PLAIN_TEXT, 0
 
 
 def _consume_plain_text(input_str: str) -> tuple[str, int]:
-    for i, char in enumerate(input_str):
-        if _get_token_type(char) is not RantTokenType.PLAIN_TEXT:
-            return input_str[:i], i
-    return input_str, len(input_str)
+    print("entering _consume_plain_text")
+    print(input_str)
+
+    i = 0
+    while i < len(input_str):
+        print(f"{i}: {input_str[i:]}")
+        next_type, _ = _get_token_type(input_str[i:])
+        if next_type is not RantTokenType.PLAIN_TEXT:
+            return RantToken(RantTokenType.PLAIN_TEXT, input_str[:i]), i
+        else:
+            i += 1
+
+    return RantToken(RantTokenType.PLAIN_TEXT, input_str), len(input_str)
+
+
+if __name__ == "__main__":
+    lex("hello")

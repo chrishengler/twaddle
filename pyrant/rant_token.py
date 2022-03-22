@@ -10,6 +10,13 @@ class RantTokenType(Enum):
     RIGHT_SQUARE_BRACKET = auto()
     PIPE = auto()
     HYPHEN = auto()
+    COLON = auto()
+    DOUBLE_COLON = auto()
+    QUOTE = auto()
+    NEW_LINE = auto()
+    INDEFINITE_ARTICLE = auto()
+    SLASH = auto()
+    DIGIT = auto()
     PLAIN_TEXT = auto()
 
 
