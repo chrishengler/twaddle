@@ -1,5 +1,6 @@
 from enum import Enum, auto
 
+
 class RantTokenType(Enum):
     LEFT_ANGLE_BRACKET = auto()
     RIGHT_ANGLE_BRACKET = auto()
@@ -13,7 +14,7 @@ class RantTokenType(Enum):
 
 
 class RantToken:
-    def __init__(self, t: RantTokenType, val: str=""):
+    def __init__(self, t: RantTokenType, val: str = ""):
         self.type = t
         self.value = val
 
