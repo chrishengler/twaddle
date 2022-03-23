@@ -144,6 +144,16 @@ def test_plaintext():
     assert result[0] == expected_result
 
 
+def test_exclamation_mark():
+    test_string = '!'
+    result = RantLexer.lex(test_string)
+
+    expected_result = RantToken(RantTokenType.EXCLAMATION_MARK)
+
+    assert len(result) == 1
+    assert result[0] == expected_result
+
+
 def test_long_string():
     test_string = 'angle brackets <:> curly brackets{ ::  } square brackets []plaintext-hello|'
     result = RantLexer.lex(test_string)

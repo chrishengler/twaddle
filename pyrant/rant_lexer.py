@@ -50,6 +50,7 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
             else:
                 raise RantLexerException(f"Tried to escape nothing")
         case '"': return RantTokenType.QUOTE, 1
+        case '!': return RantTokenType.EXCLAMATION_MARK, 1
         case _: return RantTokenType.PLAIN_TEXT, 0
 
 
