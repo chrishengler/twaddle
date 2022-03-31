@@ -27,10 +27,11 @@ class RantTextObject(RantObject):
 
 
 class RantLookupObject(RantObject):
-    def __init__(self, dictionary: str, form: str = "", label: str = ""):
+    def __init__(self, dictionary: str, form: str = "", category: str = "", label: str = ""):
         RantObject.__init__(self, RantObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
+        self.category = category
         self.label = label
 
 
