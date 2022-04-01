@@ -38,5 +38,20 @@ def test_parse_complex_lookup():
     assert lookup.label == ""
 
 
+def test_parse_choice():
+    lex_result = RantLexer.lex("{this|that}")
+    parser_output = RantParser.parse(lex_result)
+    assert len(parser_output) == 1
+    assert isinstance(parser_output[0], RantChoiceObject)
+    choice_result: RantChoiceObject = parser_output[0]
+    assert choice_result.type == RantObjectType.CHOICE
+    assert len(choice_result.choices) == 2
+    for choice in choice_result.choices:
+        assert len(choice) == 1
+        assert isinstance(choice[0], RantTextObject)
+    assert choice_result.choices[0][0].text == "this"
+    assert choice_result.choices[1][0].text == "that"
+
+
 if __name__ == "__main__":
-    test_parse_complex_lookup()
+    test_parse_choice()
