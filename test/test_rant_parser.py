@@ -14,10 +14,9 @@ def test_parse_text():
 
 def test_parse_simple_lookup():
     lex_result = RantLexer.lex("<whatever>")
-    parser_output = RantParser.parse(lex_result)
-    assert len(parser_output) == 1
-    assert isinstance(parser_output[0], RantLookupObject)
-    lookup: RantLookupObject = parser_output[0]
+    parse_result = RantParser.parse(lex_result)
+    assert len(parse_result) == 1
+    lookup: RantLookupObject = parse_result[0]
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "whatever"
     assert lookup.form == ""
@@ -27,10 +26,9 @@ def test_parse_simple_lookup():
 
 def test_parse_complex_lookup():
     lex_result = RantLexer.lex("<dictionary.form-category>")
-    parser_output = RantParser.parse(lex_result)
-    assert len(parser_output) == 1
-    assert isinstance(parser_output[0], RantLookupObject)
-    lookup: RantLookupObject = parser_output[0]
+    parse_result = RantParser.parse(lex_result)
+    assert len(parse_result) == 1
+    lookup: RantLookupObject = parse_result[0]
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
@@ -54,4 +52,4 @@ def test_parse_choice():
 
 
 if __name__ == "__main__":
-    test_parse_choice()
+    test_parse_simple_lookup()

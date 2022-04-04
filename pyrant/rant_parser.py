@@ -1,4 +1,6 @@
 from types import WrapperDescriptorType
+import rant_lookup_factory as LookupFactory
+from rant_exceptions import *
 from rant_object import *
 
 
@@ -14,8 +16,7 @@ def parse(tokens: list[RantToken]) -> list[RantObject]:
                 tokens.pop(0)
                 continue
             case RantTokenType.LEFT_ANGLE_BRACKET:
-                tokens.pop(0)
-                parser_result.append(consume_lookup(tokens))
+                parser_result.append(LookupFactory.build(tokens))
                 continue
             case RantTokenType.LEFT_CURLY_BRACKET:
                 tokens.pop(0)
@@ -27,37 +28,8 @@ def parse(tokens: list[RantToken]) -> list[RantObject]:
     return parser_result
 
 
-def consume_lookup(tokens: list[RantToken]) -> RantLookupObject:
-    dictionary = ""
-    form = ""
-    category = ""
-    label = ""
-    while len(tokens) > 0:
-        token = tokens[0]
-        tokens.pop(0)
-        match token.type:
-            case RantTokenType.RIGHT_ANGLE_BRACKET:
-                return RantLookupObject(dictionary, form, category, label)
-            case RantTokenType.PLAIN_TEXT:
-                dictionary = token.value
-                continue
-            case RantTokenType.DOT:
-                # TODO: just assuming correct formatting for now
-                # come back and do real validation and error-handling
-                form = tokens[0].value
-                tokens.pop(0)
-                continue
-            case RantTokenType.HYPHEN:
-                # TODO: as above
-                category = tokens[0].value
-                tokens.pop(0)
-                continue
-            case _:
-                continue
-                # TODO: here too
-    # something went wrong, fall over
-    assert False
 
+     
 
 def consume_choice(tokens: list[RantToken]) -> RantChoiceObject:
     choices = list()
