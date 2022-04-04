@@ -8,8 +8,8 @@ from rant_token import RantToken, RantTokenType
 class RantObjectType(Enum):
     TEXT = auto()     # plain text
     LOOKUP = auto()   # something looked up from a dictionary
-    CHOICE = auto()   # choice from multiple options
-    FUNCTION = auto() # call to a rant function
+    BLOCK = auto()   # choice from multiple options
+    FUNCTION = auto()  # call to a rant function
 
 
 class RantObject:
@@ -35,9 +35,9 @@ class RantLookupObject(RantObject):
         self.label = label
 
 
-class RantChoiceObject(RantObject):
+class RantBlockObject(RantObject):
     def __init__(self, choices: list[RantObject]):
-        RantObject.__init__(self, RantObjectType.CHOICE)
+        RantObject.__init__(self, RantObjectType.BLOCK)
         self.choices = choices
 
 

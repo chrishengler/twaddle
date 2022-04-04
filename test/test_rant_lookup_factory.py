@@ -22,5 +22,3 @@ def test_parse_complex_lookup():
     assert lookup.form == "form"
     assert lookup.category == "category"
     assert lookup.label == ""
-
-

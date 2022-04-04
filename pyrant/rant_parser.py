@@ -1,5 +1,6 @@
 from types import WrapperDescriptorType
 import rant_lookup_factory as LookupFactory
+import rant_block_factory as BlockFactory
 from rant_exceptions import *
 from rant_object import *
 
@@ -19,8 +20,7 @@ def parse(tokens: list[RantToken]) -> list[RantObject]:
                 parser_result.append(LookupFactory.build(tokens))
                 continue
             case RantTokenType.LEFT_CURLY_BRACKET:
-                tokens.pop(0)
-                parser_result.append(consume_choice(tokens))
+                parser_result.append(BlockFactory.build(tokens))
                 continue
             case _:
                 # should throw an error here once everything's ready
@@ -28,10 +28,7 @@ def parse(tokens: list[RantToken]) -> list[RantObject]:
     return parser_result
 
 
-
-     
-
-def consume_choice(tokens: list[RantToken]) -> RantChoiceObject:
+def consume_choice(tokens: list[RantToken]) -> RantBlockObject:
     choices = list()
     this_choice = list()
     while len(tokens) > 0:
@@ -43,10 +40,9 @@ def consume_choice(tokens: list[RantToken]) -> RantChoiceObject:
                 continue
             case RantTokenType.RIGHT_CURLY_BRACKET:
                 choices.append(parse(this_choice))
-                return RantChoiceObject(choices)
+                return RantBlockObject(choices)
             case _:
                 this_choice.append(token)
                 continue
     # something went wrong, fall over
     assert False
-
