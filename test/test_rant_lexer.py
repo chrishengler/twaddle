@@ -154,6 +154,16 @@ def test_exclamation_mark():
     assert result[0] == expected_result
 
 
+def test_equals():
+    test_string = '='
+    result = RantLexer.lex(test_string)
+
+    expected_result = RantToken(RantTokenType.EQUALS)
+
+    assert len(result) == 1
+    assert result[0] == expected_result
+
+
 def test_dot():
     test_string = '.'
     result = RantLexer.lex(test_string)

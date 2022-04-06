@@ -9,9 +9,6 @@ def test_parse_simple_lookup():
     lookup = LookupFactory.build(lex_result)
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "whatever"
-    assert lookup.form == ""
-    assert lookup.category == ""
-    assert lookup.label == ""
 
 
 def test_parse_complex_lookup():
@@ -21,4 +18,21 @@ def test_parse_complex_lookup():
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
     assert lookup.category == "category"
-    assert lookup.label == ""
+
+
+def test_parse_lookup_with_label():
+    lex_result = RantLexer.lex("<dictionary::=label>")
+    lookup = LookupFactory.build(lex_result)
+    assert lookup.type == RantObjectType.LOOKUP
+    assert lookup.dictionary == "dictionary"
+    assert lookup.labels == [("label",True)]
+
+
+def test_parse_lookup_with_negative_label():
+    lex_result = RantLexer.lex("<dictionary::!=label>")
+    lookup = LookupFactory.build(lex_result)
+    assert lookup.type == RantObjectType.LOOKUP
+    assert lookup.dictionary == "dictionary"
+    assert lookup.labels == [("label",False)]
+
+

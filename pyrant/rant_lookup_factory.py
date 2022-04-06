@@ -7,21 +7,21 @@ def build(tokens: list[RantToken]) -> RantLookupObject:
     dictionary = None
     form = ""
     category = ""
-    label = ""
+    labels = list() 
     if not any(token.type == RantTokenType.RIGHT_ANGLE_BRACKET for token in tokens):
         raise RantParserException(
-            "[LookupBuilder::build] Dictionary lookup has no closing angle bracket")
+            "[LookupBuilder.build] Dictionary lookup has no closing angle bracket")
 
     # first thing must always be the opening angle bracket:
     if tokens[0].type is not RantTokenType.LEFT_ANGLE_BRACKET:
         raise RantParserException(
-            "[LookupBuilder::build] input does not begin with left angle bracket")
+            "[LookupBuilder.build] input does not begin with left angle bracket")
     tokens.pop(0)
 
     # next thing must always be the dictionary name, so it has to be text:
     if tokens[0].type is not RantTokenType.PLAIN_TEXT:
         raise RantParserException(
-            "[LookupBuilder::build] opening angle bracket must be followed by dictionary name")
+            "[LookupBuilder.build] opening angle bracket must be followed by dictionary name")
 
     # read the dictionary name and get rid of it so we can deal with the less fixed stuff
     dictionary = tokens[0].value
@@ -32,25 +32,43 @@ def build(tokens: list[RantToken]) -> RantLookupObject:
         tokens.pop(0)
         match token.type:
             case RantTokenType.RIGHT_ANGLE_BRACKET:
-                return RantLookupObject(dictionary, form, category, label)
+                return RantLookupObject(dictionary, form, category, labels)
                 continue
             case RantTokenType.DOT:
                 if tokens[0].type is not RantTokenType.PLAIN_TEXT:
                     raise RantParserException(
-                        "[LookupBuilder::build] dot must be followed by form")
+                        "[LookupBuilder.build] dot must be followed by form")
                 form = tokens[0].value
                 tokens.pop(0)
                 continue
             case RantTokenType.HYPHEN:
-                # TODO: as above
                 if tokens[0].type is not RantTokenType.PLAIN_TEXT:
                     raise RantParserException(
-                        "[LookupBuilder::build] hyphen must be followed by category")
+                        "[LookupBuilder.build] hyphen must be followed by category")
                 category = tokens[0].value
                 tokens.pop(0)
                 continue
+            case RantTokenType.DOUBLE_COLON:
+                if tokens[0].type is RantTokenType.EQUALS:
+                    tokens.pop(0)
+                    if len(tokens) > 0 and tokens[0].type is RantTokenType.PLAIN_TEXT:
+                        labels.append((tokens[0].value, True))
+                        tokens.pop(0)
+                    else:
+                        raise RantParserException("[LookupBuilder.build] no valid definition for match")
+                elif tokens[0].type is RantTokenType.EXCLAMATION_MARK:
+                    tokens.pop(0)
+                    if len(tokens) >= 2 and tokens[0].type is RantTokenType.EQUALS and tokens[1].type is RantTokenType.PLAIN_TEXT:
+                        # get rid of the equals
+                        tokens.pop(0)
+                        # get label name
+                        labels.append((tokens[0].value, False))
+                        tokens.pop(0)
+                    else:
+                        raise RantParserException("[LookupBuilder.build] no valid definition for anti-match")
             case _:
                 continue
     # if we reach here, something went wrong
     raise RantParserException(
-        "[LookupBuilder::build] Error parsing dictionary lookup, probably an invalid character")
+        "[LookupBuilder.build] Error parsing dictionary lookup, probably an invalid character")
+

@@ -19,9 +19,6 @@ def test_parse_simple_lookup():
     lookup: RantLookupObject = parse_result[0]
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "whatever"
-    assert lookup.form == ""
-    assert lookup.category == ""
-    assert lookup.label == ""
 
 
 def test_parse_complex_lookup():
@@ -33,7 +30,6 @@ def test_parse_complex_lookup():
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
     assert lookup.category == "category"
-    assert lookup.label == ""
 
 
 def test_parse_choice():

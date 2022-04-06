@@ -19,6 +19,7 @@ class RantTokenType(Enum):
     DIGIT = auto()
     EXCLAMATION_MARK = auto()
     DOT = auto()
+    EQUALS = auto()
     PLAIN_TEXT = auto()
 
 
