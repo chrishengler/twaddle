@@ -25,7 +25,7 @@ def test_parse_lookup_with_label():
     lookup = LookupFactory.build(lex_result)
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
-    assert lookup.labels == [("label",True)]
+    assert lookup.labels == [("label", True)]
 
 
 def test_parse_lookup_with_negative_label():
@@ -33,6 +33,12 @@ def test_parse_lookup_with_negative_label():
     lookup = LookupFactory.build(lex_result)
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
-    assert lookup.labels == [("label",False)]
+    assert lookup.labels == [("label", False)]
 
 
+def test_parse_multiple_labels():
+    lex_result = RantLexer.lex("<dictionary::!=label1::!=label2>")
+    lookup = LookupFactory.build(lex_result)
+    assert lookup.type == RantObjectType.LOOKUP
+    assert lookup.dictionary == "dictionary"
+    assert lookup.labels == [("label1", False), ("label2", False)]
