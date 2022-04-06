@@ -1,20 +1,20 @@
+from collections import deque
 from rant_exceptions import RantParserException
 from rant_token import *
 from rant_object import RantBlockObject
 import rant_parser as Parser
 
 
-def build(tokens: list[RantToken]) -> RantBlockObject:
+def build(tokens: deque[RantToken]) -> RantBlockObject:
     choices = list()
-    this_choice = list()
+    this_choice = deque()
     if tokens[0].type is not RantTokenType.LEFT_CURLY_BRACKET:
         raise RantParserException(
             "[RantBlockFactory.build] block factory called without '{', this shouldn't happen!")
-    tokens.pop(0)
+    tokens.popleft()
 
     while len(tokens) > 0:
-        token = tokens[0]
-        tokens.pop(0)
+        token = tokens.popleft()
         match token.type:
             case RantTokenType.PIPE:
                 choices.append(Parser.parse(this_choice))

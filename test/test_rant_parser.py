@@ -1,11 +1,12 @@
 from rant_object import *
+from collections import deque
 import rant_lexer as RantLexer
 import rant_parser as RantParser
 
 
 def test_parse_text():
     rt = RantToken(RantTokenType.PLAIN_TEXT, "hello")
-    parser_input = [rt]
+    parser_input = deque([rt])
     parser_output = RantParser.parse(parser_input)
     assert len(parser_output) == 1
     assert parser_output[0].type == RantObjectType.TEXT
@@ -48,4 +49,4 @@ def test_parse_choice():
 
 
 if __name__ == "__main__":
-    test_parse_simple_lookup()
+    test_parse_text()

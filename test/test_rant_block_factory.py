@@ -1,3 +1,4 @@
+from collections import deque
 import rant_lexer as RantLexer
 import rant_block_factory as BlockFactory
 from rant_object import *
@@ -6,6 +7,7 @@ from rant_exceptions import RantParserException
 
 def test_parse_choice():
     lex_result = RantLexer.lex("{this|that}")
+    print( type(lex_result))
     choice_result = BlockFactory.build(lex_result)
     assert choice_result.type == RantObjectType.BLOCK
     assert len(choice_result.choices) == 2
@@ -36,3 +38,6 @@ def test_parse_choice_with_embedded_lookups():
         assert isinstance(choice[0], RantLookupObject)
     assert choice[0].dictionary == ("lookup" + str(i))
 
+
+if __name__ == "__main__":
+    test_parse_choice()

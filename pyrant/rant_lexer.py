@@ -1,9 +1,10 @@
+from collections import deque
 from rant_exceptions import RantLexerException
 from rant_token import RantToken, RantTokenType
 
 
-def lex(input_str: str) -> list[RantToken]:
-    output = []
+def lex(input_str: str) -> deque[RantToken]:
+    output = deque()
 
     i = 0
     while i < len(input_str):
