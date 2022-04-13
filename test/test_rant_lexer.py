@@ -64,6 +64,15 @@ def test_hyphen():
     assert result[0] == expected_result
 
 
+def test_semicolon():
+    test_string = ';'
+    result = RantLexer.lex(test_string)
+
+    expected_result = RantToken(RantTokenType.SEMICOLON)
+
+    assert len(result) == 1
+    assert result[0] == expected_result
+
 def test_colon():
     test_string = ':'
     result = RantLexer.lex(test_string)

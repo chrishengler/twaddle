@@ -33,6 +33,9 @@ def test_parse_complex_lookup():
     assert lookup.category == "category"
 
 
+def test_parse_function():
+    lex_result = RantLexer.lex("[function:arg1;arg2]")
+
 def test_parse_choice():
     lex_result = RantLexer.lex("{this|that}")
     parser_output = RantParser.parse(lex_result)

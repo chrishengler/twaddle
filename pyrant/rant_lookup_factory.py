@@ -11,18 +11,18 @@ def build(tokens: deque[RantToken]) -> RantLookupObject:
     labels = list() 
     if not any(token.type == RantTokenType.RIGHT_ANGLE_BRACKET for token in tokens):
         raise RantParserException(
-            "[LookupBuilder.build] Dictionary lookup has no closing angle bracket")
+            "[RantLookupFactory.build] Dictionary lookup has no closing angle bracket")
 
     # first thing must always be the opening angle bracket:
     if tokens[0].type is not RantTokenType.LEFT_ANGLE_BRACKET:
         raise RantParserException(
-            "[LookupBuilder.build] input does not begin with left angle bracket")
+            "[RantLookupFactory.build] input does not begin with left angle bracket")
     tokens.popleft()
 
     # next thing must always be the dictionary name, so it has to be text:
     if tokens[0].type is not RantTokenType.PLAIN_TEXT:
         raise RantParserException(
-            "[LookupBuilder.build] opening angle bracket must be followed by dictionary name")
+            "[RantLookupFactory.build] opening angle bracket must be followed by dictionary name")
 
     # read the dictionary name and get rid of it so we can deal with the less fixed stuff
     dictionary = tokens.popleft().value
@@ -36,13 +36,13 @@ def build(tokens: deque[RantToken]) -> RantLookupObject:
             case RantTokenType.DOT:
                 if tokens[0].type is not RantTokenType.PLAIN_TEXT:
                     raise RantParserException(
-                        "[LookupBuilder.build] dot must be followed by form")
+                        "[RantLookupFactory.build] dot must be followed by form")
                 form = tokens.popleft().value
                 continue
             case RantTokenType.HYPHEN:
                 if tokens[0].type is not RantTokenType.PLAIN_TEXT:
                     raise RantParserException(
-                        "[LookupBuilder.build] hyphen must be followed by category")
+                        "[RantLookupFactory.build] hyphen must be followed by category")
                 category = tokens.popleft().value
                 continue
             case RantTokenType.DOUBLE_COLON:
@@ -51,7 +51,7 @@ def build(tokens: deque[RantToken]) -> RantLookupObject:
                     if len(tokens) > 0 and tokens[0].type is RantTokenType.PLAIN_TEXT:
                         labels.append((tokens.popleft().value, True))
                     else:
-                        raise RantParserException("[LookupBuilder.build] no valid definition for match")
+                        raise RantParserException("[RantLookupFactory.build] no valid definition for match")
                 elif tokens[0].type is RantTokenType.EXCLAMATION_MARK:
                     tokens.popleft()
                     if len(tokens) >= 2 and tokens[0].type is RantTokenType.EQUALS and tokens[1].type is RantTokenType.PLAIN_TEXT:
@@ -65,5 +65,5 @@ def build(tokens: deque[RantToken]) -> RantLookupObject:
                 continue
     # if we reach here, something went wrong
     raise RantParserException(
-        "[LookupBuilder.build] Error parsing dictionary lookup, probably an invalid character")
+        "[RantLookupFactory.build] Error parsing dictionary lookup, probably an invalid character")
 

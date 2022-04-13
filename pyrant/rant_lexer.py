@@ -36,6 +36,7 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
                 return RantTokenType.DOUBLE_COLON, 2
             else:
                 return RantTokenType.COLON, 1
+        case ';': return RantTokenType.SEMICOLON, 1
         case '\\':
             if len(input_str) > 1:
                 if input_str[1] == 'n':
