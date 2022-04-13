@@ -1,6 +1,6 @@
-import rant_lexer as RantLexer
-import rant_lookup_factory as LookupFactory
-from rant_object import RantLookupObject, RantObjectType
+import lexer.rant_lexer as RantLexer
+import parser.rant_lookup_factory as LookupFactory
+from parser.rant_object import RantLookupObject, RantObjectType
 from rant_exceptions import RantParserException
 
 

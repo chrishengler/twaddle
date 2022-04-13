@@ -1,8 +1,8 @@
 from collections import deque
 from rant_exceptions import RantParserException
-from rant_token import *
-from rant_object import RantBlockObject
-import rant_parser as Parser
+from lexer.rant_token import *
+from parser.rant_object import RantBlockObject
+import parser.rant_parser as Parser
 
 
 def build(tokens: deque[RantToken]) -> RantBlockObject:

@@ -1,7 +1,7 @@
 from collections import deque
 from rant_exceptions import RantParserException
-from rant_token import *
-from rant_object import RantLookupObject
+from lexer.rant_token import *
+from parser.rant_object import RantLookupObject
 
 
 def build(tokens: deque[RantToken]) -> RantLookupObject:

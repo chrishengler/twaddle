@@ -1,6 +1,6 @@
 from collections import deque
 from rant_exceptions import RantLexerException
-from rant_token import RantToken, RantTokenType
+from lexer.rant_token import RantToken, RantTokenType
 
 
 def lex(input_str: str) -> deque[RantToken]:

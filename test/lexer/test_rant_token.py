@@ -1,4 +1,4 @@
-from rant_token import RantToken, RantTokenType
+from lexer.rant_token import RantToken, RantTokenType
 
 
 def test_rant_token_equality():

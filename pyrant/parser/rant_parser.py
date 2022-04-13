@@ -1,9 +1,10 @@
 from types import WrapperDescriptorType
 from collections import deque
-import rant_lookup_factory as LookupFactory
-import rant_block_factory as BlockFactory
+import parser.rant_lookup_factory as LookupFactory
+import parser.rant_block_factory as BlockFactory
 from rant_exceptions import *
-from rant_object import *
+from lexer.rant_token import *
+from parser.rant_object import *
 
 
 def parse(tokens: deque[RantToken]) -> list[RantObject]:

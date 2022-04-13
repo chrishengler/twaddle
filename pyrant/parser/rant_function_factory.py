@@ -1,6 +1,6 @@
 from collections import deque
-from rant_object import RantFunctionObject
-from rant_token import *
+from parser.rant_object import RantFunctionObject
+from lexer.rant_token import *
 from rant_exceptions import *
 
 def build(tokens: deque[RantToken]) -> RantFunctionObject:

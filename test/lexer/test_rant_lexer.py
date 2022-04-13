@@ -1,8 +1,8 @@
 import pytest
 
-from rant_token import RantToken, RantTokenType
+from lexer.rant_token import RantToken, RantTokenType
 from rant_exceptions import RantLexerException
-import rant_lexer as RantLexer
+import lexer.rant_lexer as RantLexer
 
 
 def test_angle_brackets():

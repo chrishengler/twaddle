@@ -1,4 +1,4 @@
-from rant_object import *
+from parser.rant_object import *
 
 
 def test_rant_text_object():

@@ -1,7 +1,7 @@
 from collections import deque
-import rant_lexer as RantLexer
-import rant_block_factory as BlockFactory
-from rant_object import *
+import lexer.rant_lexer as RantLexer
+import parser.rant_block_factory as BlockFactory
+from parser.rant_object import *
 from rant_exceptions import RantParserException
 
 

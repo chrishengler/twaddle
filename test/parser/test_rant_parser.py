@@ -1,7 +1,8 @@
-from rant_object import *
+from parser.rant_object import *
 from collections import deque
-import rant_lexer as RantLexer
-import rant_parser as RantParser
+from lexer.rant_token import *
+import lexer.rant_lexer as RantLexer
+import parser.rant_parser as RantParser
 
 
 def test_parse_text():

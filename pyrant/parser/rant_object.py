@@ -1,8 +1,7 @@
 from enum import Enum, auto
 from typing import Type
 
-import rant_lexer as RantLexer
-from rant_token import RantToken, RantTokenType
+import lexer.rant_lexer as RantLexer
 
 
 class RantObjectType(Enum):
@@ -27,12 +26,12 @@ class RantTextObject(RantObject):
 
 
 class RantLookupObject(RantObject):
-    def __init__(self, dictionary: str, form: str = "", category: str = "", labels: list[tuple[str, bool]] = [] ):
+    def __init__(self, dictionary: str, form: str = "", category: str = "", labels: list[tuple[str, bool]] = []):
         RantObject.__init__(self, RantObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
         self.category = category
-        self.labels = labels 
+        self.labels = labels
 
 
 class RantBlockObject(RantObject):
