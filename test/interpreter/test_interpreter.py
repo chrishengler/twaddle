@@ -4,7 +4,7 @@ import lexer.rant_lexer as Lexer
 
 
 def get_interpreter_output(sentence):
-    return Interpreter.interpret(Parser.parse(Lexer.lex(sentence)))
+    return Interpreter.interpret_internal(Parser.parse(Lexer.lex(sentence)))
 
 
 def test_plain_text():
