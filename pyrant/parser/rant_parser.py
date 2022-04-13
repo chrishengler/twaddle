@@ -17,15 +17,44 @@ def parse(tokens: deque[RantToken]) -> list[RantObject]:
             case RantTokenType.PLAIN_TEXT:
                 parser_result.append(RantTextObject(token.value))
                 tokens.popleft()
-                continue
             case RantTokenType.LEFT_ANGLE_BRACKET:
                 parser_result.append(LookupFactory.build(tokens))
-                continue
             case RantTokenType.LEFT_CURLY_BRACKET:
                 parser_result.append(BlockFactory.build(tokens))
-                continue
+
+            # these symbols only have meaning in certain constructs
+            # outside of those constructs, treat them as text
+            case RantTokenType.EXCLAMATION_MARK:
+                parser_result.append(RantTextObject('!'))
+                tokens.popleft()
+            case RantTokenType.COLON:
+                parser_result.append(RantTextObject(':'))
+                tokens.popleft()
+            case RantTokenType.SEMICOLON:
+                parser_result.append(RantTextObject(';'))
+                tokens.popleft()
+            case RantTokenType.PIPE:
+                parser_result.append(RantTextObject('|'))
+                tokens.popleft()
+            case RantTokenType.HYPHEN:
+                parser_result.append(RantTextObject('-'))
+                tokens.popleft()
+            case RantTokenType.DOUBLE_COLON:
+                parser_result.append(RantTextObject('::'))
+                tokens.popleft()
+            case RantTokenType.SLASH:
+                parser_result.append(RantTextObject('/'))
+                tokens.popleft()
+            case RantTokenType.DOT:
+                parser_result.append(RantTextObject('.'))
+                tokens.popleft()
+            case RantTokenType.EQUALS:
+                parser_result.append(RantTextObject('='))
+                tokens.popleft()
+
+            # unrecognised token type
+            # should throw an error here once everything's ready
             case _:
-                # should throw an error here once everything's ready
                 tokens.popleft()
     return parser_result
 
