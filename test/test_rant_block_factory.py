@@ -35,9 +35,9 @@ def test_parse_choice_with_embedded_lookups():
     assert len(result.choices) == 3
     for i, choice in enumerate(result.choices, 1):
         assert len(choice) == 1
-        assert isinstance(choice[0], RantLookupObject)
-    assert choice[0].dictionary == ("lookup" + str(i))
-
+        lookup: RantLookupObject = choice[0]
+        assert isinstance(lookup, RantLookupObject)
+        assert lookup.dictionary == 'lookup' + str(i)
 
 if __name__ == "__main__":
     test_parse_choice()
