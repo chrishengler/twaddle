@@ -27,7 +27,7 @@ def build(tokens: deque[RantToken]) -> RantFunctionObject:
     # if the function has arguments, there's a colon before the first:
     if tokens[0].type is RantTokenType.COLON:
         tokens.popleft()
-        # argument must be text
+        # argument must be text or a number
         if tokens[0].type is RantTokenType.PLAIN_TEXT:
             args.append( str(tokens.popleft().value))
         else:
@@ -44,6 +44,8 @@ def build(tokens: deque[RantToken]) -> RantFunctionObject:
                     args.append( str(tokens.popleft().value))
                 else:
                     raise RantParserException("[FunctionFactory.build] colon with no argument")
+            case RantTokenType.PLAIN_TEXT:
+                args.append( str(tokens.popleft().value))
             case _:
                 continue
     # if we reach here, something went wrong

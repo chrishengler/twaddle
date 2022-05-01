@@ -2,13 +2,14 @@ from types import WrapperDescriptorType
 from collections import deque
 import parser.rant_lookup_factory as LookupFactory
 import parser.rant_block_factory as BlockFactory
+import parser.rant_function_factory as FunctionFactory
 from rant_exceptions import *
 from lexer.rant_token import *
 from parser.rant_object import *
 
 
-def parse(tokens: deque[RantToken]) -> list[RantObject]:
-    parser_result = list()
+def parse(tokens: deque[RantToken]) -> deque[RantObject]:
+    parser_result = deque()
     i = 0
 
     while len(tokens) > 0:
@@ -21,6 +22,8 @@ def parse(tokens: deque[RantToken]) -> list[RantObject]:
                 parser_result.append(LookupFactory.build(tokens))
             case RantTokenType.LEFT_CURLY_BRACKET:
                 parser_result.append(BlockFactory.build(tokens))
+            case RantTokenType.LEFT_SQUARE_BRACKET:
+                parser_result.append(FunctionFactory.build(tokens))
 
             # these symbols only have meaning in certain constructs
             # outside of those constructs, treat them as text

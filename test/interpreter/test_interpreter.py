@@ -18,11 +18,31 @@ def test_text_with_special_characters():
     result = get_interpreter_output(special_characters)
     assert result == special_characters
 
+
 def test_choice():
     result = get_interpreter_output("{a|b}")
-
     assert result == 'a' or result == 'b'
 
 
+def test_repeat():
+    result = get_interpreter_output("[rep:3]{a}")
+    assert result == 'aaa'
+
+
+def test_repeat_with_separator():
+    result = get_interpreter_output("[rep:3][sep:x]{a}")
+    assert result == 'axaxa'
+
+
+def test_random_number():
+    for _ in range(0,10):
+        result_10 = int(get_interpreter_output("[rand:0;10]"))
+        #result_negative = int(get_interpreter_output("[rand:-10;-5]"))
+        result_big = int(get_interpreter_output("[rand:1000;2000]"))
+        assert result_10 >= 0 and result_10 <= 10
+        #assert result_negative >= -10 and result_negative <= -5
+        assert result_big >= 1000 and result_big <= 2000
+
+
 if __name__ == "__main__":
-    test_text_with_special_characters()
+    test_repeat()

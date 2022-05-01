@@ -5,18 +5,20 @@ import lexer.rant_lexer as RantLexer
 import parser.rant_parser as RantParser
 
 
+def get_parse_result(sentence: str) -> deque[RantObject]:
+    return RantParser.parse(RantLexer.lex(sentence))
+    
+
+
 def test_parse_text():
-    rt = RantToken(RantTokenType.PLAIN_TEXT, "hello")
-    parser_input = deque([rt])
-    parser_output = RantParser.parse(parser_input)
+    parser_output = get_parse_result("hello") 
     assert len(parser_output) == 1
     assert parser_output[0].type == RantObjectType.TEXT
     assert parser_output[0].text == "hello"
 
 
 def test_parse_simple_lookup():
-    lex_result = RantLexer.lex("<whatever>")
-    parse_result = RantParser.parse(lex_result)
+    parse_result = get_parse_result("<whatever>")
     assert len(parse_result) == 1
     lookup: RantLookupObject = parse_result[0]
     assert lookup.type == RantObjectType.LOOKUP
@@ -24,8 +26,7 @@ def test_parse_simple_lookup():
 
 
 def test_parse_complex_lookup():
-    lex_result = RantLexer.lex("<dictionary.form-category>")
-    parse_result = RantParser.parse(lex_result)
+    parse_result = get_parse_result("<dictionary.form-category>")
     assert len(parse_result) == 1
     lookup: RantLookupObject = parse_result[0]
     assert lookup.type == RantObjectType.LOOKUP
@@ -35,11 +36,17 @@ def test_parse_complex_lookup():
 
 
 def test_parse_function():
-    lex_result = RantLexer.lex("[function:arg1;arg2]")
+    lex_result = get_parse_result("[function:arg1;arg2]")
+    assert len(lex_result) == 1
+    assert isinstance(lex_result[0], RantFunctionObject)
+    func: RantFunctionObject = lex_result[0]
+    assert func.func == "function"
+    assert len(func.args) == 2
+    assert func.args[0] == "arg1"
+    assert func.args[1] == "arg2"
 
 def test_parse_choice():
-    lex_result = RantLexer.lex("{this|that}")
-    parser_output = RantParser.parse(lex_result)
+    parser_output = get_parse_result("{this|that}")
     assert len(parser_output) == 1
     assert isinstance(parser_output[0], RantBlockObject)
     choice_result: RantBlockObject = parser_output[0]
@@ -53,4 +60,4 @@ def test_parse_choice():
 
 
 if __name__ == "__main__":
-    test_parse_text()
+    test_parse_function()
