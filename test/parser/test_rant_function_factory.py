@@ -1,5 +1,5 @@
 import lexer.rant_lexer as RantLexer
-from parser.rant_object import RantFunctionObject, RantLookupObject, RantObjectType
+from parser.rant_object import RantFunctionObject, RantLookupObject, RantObjectType, RantTextObject
 import parser.rant_function_factory as FunctionFactory
 
 

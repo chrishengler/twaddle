@@ -37,12 +37,12 @@ def test_repeat_with_separator():
 def test_random_number():
     for _ in range(0,10):
         result_10 = int(get_interpreter_output("[rand:0;10]"))
-        #result_negative = int(get_interpreter_output("[rand:-10;-5]"))
+        result_negative = int(get_interpreter_output("[rand:-10;-5]"))
         result_big = int(get_interpreter_output("[rand:1000;2000]"))
         assert result_10 >= 0 and result_10 <= 10
-        #assert result_negative >= -10 and result_negative <= -5
+        assert result_negative >= -10 and result_negative <= -5
         assert result_big >= 1000 and result_big <= 2000
 
 
 if __name__ == "__main__":
-    test_repeat()
+    test_random_number()

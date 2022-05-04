@@ -42,6 +42,7 @@ def test_parse_function():
     func: RantFunctionObject = lex_result[0]
     assert func.func == "function"
     assert len(func.args) == 2
+    for arg in func.args:
     assert func.args[0] == "arg1"
     assert func.args[1] == "arg2"
 
@@ -54,9 +55,8 @@ def test_parse_choice():
     assert len(choice_result.choices) == 2
     for choice in choice_result.choices:
         assert len(choice) == 1
-        assert isinstance(choice[0], RantTextObject)
-    assert choice_result.choices[0][0].text == "this"
-    assert choice_result.choices[1][0].text == "that"
+    assert choice_result.choices[0][0] == "this"
+    assert choice_result.choices[1][0] == "that"
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import parser.rant_function_factory as FunctionFactory
 from rant_exceptions import *
 from lexer.rant_token import *
 from parser.rant_object import *
+from parser.rant_parser_utils import to_plain_text_object
 
 
 def parse(tokens: deque[RantToken]) -> deque[RantObject]:
@@ -24,40 +25,8 @@ def parse(tokens: deque[RantToken]) -> deque[RantObject]:
                 parser_result.append(BlockFactory.build(tokens))
             case RantTokenType.LEFT_SQUARE_BRACKET:
                 parser_result.append(FunctionFactory.build(tokens))
-
-            # these symbols only have meaning in certain constructs
-            # outside of those constructs, treat them as text
-            case RantTokenType.EXCLAMATION_MARK:
-                parser_result.append(RantTextObject('!'))
-                tokens.popleft()
-            case RantTokenType.COLON:
-                parser_result.append(RantTextObject(':'))
-                tokens.popleft()
-            case RantTokenType.SEMICOLON:
-                parser_result.append(RantTextObject(';'))
-                tokens.popleft()
-            case RantTokenType.PIPE:
-                parser_result.append(RantTextObject('|'))
-                tokens.popleft()
-            case RantTokenType.HYPHEN:
-                parser_result.append(RantTextObject('-'))
-                tokens.popleft()
-            case RantTokenType.DOUBLE_COLON:
-                parser_result.append(RantTextObject('::'))
-                tokens.popleft()
-            case RantTokenType.SLASH:
-                parser_result.append(RantTextObject('/'))
-                tokens.popleft()
-            case RantTokenType.DOT:
-                parser_result.append(RantTextObject('.'))
-                tokens.popleft()
-            case RantTokenType.EQUALS:
-                parser_result.append(RantTextObject('='))
-                tokens.popleft()
-
-            # unrecognised token type
-            # should throw an error here once everything's ready
             case _:
+                parser_result.append(to_plain_text_object(token))
                 tokens.popleft()
     return parser_result
 
