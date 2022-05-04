@@ -2,6 +2,7 @@ import lexer.rant_lexer as Lexer
 import parser.rant_parser as Parser
 from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
+from rant_exceptions import RantInterpreterException
 
 from collections import deque
 from functools import singledispatch
@@ -32,7 +33,13 @@ def run(arg) -> str:
 def _(block: RantBlockObject):
     attributes: BlockAttributes = BlockAttributeManager.get_attributes()
     block_result = ''
+    first_repetition = True
     while attributes.repetitions:
+        if first_repetition:
+            first_repetition = False
+            block_result += attributes.first
+        elif attributes.repetitions == 1:
+            block_result += attributes.last
         attributes.repetitions = attributes.repetitions-1
         partial_result = interpret_internal(block.choices[randrange(0, len(block.choices))])
         block_result += partial_result
@@ -45,6 +52,8 @@ def _(block: RantBlockObject):
 def _(func: RantFunctionObject):
     if func.func in function_definitions:
         return function_definitions[func.func](func.args)
+    else:
+        raise RantInterpreterException(f"[Interpreter::run] no function found named '{func.func}'")
 
 
 @run.register(RantTextObject)

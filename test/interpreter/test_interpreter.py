@@ -1,6 +1,8 @@
 import interpreter.interpreter as Interpreter
 import parser.rant_parser as Parser
 import lexer.rant_lexer as Lexer
+from rant_exceptions import RantInterpreterException
+import pytest
 
 
 def get_interpreter_output(sentence):
@@ -24,6 +26,12 @@ def test_choice():
     assert result == 'a' or result == 'b'
 
 
+def test_unknown_function_error():
+    with pytest.raises(RantInterpreterException) as e_info:
+         result = get_interpreter_output("[funk]") 
+         assert e_info.message == "[Interpreter::run] no function found named 'funk'"
+
+
 def test_repeat():
     result = get_interpreter_output("[rep:3]{a}")
     assert result == 'aaa'
@@ -32,6 +40,11 @@ def test_repeat():
 def test_repeat_with_separator():
     result = get_interpreter_output("[rep:3][sep:x]{a}")
     assert result == 'axaxa'
+
+
+def test_repeat_with_first_and_last():
+    result = get_interpreter_output("[rep:5][first:a][last:z]{x}")
+    assert result == 'axxxxzx'
 
 
 def test_random_number():

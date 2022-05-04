@@ -11,6 +11,14 @@ def separator(args: list[str]):
     BlockAttributeManager.current_attributes.separator = args[0]
 
 
+def first(args: list[str]):
+    BlockAttributeManager.current_attributes.first = args[0]
+
+
+def last(args: list[str]):
+    BlockAttributeManager.current_attributes.last = args[0]
+
+
 def rand(args: list[str]) -> str:
     minimum = int(args[0])
     maximum = int(args[1])

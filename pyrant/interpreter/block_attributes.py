@@ -2,6 +2,8 @@ class BlockAttributes:
     def __init__(self):
         self.repetitions: int = 1
         self.separator: str = ''
+        self.first: str = ''
+        self.last: str = ''
 
 
 

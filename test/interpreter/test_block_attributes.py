@@ -18,3 +18,4 @@ def test_add_and_get_attributes():
     assert attributes.separator == 'and'
     assert new_attributes.repetitions == 1
     assert new_attributes.separator == ''
+
