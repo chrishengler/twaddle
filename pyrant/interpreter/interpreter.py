@@ -12,6 +12,8 @@ from random import randrange
 
 
 def interpret_external(sentence: str) -> str:
+    SynchronizerManager.clear()
+    BlockAttributeManager.clear()
     return interpret_internal(Parser.parse(Lexer.lex(sentence)))
 
 
@@ -35,7 +37,7 @@ def _(block: RantBlockObject):
     attributes: BlockAttributes = BlockAttributeManager.get_attributes()
     block_result = ''
     first_repetition = True
-    synchronizer = None
+    synchronizer: Synchronizer = None
     if attributes.synchronizer is not None:
         if SynchronizerManager.synchronizer_exists(attributes.synchronizer):
             synchronizer = SynchronizerManager.get_synchronizer(
@@ -44,13 +46,17 @@ def _(block: RantBlockObject):
             if attributes.synchronizer_type is None:
                 raise RantInterpreterException(
                     f"[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type")
-            synchronizer = SynchronizerManager.create_synchronizer(attributes.synchronizer, attributes.synchronizer_type, len(block.choices))
+            synchronizer = SynchronizerManager.create_synchronizer(
+                attributes.synchronizer, attributes.synchronizer_type, len(block.choices))
 
     while attributes.repetitions:
         if synchronizer is None:
-            choice = randrange(0,len(block.choices))
+            choice = randrange(0, len(block.choices))
         else:
             choice = synchronizer.next()
+            if choice >= len(block.choices):
+                raise RantInterpreterException(
+                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} - when using synchronizers, make sure you have the same number of choices each time")
         if first_repetition:
             first_repetition = False
             block_result += attributes.first

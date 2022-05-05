@@ -26,3 +26,6 @@ class BlockAttributeManager:
         if len(args) > 1:
             BlockAttributeManager.current_attributes.synchronizer_type = args[1]
 
+    @staticmethod
+    def clear():
+        current_attributes = BlockAttributes()
