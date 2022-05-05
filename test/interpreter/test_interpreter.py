@@ -37,6 +37,10 @@ def test_repeat():
     assert result == 'aaa'
 
 
+def test_nested_blocks():
+    result = get_interpreter_output("{{a|b}|{c|d}}")
+    assert result in ['a','b','c','d']
+
 def test_repeat_with_separator():
     result = get_interpreter_output("[rep:3][sep:x]{a}")
     assert result == 'axaxa'
@@ -69,4 +73,4 @@ def test_random_number():
 
 
 if __name__ == "__main__":
-    test_synchronizer_locked()
+    test_nested_blocks()

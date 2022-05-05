@@ -5,18 +5,15 @@ import lexer.rant_lexer as RantLexer
 
 
 class RantObjectType(Enum):
-    TEXT = auto()     # plain text
-    LOOKUP = auto()   # something looked up from a dictionary
-    BLOCK = auto()   # choice from multiple options
+    TEXT = auto()      # plain text
+    LOOKUP = auto()    # something looked up from a dictionary
+    BLOCK = auto()     # choice from multiple options
     FUNCTION = auto()  # call to a rant function
 
 
 class RantObject:
     def __init__(self, t: RantObjectType):
         self.type = t
-
-    def setNext(self, next_object: 'RantObject'):
-        self.next = next_object
 
 
 class RantTextObject(RantObject):
