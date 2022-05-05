@@ -47,6 +47,11 @@ def test_repeat_with_first_and_last():
     assert result == 'axxxxzx'
 
 
+def test_synchronizer_locked():
+    result = get_interpreter_output("[x:test;locked]{a|b|c}[x:test]{a|b|c}[x:test]{a|b|c}")
+    assert result in ['aaa', 'bbb', 'ccc']
+
+
 def test_random_number():
     for _ in range(0,10):
         result_10 = int(get_interpreter_output("[rand:0;10]"))
@@ -58,4 +63,4 @@ def test_random_number():
 
 
 if __name__ == "__main__":
-    test_random_number()
+    test_synchronizer_locked()

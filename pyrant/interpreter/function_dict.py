@@ -5,5 +5,7 @@ function_definitions = { 'rep'   : repeat,
                          'rand'  : rand,
                          'first' : first,
                          'last'  : last,
+                         'x'     : sync,
+                         'sync'  : sync,
                         }
 

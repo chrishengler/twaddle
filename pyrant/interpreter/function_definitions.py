@@ -19,6 +19,10 @@ def last(args: list[str]):
     BlockAttributeManager.current_attributes.last = args[0]
 
 
+def sync(args: list[str]):
+    BlockAttributeManager.set_synchronizer(args)
+
+
 def rand(args: list[str]) -> str:
     minimum = int(args[0])
     maximum = int(args[1])
