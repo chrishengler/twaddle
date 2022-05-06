@@ -3,7 +3,7 @@ from rant_exceptions import RantParserException
 from lexer.rant_token import *
 from parser.rant_object import RantBlockObject
 import parser.rant_parser as Parser
-
+from parser.rant_compiler import RantCompiler
 
 def build(tokens: deque[RantToken]) -> RantBlockObject:
     choices = list()
@@ -13,13 +13,6 @@ def build(tokens: deque[RantToken]) -> RantBlockObject:
             "[RantBlockFactory.build] block factory called without '{', this shouldn't happen!")
     tokens.popleft()
 
-    """
-    TODO:
-    problem is here - this build function loops over the tokens, builds each choice, and parses the choices
-    so when a choice contains a (nested) block, the tokens are already parsed and the parser doesn't know what to do
-
-    maybe build a tree? 
-    """
     while len(tokens) > 0:
         token = tokens.popleft()
         match token.type:

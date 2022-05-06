@@ -5,6 +5,7 @@ import lexer.rant_lexer as RantLexer
 
 
 class RantObjectType(Enum):
+    ROOT = auto()
     TEXT = auto()      # plain text
     LOOKUP = auto()    # something looked up from a dictionary
     BLOCK = auto()     # choice from multiple options
@@ -14,6 +15,18 @@ class RantObjectType(Enum):
 class RantObject:
     def __init__(self, t: RantObjectType):
         self.type = t
+
+
+class RantRootObject:
+    def __init__(self):
+        RantObject.__init__(self, RantObjectType.ROOT)
+        self.contents = list[RantObject]()
+
+    def __getitem__(self, n: int):
+        return self.contents[n]
+
+    def append(self, new_content: RantObject):
+        self.contents.append(new_content)
 
 
 class RantTextObject(RantObject):
@@ -36,6 +49,11 @@ class RantBlockObject(RantObject):
         RantObject.__init__(self, RantObjectType.BLOCK)
         self.choices = choices
 
+    def __getitem__(self, n: int):
+        return self.choices[n].contents
+
+    def __len__(self):
+        return len(self.choices)
 
 class RantFunctionObject(RantObject):
     def __init__(self, func: str, args: list[str]):

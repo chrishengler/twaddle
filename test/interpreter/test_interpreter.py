@@ -73,4 +73,4 @@ def test_random_number():
 
 
 if __name__ == "__main__":
-    test_nested_blocks()
+    test_text_with_special_characters()

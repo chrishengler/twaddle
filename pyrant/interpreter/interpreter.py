@@ -1,5 +1,5 @@
 import lexer.rant_lexer as Lexer
-import parser.rant_parser as Parser
+from parser.rant_compiler import RantCompiler
 from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
 from rant_exceptions import RantInterpreterException
@@ -11,10 +11,12 @@ from parser.rant_object import *
 from random import randrange
 
 
+compiler = RantCompiler()
+
 def interpret_external(sentence: str) -> str:
     SynchronizerManager.clear()
     BlockAttributeManager.clear()
-    return interpret_internal(Parser.parse(Lexer.lex(sentence)))
+    return interpret_internal(compiler.compile(sentence))
 
 
 def interpret_internal(parse_result: deque[RantObject]) -> str:
@@ -31,6 +33,12 @@ def interpret_internal(parse_result: deque[RantObject]) -> str:
 def run(arg) -> str:
     return ''
 
+@run.register(RantRootObject)
+def _(block: RantRootObject):
+    result = ''
+    for item in block.contents:
+        result += run(item)
+    return result
 
 @run.register(RantBlockObject)
 def _(block: RantBlockObject):
@@ -73,8 +81,11 @@ def _(block: RantBlockObject):
 
 @run.register(RantFunctionObject)
 def _(func: RantFunctionObject):
+    evaluated_args = list()
+    for arg in func.args:
+        evaluated_args.append(run(arg))
     if func.func in function_definitions:
-        return function_definitions[func.func](func.args)
+        return function_definitions[func.func](evaluated_args)
     else:
         raise RantInterpreterException(
             f"[Interpreter::run] no function found named '{func.func}'")
