@@ -33,3 +33,12 @@ class RantInterpreterException(RantException):
         if message is not None:
             self.message = message
         super().__init__(self.message)
+
+
+class RantLookupException(RantException):
+    """Thrown when lookup fails"""
+
+    def __init__(self, message: str = None):
+        if message is not None:
+            self.message = message
+        super().__init__(self.message)
