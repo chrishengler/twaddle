@@ -1,13 +1,4 @@
-import interpreter.interpreter as Interpreter
-import parser.rant_parser as Parser
-import lexer.rant_lexer as Lexer
-
 from interpreter.block_attributes import BlockAttributes, BlockAttributeManager
-
-
-def get_interpreter_output(sentence):
-    return Interpreter.interpret_internal(Parser.parse(Lexer.lex(sentence)))
-
 
 def test_add_and_get_attributes():
     BlockAttributeManager.current_attributes.repetitions = 3
@@ -18,4 +9,3 @@ def test_add_and_get_attributes():
     assert attributes.separator == 'and'
     assert new_attributes.repetitions == 1
     assert new_attributes.separator == ''
-

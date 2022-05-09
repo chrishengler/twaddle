@@ -1,6 +1,4 @@
 import interpreter.interpreter as Interpreter
-import parser.rant_parser as Parser
-import lexer.rant_lexer as Lexer
 from rant_exceptions import RantInterpreterException
 import pytest
 
