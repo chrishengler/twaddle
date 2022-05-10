@@ -53,7 +53,12 @@ def test_labels_negative():
         assert dictionary.get("singular", {}, {}, None, {"test"}) == "hexagon"
         # just to check no problems with undefined labels
         assert dictionary.get("singular", {}, {}, None, {"hat"})
+    dictionary.clear_labels()
+    results_after_clearing = list[str]()
+    for _ in range(0,50):
+        results_after_clearing.append(dictionary.get("singular", {}, {}, None, {"test"}))
+    assert "thing" in results_after_clearing
 
 
 if __name__ == "__main__":
-    test_tag_requirement()
+    test_labels_negative()

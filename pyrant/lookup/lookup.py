@@ -22,7 +22,7 @@ class LookupDictionary:
         self.name = name
         self.forms = forms
         self.entries = list[LookupEntry]()
-        self.labels = dict[str,LookupEntry]()
+        self.labels = dict[str, LookupEntry]()
 
     def add(self, forms: list[str], tags: set[str] = None):
         if len(forms) != len(self.forms):
@@ -31,7 +31,11 @@ class LookupDictionary:
         lookup = LookupEntry(OrderedDict(zip(self.forms, forms)), tags)
         self.entries.append(lookup)
 
-    def get(self, form: str, tags_positive: set[str] = None, tags_negative: set[str] = None, label_positive: str = None, labels_negative: set[str] = None) -> str:
+    def clear_labels(self):
+        self.labels = dict[str, LookupEntry]()
+
+    def get(self, form: str, tags_positive: set[str] = None, tags_negative: set[str] = None,
+            label_positive: str = None, labels_negative: set[str] = None) -> str:
         if form not in self.forms:
             raise RantLookupException(
                 f"[LookupDictionary.get] dictionary '{self.name}' has no form '{form}'")
@@ -39,7 +43,7 @@ class LookupDictionary:
             return self.labels[label_positive][form]
         valid_choices = list[LookupEntry]()
         if not tags_negative and not tags_positive:
-            valid_choices = self.entries
+            valid_choices = list.copy(self.entries)
         else:
             for entry in self.entries:
                 valid = False
