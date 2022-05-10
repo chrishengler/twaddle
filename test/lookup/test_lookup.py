@@ -29,9 +29,8 @@ def test_tag_requirement():
     for _ in range(0,5):
         assert dictionary.get("plural", {"tag1"}) == "things"
         assert dictionary.get("singular", {"tag2"}) == "hexagon"
+        assert dictionary.get("plural", {}, {"tag1"}) == "hexagons"
 
-lookup = LookupEntry({"s": "s",
-                      "pl": "pl"}, {"tag1"})
 
 if __name__ == "__main__":
     test_tag_requirement()
