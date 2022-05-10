@@ -2,6 +2,7 @@ from rant_exceptions import RantLookupException
 from lookup.lookup import *
 import pytest
 
+
 def test_lookup_type():
     lookup_thing = LookupEntry({"singular": "thing",
                                 "plural": "things",
@@ -11,6 +12,7 @@ def test_lookup_type():
     assert lookup_thing["plural"] == "things"
     assert lookup_thing["possessive"] == "thing's"
     assert lookup_thing["pluralpossessive"] == "things'"
+
 
 def test_dictionary():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
@@ -22,14 +24,35 @@ def test_dictionary():
         dictionary.get("invalid")
         assert e_info.message == "[LookupDictionary.get] dictionary 'noun' has no form 'invalid'"
 
+
 def test_tag_requirement():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], set(["tag1"]))
     dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
-    for _ in range(0,5):
+    for _ in range(0, 5):
         assert dictionary.get("plural", {"tag1"}) == "things"
         assert dictionary.get("singular", {"tag2"}) == "hexagon"
         assert dictionary.get("plural", {}, {"tag1"}) == "hexagons"
+
+
+def test_label_positive():
+    dictionary = LookupDictionary("noun", ["singular", "plural"])
+    dictionary.add(["thing", "things"], set(["tag1"]))
+    dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
+    assert dictionary.get("singular", {"tag1"}, {}, "test") == "thing"
+    for _ in range(0, 5):
+        assert dictionary.get("singular", {}, {}, "test") == "thing"
+
+
+def test_labels_negative():
+    dictionary = LookupDictionary("noun", ["singular", "plural"])
+    dictionary.add(["thing", "things"], set(["tag1"]))
+    dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
+    assert dictionary.get("singular", {"tag1"}, {}, "test") == "thing"
+    for _ in range(0, 5):
+        assert dictionary.get("singular", {}, {}, None, {"test"}) == "hexagon"
+        # just to check no problems with undefined labels
+        assert dictionary.get("singular", {}, {}, None, {"hat"})
 
 
 if __name__ == "__main__":
