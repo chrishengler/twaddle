@@ -63,3 +63,12 @@ class LookupDictionary:
         if label_positive:
             self.labels[label_positive] = chosen_entry
         return chosen_entry[form]
+
+
+class LookupDictionaryFactory:
+    def __init__(self):
+        pass
+
+    def get_forms(self, forms_line: str) -> list[str]:
+        return forms_line.split()[1:]
+

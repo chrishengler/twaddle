@@ -55,9 +55,16 @@ def test_labels_negative():
         assert dictionary.get("singular", {}, {}, None, {"hat"})
     dictionary.clear_labels()
     results_after_clearing = list[str]()
-    for _ in range(0,50):
-        results_after_clearing.append(dictionary.get("singular", {}, {}, None, {"test"}))
+    for _ in range(0, 50):
+        results_after_clearing.append(
+            dictionary.get("singular", {}, {}, None, {"test"}))
     assert "thing" in results_after_clearing
+
+
+def test_dictionary_forms_from_file():
+    factory = LookupDictionaryFactory()
+    forms = factory.get_forms("#subs singular plural")
+    assert forms == ["singular", "plural"]
 
 
 if __name__ == "__main__":
