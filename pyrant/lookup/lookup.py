@@ -1,6 +1,7 @@
 from collections import OrderedDict
 from random import choice
 from rant_exceptions import RantLookupException
+from typing import TextIO
 
 
 class LookupEntry:
@@ -74,3 +75,35 @@ class LookupDictionaryFactory:
 
     def get_name(self, name_line: str) -> str:
         return name_line.split()[1]
+
+    def get_entry(self, entry_line: str) -> list[str]:
+        return entry_line.split('/')
+
+    def read_from_file(self, input_file: TextIO) -> LookupDictionary:
+        name = str()
+        forms = list[str]()
+        entries = list[list[str]]()
+        dictionary = None
+        for line in input_file:
+            if dictionary:
+                if line.startswith("#") or not line.strip():
+                    continue
+                else:
+                    entry = self.get_entry(line)
+                    if len(entry) == len(forms):
+                        dictionary.add(entry)
+            if name and forms:
+                if dictionary is None:
+                    dictionary = LookupDictionary(name, forms)
+            else:
+                if line.startswith("#name"):
+                    name = self.get_name(line)
+                    continue
+                elif line.startswith("#forms") or line.startswith("#subs"):
+                    forms = self.get_forms(line)
+                    continue
+        return dictionary
+
+
+
+

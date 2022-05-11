@@ -1,6 +1,11 @@
 from rant_exceptions import RantLookupException
 from lookup.lookup import *
+import os
 import pytest
+
+def relative_path_to_full_path(rel_path: str) -> str:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(current_dir, rel_path)
 
 
 def test_lookup_type():
@@ -61,7 +66,7 @@ def test_labels_negative():
     assert "thing" in results_after_clearing
 
 
-def test_dictionary_attributes_from_file():
+def test_dictionary_attributes_from_lines():
     factory = LookupDictionaryFactory()
     name = factory.get_name("#name noun")
     assert name == "noun"
@@ -69,6 +74,16 @@ def test_dictionary_attributes_from_file():
     assert forms == ["singular", "plural"]
     forms = factory.get_forms("#forms singular plural")
     assert forms == ["singular", "plural"]
+
+def test_dictionary_read_from_file():
+    factory = LookupDictionaryFactory()
+    path = relative_path_to_full_path("../resources/example.dic")
+    with open(path) as dict_file:
+        dictionary = factory.read_from_file(dict_file)
+        assert dictionary.name == "noun"
+        assert dictionary.forms == ["singular", "plural"]
+        assert dictionary.get("singular") == "hexagon"
+
 
 
 if __name__ == "__main__":
