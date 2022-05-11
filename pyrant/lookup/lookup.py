@@ -72,3 +72,5 @@ class LookupDictionaryFactory:
     def get_forms(self, forms_line: str) -> list[str]:
         return forms_line.split()[1:]
 
+    def get_name(self, name_line: str) -> str:
+        return name_line.split()[1]

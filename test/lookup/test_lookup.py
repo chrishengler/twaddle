@@ -61,9 +61,13 @@ def test_labels_negative():
     assert "thing" in results_after_clearing
 
 
-def test_dictionary_forms_from_file():
+def test_dictionary_attributes_from_file():
     factory = LookupDictionaryFactory()
+    name = factory.get_name("#name noun")
+    assert name == "noun"
     forms = factory.get_forms("#subs singular plural")
+    assert forms == ["singular", "plural"]
+    forms = factory.get_forms("#forms singular plural")
     assert forms == ["singular", "plural"]
 
 
