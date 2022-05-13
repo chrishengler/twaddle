@@ -1,0 +1,14 @@
+#name noun
+#forms singular plural
+
+#class add shape
+> hexagon/hexagons
+#class remove shape
+
+#class add animal
+> dog/dogs
+#class remove animal
+
+#class add building
+> house/houses
+#class remove building

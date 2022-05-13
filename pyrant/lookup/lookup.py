@@ -84,14 +84,19 @@ class LookupDictionaryFactory:
         forms = list[str]()
         entries = list[list[str]]()
         dictionary = None
+        classes = set[str]()
         for line in input_file:
+            line = line.strip()
             if dictionary:
-                if line.startswith("#") or not line.strip():
-                    continue
-                else:
+                if line.startswith("#class add"):
+                    classes.add(line.split()[-1])
+                elif line.startswith("#class remove") and line.split()[-1] in classes:
+                    classes.remove(line.split()[-1])
+                elif line.startswith("> "):
+                    line = line[2:]
                     entry = self.get_entry(line)
                     if len(entry) == len(forms):
-                        dictionary.add(entry)
+                        dictionary.add(entry, set.copy(classes))
             if name and forms:
                 if dictionary is None:
                     dictionary = LookupDictionary(name, forms)

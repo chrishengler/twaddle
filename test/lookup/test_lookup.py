@@ -75,7 +75,7 @@ def test_dictionary_attributes_from_lines():
     forms = factory.get_forms("#forms singular plural")
     assert forms == ["singular", "plural"]
 
-def test_dictionary_read_from_file():
+def test_dictionary_read_from_file_simple():
     factory = LookupDictionaryFactory()
     path = relative_path_to_full_path("../resources/example.dic")
     with open(path) as dict_file:
@@ -84,7 +84,18 @@ def test_dictionary_read_from_file():
         assert dictionary.forms == ["singular", "plural"]
         assert dictionary.get("singular") == "hexagon"
 
+def test_dictionary_read_from_file_with_classes():
+    factory =  LookupDictionaryFactory()
+    path = relative_path_to_full_path("../resources/example_with_classes.dic")
+    with open(path) as dict_file:
+        dictionary = factory.read_from_file(dict_file)
+        assert dictionary.name == "noun"
+        assert dictionary.forms == ["singular", "plural"]
+        assert dictionary.get("singular", {"shape"}) == "hexagon"
+        assert dictionary.get("plural", {"animal"}) == "dogs"
+        assert dictionary.get("singular", {"building"}) == "house"
+
 
 
 if __name__ == "__main__":
-    test_labels_negative()
+    test_dictionary_read_from_file_with_classes()
