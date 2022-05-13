@@ -35,8 +35,10 @@ class LookupDictionary:
     def clear_labels(self):
         self.labels = dict[str, LookupEntry]()
 
-    def get(self, form: str, tags_positive: set[str] = None, tags_negative: set[str] = None,
+    def get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
             label_positive: str = None, labels_negative: set[str] = None) -> str:
+        if form is None:
+            form = self.forms[0]
         if form not in self.forms:
             raise RantLookupException(
                 f"[LookupDictionary.get] dictionary '{self.name}' has no form '{form}'")

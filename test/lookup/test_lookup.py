@@ -82,9 +82,11 @@ def test_dictionary_read_from_file_simple():
     path = relative_path_to_full_path("../resources/example.dic")
     with open(path) as dict_file:
         dictionary = factory.read_from_file(dict_file)
-        assert dictionary.name == "noun"
-        assert dictionary.forms == ["singular", "plural"]
-        assert dictionary.get("singular") == "hexagon"
+        assert dictionary.name == "adj"
+        assert dictionary.forms == ["adj", "ness"]
+        assert dictionary.get("adj") == "happy"
+        assert dictionary.get("ness") == "happiness"
+        assert dictionary.get() == "happy"
 
 
 def test_dictionary_read_from_file_with_classes():
