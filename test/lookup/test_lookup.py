@@ -3,6 +3,7 @@ from lookup.lookup import *
 import os
 import pytest
 
+
 def relative_path_to_full_path(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(current_dir, rel_path)
@@ -75,6 +76,7 @@ def test_dictionary_attributes_from_lines():
     forms = factory.get_forms("#forms singular plural")
     assert forms == ["singular", "plural"]
 
+
 def test_dictionary_read_from_file_simple():
     factory = LookupDictionaryFactory()
     path = relative_path_to_full_path("../resources/example.dic")
@@ -84,8 +86,9 @@ def test_dictionary_read_from_file_simple():
         assert dictionary.forms == ["singular", "plural"]
         assert dictionary.get("singular") == "hexagon"
 
+
 def test_dictionary_read_from_file_with_classes():
-    factory =  LookupDictionaryFactory()
+    factory = LookupDictionaryFactory()
     path = relative_path_to_full_path("../resources/example_with_classes.dic")
     with open(path) as dict_file:
         dictionary = factory.read_from_file(dict_file)
@@ -94,7 +97,6 @@ def test_dictionary_read_from_file_with_classes():
         assert dictionary.get("singular", {"shape"}) == "hexagon"
         assert dictionary.get("plural", {"animal"}) == "dogs"
         assert dictionary.get("singular", {"building"}) == "house"
-
 
 
 if __name__ == "__main__":
