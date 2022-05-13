@@ -4,6 +4,7 @@ from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
 from rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
+import interpreter.formatter as Formatter
 
 from collections import deque
 from functools import singledispatch
@@ -25,8 +26,8 @@ def interpret_internal(parse_result: deque[RantObject]) -> str:
     for obj in parse_result:
         obj_result = run(obj)
         if obj_result is not None:
-            result += obj_result
-    return result
+            Formatter.append(obj_result)
+    return Formatter.get()
 
 
 @singledispatch

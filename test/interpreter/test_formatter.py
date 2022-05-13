@@ -1,38 +1,34 @@
-from interpreter.formatter import Formatter, FormattingStrategy
+from interpreter.formatting_strategy import FormattingStrategy
+import interpreter.formatter as Formatter
 
 
 def test_simple_print():
-    formatter = Formatter()
-    formatter.append("hello")
-    assert formatter.get() == "hello"
+    Formatter.append("hello")
+    assert Formatter.get() == "hello"
 
 def test_normal_upper():
-    formatter = Formatter()
-    formatter.append("abc")
-    formatter.set_strategy(FormattingStrategy.UPPER)
-    formatter.append("def")
-    assert formatter.get() == "abcDEF"
+    Formatter.append("abc")
+    Formatter.set_strategy(FormattingStrategy.UPPER)
+    Formatter.append("def")
+    assert Formatter.get() == "abcDEF"
 
 def test_upper_lower():
-    formatter = Formatter()
-    formatter.append("abc")
-    formatter.set_strategy(FormattingStrategy.UPPER)
-    formatter.append("def")
-    formatter.set_strategy(FormattingStrategy.LOWER)
-    formatter.append("GHI")
-    assert formatter.get() == "abcDEFghi"
+    Formatter.append("abc")
+    Formatter.set_strategy(FormattingStrategy.UPPER)
+    Formatter.append("def")
+    Formatter.set_strategy(FormattingStrategy.LOWER)
+    Formatter.append("GHI")
+    assert Formatter.get() == "abcDEFghi"
 
 def test_sentence():
-    formatter = Formatter()
-    formatter.set_strategy(FormattingStrategy.SENTENCE)
-    formatter.append("hey there! this is. a test")
-    assert formatter.get() == "Hey there! This is. A test"
+    Formatter.set_strategy(FormattingStrategy.SENTENCE)
+    Formatter.append("hey there! this is. a test")
+    assert Formatter.get() == "Hey there! This is. A test"
 
 def test_title():
-    formatter = Formatter()
-    formatter.set_strategy(FormattingStrategy.TITLE)
-    formatter.append("hey there! this text's a test")
-    assert formatter.get() == "Hey There! This Text's A Test"
+    Formatter.set_strategy(FormattingStrategy.TITLE)
+    Formatter.append("hey there! this text's a test")
+    assert Formatter.get() == "Hey There! This Text's A Test"
 
 if __name__ == "__main__":
     test_sentence()

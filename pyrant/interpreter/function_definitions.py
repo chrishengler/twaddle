@@ -1,4 +1,6 @@
 from interpreter.block_attributes import BlockAttributeManager, BlockAttributes
+from .formatting_strategy import FormattingStrategy
+import interpreter.formatter as Formatter
 from random import randint
 
 
@@ -22,6 +24,22 @@ def last(args: list[str]):
 def sync(args: list[str]):
     BlockAttributeManager.set_synchronizer(args)
 
+
+def case(args: list[str]):
+    arg = args[0].strip().lower()
+    match arg:
+        case "none":
+            Formatter.set_strategy(FormattingStrategy.NONE)
+        case "upper":
+            Formatter.set_strategy(FormattingStrategy.UPPER)
+        case "lower":
+            Formatter.set_strategy(FormattingStrategy.LOWER)
+        case "sentence":
+            Formatter.set_strategy(FormattingStrategy.SENTENCE)
+        case "title":
+            Formatter.set_strategy(FormattingStrategy.TITLE)
+        case _:
+            pass
 
 def rand(args: list[str]) -> str:
     minimum = int(args[0])

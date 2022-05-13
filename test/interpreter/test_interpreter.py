@@ -70,5 +70,14 @@ def test_random_number():
         assert result_big >= 1000 and result_big <= 2000
 
 
+def test_case():
+    result = get_interpreter_output("[case:upper]uPpEr [case:lower]loWeR")
+    assert result == "UPPER lower"
+    result = get_interpreter_output("[case:title]it's a title")
+    assert result == "It's A Title"
+    result = get_interpreter_output("[case:sentence]this is a sentence. this is another SENTENCE.")
+    assert result == "This is a sentence. This is another sentence."
+
+
 if __name__ == "__main__":
     test_text_with_special_characters()

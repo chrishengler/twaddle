@@ -7,5 +7,6 @@ function_definitions = { 'rep'   : repeat,
                          'last'  : last,
                          'x'     : sync,
                          'sync'  : sync,
+                         'case'  : case,
                         }
 
