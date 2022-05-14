@@ -2,6 +2,8 @@ from collections import OrderedDict
 from random import choice
 from rant_exceptions import RantLookupException
 from typing import TextIO
+from glob import glob
+import os
 
 
 class LookupEntry:
@@ -81,36 +83,49 @@ class LookupDictionaryFactory:
     def get_entry(self, entry_line: str) -> list[str]:
         return entry_line.split('/')
 
-    def read_from_file(self, input_file: TextIO) -> LookupDictionary:
-        name = str()
-        forms = list[str]()
-        entries = list[list[str]]()
-        dictionary = None
-        classes = set[str]()
-        for line in input_file:
-            line = line.strip()
-            if dictionary:
-                if line.startswith("#class add"):
-                    classes.add(line.split()[-1])
-                elif line.startswith("#class remove") and line.split()[-1] in classes:
-                    classes.remove(line.split()[-1])
-                elif line.startswith("> "):
-                    line = line[2:]
-                    entry = self.get_entry(line)
-                    if len(entry) == len(forms):
-                        dictionary.add(entry, set.copy(classes))
-            if name and forms:
-                if dictionary is None:
-                    dictionary = LookupDictionary(name, forms)
-            else:
-                if line.startswith("#name"):
-                    name = self.get_name(line)
-                    continue
-                elif line.startswith("#forms") or line.startswith("#subs"):
-                    forms = self.get_forms(line)
-                    continue
-        return dictionary
+    def read_from_file(self, path: str) -> LookupDictionary:
+        with open(path) as input_file:
+            name = str()
+            forms = list[str]()
+            dictionary = None
+            classes = set[str]()
+            for line in input_file:
+                line = line.strip()
+                if dictionary:
+                    if line.startswith("#class add"):
+                        classes.add(line.split()[-1])
+                    elif line.startswith("#class remove") and line.split()[-1] in classes:
+                        classes.remove(line.split()[-1])
+                    elif line.startswith("> "):
+                        line = line[2:]
+                        entry = self.get_entry(line)
+                        if len(entry) == len(forms):
+                            dictionary.add(entry, set.copy(classes))
+                if name and forms:
+                    if dictionary is None:
+                        dictionary = LookupDictionary(name, forms)
+                else:
+                    if line.startswith("#name"):
+                        name = self.get_name(line)
+                        continue
+                    elif line.startswith("#forms") or line.startswith("#subs"):
+                        forms = self.get_forms(line)
+                        continue
+            return dictionary
 
 
+class LookupDictionaryManager:
+    def __init__(self, path: str):
+        self.factory = LookupDictionaryFactory()
+        self.dictionaries = dict[str, LookupDictionary]()
+        self.add_dictionaries_from_folder(path)
 
+    def __getitem__(self, name: str):
+        return self.dictionaries[name]
+
+    def add_dictionaries_from_folder(self, path: str):
+        for f in os.listdir(path):
+            if f.endswith(".dic"): 
+                new_dictionary = self.factory.read_from_file(os.path.join(path,f))
+                self.dictionaries[new_dictionary.name] = new_dictionary
 

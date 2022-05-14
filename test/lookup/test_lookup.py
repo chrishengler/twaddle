@@ -1,4 +1,4 @@
-from rant_exceptions import RantLookupException
+from rant_exceptions import RantInterpreterException, RantLookupException
 from lookup.lookup import *
 import os
 import pytest
@@ -80,26 +80,33 @@ def test_dictionary_attributes_from_lines():
 def test_dictionary_read_from_file_simple():
     factory = LookupDictionaryFactory()
     path = relative_path_to_full_path("../resources/example.dic")
-    with open(path) as dict_file:
-        dictionary = factory.read_from_file(dict_file)
-        assert dictionary.name == "adj"
-        assert dictionary.forms == ["adj", "ness"]
-        assert dictionary.get("adj") == "happy"
-        assert dictionary.get("ness") == "happiness"
-        assert dictionary.get() == "happy"
+    dictionary = factory.read_from_file(path)
+    assert dictionary.name == "adj"
+    assert dictionary.forms == ["adj", "ness"]
+    assert dictionary.get("adj") == "happy"
+    assert dictionary.get("ness") == "happiness"
+    assert dictionary.get() == "happy"
 
 
 def test_dictionary_read_from_file_with_classes():
     factory = LookupDictionaryFactory()
     path = relative_path_to_full_path("../resources/example_with_classes.dic")
-    with open(path) as dict_file:
-        dictionary = factory.read_from_file(dict_file)
-        assert dictionary.name == "noun"
-        assert dictionary.forms == ["singular", "plural"]
-        assert dictionary.get("singular", {"shape"}) == "hexagon"
-        assert dictionary.get("plural", {"animal"}) == "dogs"
-        assert dictionary.get("singular", {"building"}) == "house"
+    dictionary = factory.read_from_file(path)
+    assert dictionary.name == "noun"
+    assert dictionary.forms == ["singular", "plural"]
+    assert dictionary.get("singular", {"shape"}) == "hexagon"
+    assert dictionary.get("plural", {"animal"}) == "dogs"
+    assert dictionary.get("singular", {"building"}) == "house"
 
+
+def test_dictionary_manager():
+    path = relative_path_to_full_path("../resources/")
+    manager = LookupDictionaryManager(path)
+    assert len(manager.dictionaries) == 2
+    noun_dictionary = manager["noun"]
+    adj_dictionary = manager["adj"]
+    assert noun_dictionary.get("plural", {"shape"}) == "hexagons"
+    assert adj_dictionary.get() == "happy"
 
 if __name__ == "__main__":
     test_dictionary_read_from_file_with_classes()
