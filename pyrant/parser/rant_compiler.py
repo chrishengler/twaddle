@@ -92,8 +92,8 @@ class RantCompiler:
 
     def parse_lookup(self, tokens: deque[RantToken]) -> deque[RantObject]:
         dictionary = None
-        form = ""
-        category = ""
+        form = None 
+        category = None 
         labels = list()
 
         # first thing must always be the opening angle bracket:

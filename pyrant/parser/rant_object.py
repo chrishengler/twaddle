@@ -36,7 +36,7 @@ class RantTextObject(RantObject):
 
 
 class RantLookupObject(RantObject):
-    def __init__(self, dictionary: str, form: str = "", category: str = "", labels: list[tuple[str, bool]] = []):
+    def __init__(self, dictionary: str, form: str = None, category: str = None, labels: list[tuple[str, bool]] = []):
         RantObject.__init__(self, RantObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form

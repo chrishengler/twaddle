@@ -115,17 +115,17 @@ class LookupDictionaryFactory:
 
 
 class LookupDictionaryManager:
-    def __init__(self, path: str):
-        self.factory = LookupDictionaryFactory()
-        self.dictionaries = dict[str, LookupDictionary]()
-        self.add_dictionaries_from_folder(path)
+    factory = LookupDictionaryFactory()
+    dictionaries = dict[str, LookupDictionary]()
 
-    def __getitem__(self, name: str):
-        return self.dictionaries[name]
+    @staticmethod
+    def __class_getitem__(name: str):
+        return LookupDictionaryManager.dictionaries[name]
 
-    def add_dictionaries_from_folder(self, path: str):
+    @staticmethod
+    def add_dictionaries_from_folder(path: str):
         for f in os.listdir(path):
-            if f.endswith(".dic"): 
-                new_dictionary = self.factory.read_from_file(os.path.join(path,f))
-                self.dictionaries[new_dictionary.name] = new_dictionary
-
+            if f.endswith(".dic"):
+                new_dictionary = LookupDictionaryManager.factory.read_from_file(
+                    os.path.join(path, f))
+                LookupDictionaryManager.dictionaries[new_dictionary.name] = new_dictionary

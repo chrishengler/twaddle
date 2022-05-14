@@ -101,10 +101,10 @@ def test_dictionary_read_from_file_with_classes():
 
 def test_dictionary_manager():
     path = relative_path_to_full_path("../resources/")
-    manager = LookupDictionaryManager(path)
-    assert len(manager.dictionaries) == 2
-    noun_dictionary = manager["noun"]
-    adj_dictionary = manager["adj"]
+    LookupDictionaryManager.add_dictionaries_from_folder(path)
+    assert len(LookupDictionaryManager.dictionaries) == 2
+    noun_dictionary = LookupDictionaryManager["noun"]
+    adj_dictionary = LookupDictionaryManager["adj"]
     assert noun_dictionary.get("plural", {"shape"}) == "hexagons"
     assert adj_dictionary.get() == "happy"
 
