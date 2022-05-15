@@ -36,12 +36,16 @@ class RantTextObject(RantObject):
 
 
 class RantLookupObject(RantObject):
-    def __init__(self, dictionary: str, form: str = None, category: str = None, labels: list[tuple[str, bool]] = []):
+    def __init__(self, dictionary: str, form: str = None,
+                 positive_tags: set[str] = {}, negative_tags: set[str] = {},
+                 positive_label: str = None, negative_labels: set[str] = {}):
         RantObject.__init__(self, RantObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
-        self.category = category
-        self.labels = labels
+        self.positive_tags = positive_tags
+        self.negative_tags = negative_tags
+        self.positive_label = positive_label
+        self.negative_labels = negative_labels
 
 
 class RantBlockObject(RantObject):
@@ -54,6 +58,7 @@ class RantBlockObject(RantObject):
 
     def __len__(self):
         return len(self.choices)
+
 
 class RantFunctionObject(RantObject):
     def __init__(self, func: str, args: list[str]):

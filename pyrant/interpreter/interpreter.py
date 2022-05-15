@@ -5,7 +5,7 @@ from .block_attributes import BlockAttributeManager, BlockAttributes
 from rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
 import interpreter.formatter as Formatter
-from lookup.lookup import LookupDictionaryManager
+from lookup.lookup import LookupManager
 
 from collections import deque
 from functools import singledispatch
@@ -99,5 +99,5 @@ def _(text: RantTextObject):
 
 @run.register(RantLookupObject)
 def _(lookup: RantLookupObject):
-    dictionary = LookupDictionaryManager[lookup.dictionary]
+    dictionary = LookupManager[lookup.dictionary]
     return dictionary.get(lookup.form)

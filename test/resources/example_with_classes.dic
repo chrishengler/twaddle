@@ -10,5 +10,10 @@
 #class remove animal
 
 #class add building
-> house/houses
+  #class add small
+	> shed/sheds
+  #class remove small
+  #class add large
+    > factory/factories
+  #class remove large
 #class remove building

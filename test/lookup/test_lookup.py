@@ -1,4 +1,5 @@
-from rant_exceptions import RantInterpreterException, RantLookupException
+from rant_exceptions import RantLookupException
+from parser.rant_object import RantLookupObject
 from lookup.lookup import *
 import os
 import pytest
@@ -96,17 +97,25 @@ def test_dictionary_read_from_file_with_classes():
     assert dictionary.forms == ["singular", "plural"]
     assert dictionary.get("singular", {"shape"}) == "hexagon"
     assert dictionary.get("plural", {"animal"}) == "dogs"
-    assert dictionary.get("singular", {"building"}) == "house"
+    assert dictionary.get("singular", {"building", "large"}) == "factory"
 
 
 def test_dictionary_manager():
     path = relative_path_to_full_path("../resources/")
-    LookupDictionaryManager.add_dictionaries_from_folder(path)
-    assert len(LookupDictionaryManager.dictionaries) == 2
-    noun_dictionary = LookupDictionaryManager["noun"]
-    adj_dictionary = LookupDictionaryManager["adj"]
+    LookupManager.add_dictionaries_from_folder(path)
+    assert len(LookupManager.dictionaries) == 2
+    noun_dictionary = LookupManager["noun"]
+    adj_dictionary = LookupManager["adj"]
     assert noun_dictionary.get("plural", {"shape"}) == "hexagons"
     assert adj_dictionary.get() == "happy"
 
+
+def test_lookup_from_object():
+    path = relative_path_to_full_path("../resources/")
+    LookupManager.add_dictionaries_from_folder(path)
+    lookup = RantLookupObject("adj")
+    assert LookupManager.do_lookup(lookup) == "happy"
+
+
 if __name__ == "__main__":
-    test_dictionary_read_from_file_with_classes()
+    test_lookup_from_object()

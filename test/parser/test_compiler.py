@@ -42,14 +42,25 @@ def test_parse_simple_lookup():
     assert lookup.dictionary == "whatever"
 
 
-def test_parse_complex_lookup():
+def test_parse_complex_lookups():
     result = get_compile_result("<dictionary.form-category>")
     assert len(result) == 1
     lookup: RantLookupObject = result[0]
     assert lookup.type == RantObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
-    assert lookup.category == "category"
+    assert lookup.positive_tags == {"category"}
+    result = get_compile_result("<dictionary.form-!category::=a>")
+    lookup = result[0]
+    assert len(lookup.positive_tags) == 0
+    assert lookup.negative_tags == {"category"}
+    assert lookup.positive_label == "a"
+    result = get_compile_result("<dictionary-category1-category2-!category3::!=b>")
+    lookup = result[0]
+    assert lookup.positive_tags == {"category1", "category2"}
+    assert lookup.negative_tags == {"category3"}
+    assert lookup.positive_label is None
+    assert lookup.negative_labels == {"b"}
 
 
 def test_parse_function():
@@ -102,8 +113,8 @@ def test_parse_choice_with_lookups():
     lookup: RantLookupObject = block[1][0]
     assert lookup.dictionary == 'something'
     assert lookup.form == 'form'
-    assert lookup.category == 'category'
+    assert lookup.positive_tags == {'category'}
 
 
 if __name__ == "__main__":
-    test_nested_block()
+    test_parse_complex_lookups()

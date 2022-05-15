@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from random import choice
+from parser.rant_object import RantLookupObject
 from rant_exceptions import RantLookupException
 from typing import TextIO
 from glob import glob
@@ -18,6 +19,12 @@ class LookupEntry:
         if tags is None or self.tags is None:
             return False
         return not self.tags.isdisjoint(tags)
+
+    def has_all_tags(self, tags: set[str]) -> bool:
+        for tag in tags:
+            if tag not in self.tags:
+                return False
+        return True
 
 
 class LookupDictionary:
@@ -52,7 +59,7 @@ class LookupDictionary:
         else:
             for entry in self.entries:
                 valid = False
-                if not tags_positive or entry.has_any_tag_of(tags_positive):
+                if not tags_positive or entry.has_all_tags(tags_positive):
                     valid = True
                 if entry.has_any_tag_of(tags_negative):
                     valid = False
@@ -114,18 +121,27 @@ class LookupDictionaryFactory:
             return dictionary
 
 
-class LookupDictionaryManager:
+class LookupManager:
     factory = LookupDictionaryFactory()
     dictionaries = dict[str, LookupDictionary]()
 
     @staticmethod
     def __class_getitem__(name: str):
-        return LookupDictionaryManager.dictionaries[name]
+        return LookupManager.dictionaries[name]
 
     @staticmethod
     def add_dictionaries_from_folder(path: str):
         for f in os.listdir(path):
             if f.endswith(".dic"):
-                new_dictionary = LookupDictionaryManager.factory.read_from_file(
+                new_dictionary = LookupManager.factory.read_from_file(
                     os.path.join(path, f))
-                LookupDictionaryManager.dictionaries[new_dictionary.name] = new_dictionary
+                LookupManager.dictionaries[new_dictionary.name] = new_dictionary
+
+    #def get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
+
+    @staticmethod
+    def do_lookup(lookup: RantLookupObject):
+        dictionary = LookupManager[lookup.dictionary]
+        return dictionary.get(lookup.form)
+
+

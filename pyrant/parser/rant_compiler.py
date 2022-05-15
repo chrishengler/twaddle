@@ -84,6 +84,9 @@ class RantCompiler:
                 case RantTokenType.RIGHT_SQUARE_BRACKET:
                     if self.context.current_context() is CompilerContext.FUNCTION:
                         return result
+                case RantTokenType.RIGHT_ANGLE_BRACKET:
+                    if self.context.current_context() is CompilerContext.LOOKUP:
+                        return result
                 # more special cases to handle here later, just convert to text for now
                 case _:
                     result.append(to_plain_text_object(token))
@@ -92,9 +95,11 @@ class RantCompiler:
 
     def parse_lookup(self, tokens: deque[RantToken]) -> deque[RantObject]:
         dictionary = None
-        form = None 
-        category = None 
-        labels = list()
+        form = None
+        positive_tags = set[str]()
+        negative_tags = set[str]()
+        positive_label = None
+        negative_labels = set[str]()
 
         # first thing must always be the opening angle bracket:
         if tokens[0].type is not RantTokenType.LEFT_ANGLE_BRACKET:
@@ -115,7 +120,7 @@ class RantCompiler:
             match token.type:
                 case RantTokenType.RIGHT_ANGLE_BRACKET:
                     self.context.remove_context(CompilerContext.LOOKUP)
-                    return RantLookupObject(dictionary, form, category, labels)
+                    return RantLookupObject(dictionary, form, positive_tags, negative_tags, positive_label, negative_labels)
                 case RantTokenType.DOT:
                     if tokens[0].type is not RantTokenType.PLAIN_TEXT:
                         raise RantParserException(
@@ -123,16 +128,24 @@ class RantCompiler:
                     form = tokens.popleft().value
                     continue
                 case RantTokenType.HYPHEN:
+                    positive = True
+                    if tokens[0].type is RantTokenType.EXCLAMATION_MARK:
+                        tokens.popleft()
+                        positive = False
                     if tokens[0].type is not RantTokenType.PLAIN_TEXT:
                         raise RantParserException(
                             "[Compiler.parse_block] hyphen must be followed by category")
                     category = tokens.popleft().value
+                    if positive:
+                        positive_tags.add(category)
+                    else:
+                        negative_tags.add(category)
                     continue
                 case RantTokenType.DOUBLE_COLON:
                     if tokens[0].type is RantTokenType.EQUALS:
                         tokens.popleft()
                         if len(tokens) > 0 and tokens[0].type is RantTokenType.PLAIN_TEXT:
-                            labels.append((tokens.popleft().value, True))
+                            positive_label = tokens.popleft().value
                         else:
                             raise RantParserException(
                                 "[Compiler.parse_block] no valid definition for match")
@@ -142,7 +155,7 @@ class RantCompiler:
                             # get rid of the equals
                             tokens.popleft()
                             # get label name
-                            labels.append((tokens.popleft().value, False))
+                            negative_labels.add(tokens.popleft().value)
                         else:
                             raise RantParserException(
                                 "[Compiler.parse_block] no valid definition for anti-match")
