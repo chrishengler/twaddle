@@ -18,6 +18,7 @@ compiler = RantCompiler()
 def interpret_external(sentence: str) -> str:
     SynchronizerManager.clear()
     BlockAttributeManager.clear()
+    LookupManager.clear_labels()
     return interpret_internal(compiler.compile(sentence))
 
 
@@ -100,4 +101,4 @@ def _(text: RantTextObject):
 @run.register(RantLookupObject)
 def _(lookup: RantLookupObject):
     dictionary = LookupManager[lookup.dictionary]
-    return dictionary.get(lookup.form)
+    return dictionary.get(lookup)

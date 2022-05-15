@@ -44,7 +44,7 @@ class LookupDictionary:
     def clear_labels(self):
         self.labels = dict[str, LookupEntry]()
 
-    def get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
+    def _get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
             label_positive: str = None, labels_negative: set[str] = None) -> str:
         if form is None:
             form = self.forms[0]
@@ -75,6 +75,10 @@ class LookupDictionary:
         if label_positive:
             self.labels[label_positive] = chosen_entry
         return chosen_entry[form]
+
+    def get(self, lookup: RantLookupObject) -> str:
+        return self._get(lookup.form, lookup.positive_tags, lookup.negative_tags,
+                         lookup.positive_label, lookup.negative_labels)
 
 
 class LookupDictionaryFactory:
@@ -137,11 +141,14 @@ class LookupManager:
                     os.path.join(path, f))
                 LookupManager.dictionaries[new_dictionary.name] = new_dictionary
 
-    #def get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
+    @staticmethod
+    def clear_labels():
+        for dictionary in LookupManager.dictionaries.values():
+            dictionary.clear_labels()
 
     @staticmethod
     def do_lookup(lookup: RantLookupObject):
         dictionary = LookupManager[lookup.dictionary]
-        return dictionary.get(lookup.form)
+        return dictionary.get(lookup)
 
 

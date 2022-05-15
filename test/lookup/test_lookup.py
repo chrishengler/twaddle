@@ -25,10 +25,10 @@ def test_dictionary():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["hexagon", "hexagons"])
     assert len(dictionary.entries) == 1
-    assert dictionary.get("singular") == "hexagon"
-    assert dictionary.get("plural") == "hexagons"
+    assert dictionary._get("singular") == "hexagon"
+    assert dictionary._get("plural") == "hexagons"
     with pytest.raises(RantLookupException) as e_info:
-        dictionary.get("invalid")
+        dictionary._get("invalid")
         assert e_info.message == "[LookupDictionary.get] dictionary 'noun' has no form 'invalid'"
 
 
@@ -37,34 +37,34 @@ def test_tag_requirement():
     dictionary.add(["thing", "things"], set(["tag1"]))
     dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
     for _ in range(0, 5):
-        assert dictionary.get("plural", {"tag1"}) == "things"
-        assert dictionary.get("singular", {"tag2"}) == "hexagon"
-        assert dictionary.get("plural", {}, {"tag1"}) == "hexagons"
+        assert dictionary._get("plural", {"tag1"}) == "things"
+        assert dictionary._get("singular", {"tag2"}) == "hexagon"
+        assert dictionary._get("plural", {}, {"tag1"}) == "hexagons"
 
 
 def test_label_positive():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], set(["tag1"]))
     dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
-    assert dictionary.get("singular", {"tag1"}, {}, "test") == "thing"
+    assert dictionary._get("singular", {"tag1"}, {}, "test") == "thing"
     for _ in range(0, 5):
-        assert dictionary.get("singular", {}, {}, "test") == "thing"
+        assert dictionary._get("singular", {}, {}, "test") == "thing"
 
 
 def test_labels_negative():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], set(["tag1"]))
     dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
-    assert dictionary.get("singular", {"tag1"}, {}, "test") == "thing"
+    assert dictionary._get("singular", {"tag1"}, {}, "test") == "thing"
     for _ in range(0, 5):
-        assert dictionary.get("singular", {}, {}, None, {"test"}) == "hexagon"
+        assert dictionary._get("singular", {}, {}, None, {"test"}) == "hexagon"
         # just to check no problems with undefined labels
-        assert dictionary.get("singular", {}, {}, None, {"hat"})
+        assert dictionary._get("singular", {}, {}, None, {"hat"})
     dictionary.clear_labels()
     results_after_clearing = list[str]()
     for _ in range(0, 50):
         results_after_clearing.append(
-            dictionary.get("singular", {}, {}, None, {"test"}))
+            dictionary._get("singular", {}, {}, None, {"test"}))
     assert "thing" in results_after_clearing
 
 
@@ -84,9 +84,9 @@ def test_dictionary_read_from_file_simple():
     dictionary = factory.read_from_file(path)
     assert dictionary.name == "adj"
     assert dictionary.forms == ["adj", "ness"]
-    assert dictionary.get("adj") == "happy"
-    assert dictionary.get("ness") == "happiness"
-    assert dictionary.get() == "happy"
+    assert dictionary._get("adj") == "happy"
+    assert dictionary._get("ness") == "happiness"
+    assert dictionary._get() == "happy"
 
 
 def test_dictionary_read_from_file_with_classes():
@@ -95,9 +95,9 @@ def test_dictionary_read_from_file_with_classes():
     dictionary = factory.read_from_file(path)
     assert dictionary.name == "noun"
     assert dictionary.forms == ["singular", "plural"]
-    assert dictionary.get("singular", {"shape"}) == "hexagon"
-    assert dictionary.get("plural", {"animal"}) == "dogs"
-    assert dictionary.get("singular", {"building", "large"}) == "factory"
+    assert dictionary._get("singular", {"shape"}) == "hexagon"
+    assert dictionary._get("plural", {"animal"}) == "dogs"
+    assert dictionary._get("singular", {"building", "large"}) == "factory"
 
 
 def test_dictionary_manager():
@@ -106,8 +106,8 @@ def test_dictionary_manager():
     assert len(LookupManager.dictionaries) == 2
     noun_dictionary = LookupManager["noun"]
     adj_dictionary = LookupManager["adj"]
-    assert noun_dictionary.get("plural", {"shape"}) == "hexagons"
-    assert adj_dictionary.get() == "happy"
+    assert noun_dictionary._get("plural", {"shape"}) == "hexagons"
+    assert adj_dictionary._get() == "happy"
 
 
 def test_lookup_from_object():
