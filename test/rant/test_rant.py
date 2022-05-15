@@ -11,14 +11,16 @@ r = Rant(path)
 def test_rant():
     assert r.run_sentence("hello world") == "hello world"
 
-def test_rant_with_lookups():
+def test_lookups():
     assert r.run_sentence("hello <adj> world") == "hello happy world"
     assert r.run_sentence("hello, welcome to my <adj> <noun-building-!small>") == "hello, welcome to my happy factory"
 
-def test_rant_with_labels():
+def test_lookups_with_labels():
     assert r.run_sentence("big <noun-building-large::=a>, small <noun-building::!=a>") == "big factory, small shed"
     assert r.run_sentence("my <noun-shape::=a> is a regular <noun::=a>") == "my hexagon is a regular hexagon"
 
+def test_repetition():
+    assert r.run_sentence("[rep:3]{<noun-shape>}") == "hexagonhexagonhexagon"
 
 if __name__ == "__main__":
     test_rant()
