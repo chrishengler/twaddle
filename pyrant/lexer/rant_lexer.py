@@ -49,6 +49,8 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
                     return RantTokenType.SLASH, 2
                 elif input_str[1] == 'd':
                     return RantTokenType.DIGIT, 2
+                elif input_str[1] == 't':
+                    return RantTokenType.TAB, 2
                 raise RantLexerException(
                     f"Unknown escape code '\\{input_str[1]}'")
             else:

@@ -15,6 +15,7 @@ class RantTokenType(Enum):
     DOUBLE_COLON = auto()
     QUOTE = auto()
     NEW_LINE = auto()
+    TAB = auto()
     LOWER_INDEFINITE_ARTICLE = auto()
     UPPER_INDEFINITE_ARTICLE = auto()
     SLASH = auto()

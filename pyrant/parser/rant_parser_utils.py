@@ -33,51 +33,53 @@ def to_plain_text_token(raw: RantToken) -> RantToken:
 
 
 def to_plain_text_object(raw: RantToken) -> RantTextObject:
-    return RantTextObject(get_plain_text_for_object(raw))
+    return RantTextObject(get_text_for_object(raw))
 
 
-def get_plain_text_for_object(raw: RantToken) -> str:
+def get_text_for_object(raw: RantToken) -> str:
     match raw.type:
         case RantTokenType.LEFT_ANGLE_BRACKET:
-            return '<'
+            return "<"
         case RantTokenType.RIGHT_ANGLE_BRACKET:
-            return '>'
+            return ">"
         case RantTokenType.LEFT_CURLY_BRACKET:
-            return '{'
+            return "{"
         case RantTokenType.RIGHT_CURLY_BRACKET:
-            return '}'
+            return "}"
         case RantTokenType.LEFT_SQUARE_BRACKET:
-            return '['
+            return "["
         case RantTokenType.RIGHT_SQUARE_BRACKET:
-            return ']'
+            return "]"
         case RantTokenType.PIPE:
-            return '|'
+            return "|"
         case RantTokenType.HYPHEN:
-            return '-'
+            return "-"
         case RantTokenType.SEMICOLON:
-            return ';'
+            return ";"
         case RantTokenType.COLON:
-            return ':'
+            return ":"
         case RantTokenType.DOUBLE_COLON:
-            return '::'
+            return "::"
         case RantTokenType.QUOTE:
-            return '"'
+            return "\""
         case RantTokenType.NEW_LINE:
-            return '\n'
+            return "\n"
+        case RantTokenType.TAB:
+            return "\t"
         case RantTokenType.LOWER_INDEFINITE_ARTICLE:
-            return '\a'
+            return r"\a"
         case RantTokenType.UPPER_INDEFINITE_ARTICLE:
-            return '\A'
+            return r"\A"
         case RantTokenType.SLASH:
-            return '\'
+            return "\\"
         case RantTokenType.DIGIT:
-            return '\d'
+            return r"\d"
         case RantTokenType.EXCLAMATION_MARK:
-            return '!'
+            return "!"
         case RantTokenType.DOT:
-            return '.'
+            return "."
         case RantTokenType.EQUALS:
-            return '='
+            return "="
         case RantTokenType.PLAIN_TEXT:
             return raw.value
         # unrecognised token type

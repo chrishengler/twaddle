@@ -102,10 +102,10 @@ def test_digit():
 
 
 def test_new_line():
-    result = get_interpreter_output(r"hello\nworld")
+    result = get_interpreter_output(r"hello\nworld!")
     assert result == """hello
-world"""
+world!"""
 
 
 if __name__ == "__main__":
-    test_case()
+    test_new_line()
