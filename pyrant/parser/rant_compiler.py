@@ -94,6 +94,9 @@ class RantCompiler:
                     result.append(RantIndefiniteArticleObject(
                         default_upper_case=True))
                     tokens.popleft()
+                case RantTokenType.DIGIT:
+                    result.append(RantDigitObject())
+                    tokens.popleft()
                 # more special cases to handle here later, just convert to text for now
                 case _:
                     result.append(to_plain_text_object(token))

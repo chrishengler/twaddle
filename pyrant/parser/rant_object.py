@@ -11,6 +11,7 @@ class RantObjectType(Enum):
     BLOCK = auto()              # choice from multiple options
     FUNCTION = auto()           # call to a rant function
     INDEFINITE_ARTICLE = auto()  # a/an, depending what follows
+    DIGIT = auto()              # a random digit 0-9
 
 
 class RantObject:
@@ -72,3 +73,7 @@ class RantIndefiniteArticleObject(RantObject):
     def __init__(self, default_upper_case: bool = False):
         RantObject.__init__(self, RantObjectType.INDEFINITE_ARTICLE)
         self.default_upper = default_upper_case
+
+class RantDigitObject(RantObject):
+    def __init__(self):
+        RantObject.__init__(self, RantObjectType.DIGIT)

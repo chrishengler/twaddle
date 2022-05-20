@@ -10,7 +10,7 @@ from lookup.lookup import LookupManager
 from collections import deque
 from functools import singledispatch
 from parser.rant_object import *
-from random import randrange
+from random import randrange, randint
 
 
 compiler = RantCompiler()
@@ -112,3 +112,7 @@ def _(lookup: RantLookupObject):
 def _(indef: RantIndefiniteArticleObject):
     Formatter.add_indefinite_article(indef.default_upper)
     return None
+
+@run.register(RantDigitObject)
+def _(digit: RantDigitObject):
+    return str(randint(0,9))
