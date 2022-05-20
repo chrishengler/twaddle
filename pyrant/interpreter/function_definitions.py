@@ -1,5 +1,5 @@
 from interpreter.block_attributes import BlockAttributeManager, BlockAttributes
-from .formatting_strategy import FormattingStrategy
+from .formatting_object import FormattingStrategy
 import interpreter.formatter as Formatter
 from random import randint
 

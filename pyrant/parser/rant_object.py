@@ -6,10 +6,11 @@ import lexer.rant_lexer as RantLexer
 
 class RantObjectType(Enum):
     ROOT = auto()
-    TEXT = auto()      # plain text
-    LOOKUP = auto()    # something looked up from a dictionary
-    BLOCK = auto()     # choice from multiple options
-    FUNCTION = auto()  # call to a rant function
+    TEXT = auto()               # plain text
+    LOOKUP = auto()             # something looked up from a dictionary
+    BLOCK = auto()              # choice from multiple options
+    FUNCTION = auto()           # call to a rant function
+    INDEFINITE_ARTICLE = auto() # a/an, depending what follows
 
 
 class RantObject:
@@ -65,3 +66,7 @@ class RantFunctionObject(RantObject):
         RantObject.__init__(self, RantObjectType.FUNCTION)
         self.func = func
         self.args = args
+
+class RantIndefiniteArticleObject(RantObject):
+    def __init__(self):
+        RantObject.__init__(self, RantObjectType.INDEFINITE_ARTICLE)

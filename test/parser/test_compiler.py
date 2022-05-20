@@ -10,6 +10,7 @@ import pytest
 
 compiler = RantCompiler()
 
+
 def get_compile_result(sentence: str) -> RantRootObject:
     return compiler.compile(sentence).contents
 
@@ -55,7 +56,8 @@ def test_parse_complex_lookups():
     assert len(lookup.positive_tags) == 0
     assert lookup.negative_tags == {"category"}
     assert lookup.positive_label == "a"
-    result = get_compile_result("<dictionary-category1-category2-!category3::!=b>")
+    result = get_compile_result(
+        "<dictionary-category1-category2-!category3::!=b>")
     lookup = result[0]
     assert lookup.positive_tags == {"category1", "category2"}
     assert lookup.negative_tags == {"category3"}
@@ -114,6 +116,17 @@ def test_parse_choice_with_lookups():
     assert lookup.dictionary == 'something'
     assert lookup.form == 'form'
     assert lookup.positive_tags == {'category'}
+
+
+def test_parse_indefinite_article():
+    parser_output = get_compile_result("\\a bow and \\a arrow")
+    assert len(parser_output) == 4
+    assert isinstance(parser_output[0], RantIndefiniteArticleObject)
+    assert isinstance(parser_output[1], RantTextObject)
+    assert parser_output[1].text == " bow and "
+    assert isinstance(parser_output[2], RantIndefiniteArticleObject)
+    assert isinstance(parser_output[3], RantTextObject)
+    assert parser_output[3].text == " arrow"
 
 
 if __name__ == "__main__":

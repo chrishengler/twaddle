@@ -102,3 +102,9 @@ def _(text: RantTextObject):
 def _(lookup: RantLookupObject):
     dictionary = LookupManager[lookup.dictionary]
     return dictionary.get(lookup)
+
+@run.register(RantIndefiniteArticleObject)
+def _(indef: RantIndefiniteArticleObject):
+    Formatter.prepare_indefinite_article()
+    return None
+

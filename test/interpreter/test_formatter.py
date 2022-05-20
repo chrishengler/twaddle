@@ -1,4 +1,4 @@
-from interpreter.formatting_strategy import FormattingStrategy
+from interpreter.formatting_object import FormattingStrategy
 import interpreter.formatter as Formatter
 
 
