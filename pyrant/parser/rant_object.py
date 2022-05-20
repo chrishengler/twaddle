@@ -74,6 +74,7 @@ class RantIndefiniteArticleObject(RantObject):
         RantObject.__init__(self, RantObjectType.INDEFINITE_ARTICLE)
         self.default_upper = default_upper_case
 
+
 class RantDigitObject(RantObject):
     def __init__(self):
         RantObject.__init__(self, RantObjectType.DIGIT)

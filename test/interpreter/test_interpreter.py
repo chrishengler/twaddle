@@ -94,10 +94,17 @@ def test_case_block_interaction():
     result = get_interpreter_output("[case:title]The {[case:upper]BIG[case:lower]small}")
     assert result == "The BIGsmall"
 
+
 def test_digit():
     result = get_interpreter_output(r"\d\d\d")
     for d in result:
         assert int(d)
+
+
+def test_new_line():
+    result = get_interpreter_output(r"hello\nworld")
+    assert result == """hello
+world"""
 
 
 if __name__ == "__main__":

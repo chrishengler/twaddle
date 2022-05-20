@@ -26,7 +26,6 @@ def to_plain_text_token(raw: RantToken) -> RantToken:
             return RantToken(RantTokenType.PLAIN_TEXT, '.')
         case RantTokenType.EQUALS:
             return RantToken(RantTokenType.PLAIN_TEXT, '=')
-
         # unrecognised token type
         # should throw an error here once everything's ready
         case _:
@@ -34,32 +33,57 @@ def to_plain_text_token(raw: RantToken) -> RantToken:
 
 
 def to_plain_text_object(raw: RantToken) -> RantTextObject:
-    match raw.type:
-        case RantTokenType.PLAIN_TEXT:
-            return RantTextObject(raw.value)
-        case RantTokenType.EXCLAMATION_MARK:
-            return RantTextObject('!')
-        case RantTokenType.COLON:
-            return RantTextObject(':')
-        case RantTokenType.SEMICOLON:
-            return RantTextObject(';')
-        case RantTokenType.PIPE:
-            return RantTextObject('|')
-        case RantTokenType.HYPHEN:
-            return RantTextObject('-')
-        case RantTokenType.DOUBLE_COLON:
-            return RantTextObject('::')
-        case RantTokenType.SLASH:
-            return RantTextObject('/')
-        case RantTokenType.DOT:
-            return RantTextObject('.')
-        case RantTokenType.EQUALS:
-            return RantTextObject('=')
+    return RantTextObject(get_plain_text_for_object(raw))
 
+
+def get_plain_text_for_object(raw: RantToken) -> str:
+    match raw.type:
+        case RantTokenType.LEFT_ANGLE_BRACKET:
+            return '<'
+        case RantTokenType.RIGHT_ANGLE_BRACKET:
+            return '>'
+        case RantTokenType.LEFT_CURLY_BRACKET:
+            return '{'
+        case RantTokenType.RIGHT_CURLY_BRACKET:
+            return '}'
+        case RantTokenType.LEFT_SQUARE_BRACKET:
+            return '['
+        case RantTokenType.RIGHT_SQUARE_BRACKET:
+            return ']'
+        case RantTokenType.PIPE:
+            return '|'
+        case RantTokenType.HYPHEN:
+            return '-'
+        case RantTokenType.SEMICOLON:
+            return ';'
+        case RantTokenType.COLON:
+            return ':'
+        case RantTokenType.DOUBLE_COLON:
+            return '::'
+        case RantTokenType.QUOTE:
+            return '"'
+        case RantTokenType.NEW_LINE:
+            return '\n'
+        case RantTokenType.LOWER_INDEFINITE_ARTICLE:
+            return '\a'
+        case RantTokenType.UPPER_INDEFINITE_ARTICLE:
+            return '\A'
+        case RantTokenType.SLASH:
+            return '\'
+        case RantTokenType.DIGIT:
+            return '\d'
+        case RantTokenType.EXCLAMATION_MARK:
+            return '!'
+        case RantTokenType.DOT:
+            return '.'
+        case RantTokenType.EQUALS:
+            return '='
+        case RantTokenType.PLAIN_TEXT:
+            return raw.value
         # unrecognised token type
-        # should throw an error here once everything's ready
         case _:
-            pass
+            raise RantParserException(
+                f"[get_plain_text_for_object] unknown token type: {raw.type}")
 
 
 def to_plain_text_token_except(raw: RantToken, accept_list: tuple[RantTokenType]) -> RantToken:
