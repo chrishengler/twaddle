@@ -75,10 +75,12 @@ def _set_strategy_(strategy: FormattingStrategy):
     global current_strategy
     current_strategy = strategy.strategy
 
-def add_indefinite_article(default_upper = False):
+
+def add_indefinite_article(default_upper=False):
     global output_stack
     previous = _get_previous_object_()
     output_stack.append(IndefiniteArticle(previous, default_upper))
+
 
 def _apply_indefinite_article_(article: IndefiniteArticle):
     global sentence
@@ -102,10 +104,12 @@ def _next_alphanumeric_string_(item: type[FormattingObject]) -> str:
 def _indefinite_article_use_an_(next_word: str) -> bool:
     # exclude/include prefixes/words taken directly from old version of rant
     # this can definitely be improved but will do for now
-    irregular_a_prefixes = { "uni", "use", "uri", "urol", "U.", "one", "uvu", "eul", "euk", "eur" }
-    irregular_an_prefixes = { "honest", "honor", "hour", "8" }
-    irregular_a_words = { "u" } 
-    irregular_an_words = { "f", "fbi", "fcc", "fda", "x", "l", "m", "n", "s", "h" }
+    irregular_a_prefixes = {"uni", "use", "uri",
+                            "urol", "U.", "one", "uvu", "eul", "euk", "eur"}
+    irregular_an_prefixes = {"honest", "honor", "hour", "8"}
+    irregular_a_words = {"u"}
+    irregular_an_words = {"f", "fbi", "fcc",
+                          "fda", "x", "l", "m", "n", "s", "h"}
     if any(next_word.startswith(prefix) for prefix in irregular_a_prefixes):
         return False
     if any(next_word == word for word in irregular_a_words):
@@ -115,7 +119,6 @@ def _indefinite_article_use_an_(next_word: str) -> bool:
     if any(next_word == word for word in irregular_an_words):
         return True
     return next_word[0].lower() in ['a', 'e', 'i', 'o', 'u']
-
 
 
 def apply_sentence_case(text: str) -> str:
