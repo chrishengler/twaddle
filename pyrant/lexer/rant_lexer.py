@@ -42,7 +42,9 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
                 if input_str[1] == 'n':
                     return RantTokenType.NEW_LINE, 2
                 elif input_str[1] == 'a':
-                    return RantTokenType.INDEFINITE_ARTICLE, 2
+                    return RantTokenType.LOWER_INDEFINITE_ARTICLE, 2
+                elif input_str[1] == 'A':
+                    return RantTokenType.UPPER_INDEFINITE_ARTICLE, 2
                 elif input_str[1] == '\\':
                     return RantTokenType.SLASH, 2
                 elif input_str[1] == 'd':

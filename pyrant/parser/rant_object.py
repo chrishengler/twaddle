@@ -68,5 +68,6 @@ class RantFunctionObject(RantObject):
         self.args = args
 
 class RantIndefiniteArticleObject(RantObject):
-    def __init__(self):
+    def __init__(self, default_upper_case: bool = False):
         RantObject.__init__(self, RantObjectType.INDEFINITE_ARTICLE)
+        self.default_upper = default_upper_case

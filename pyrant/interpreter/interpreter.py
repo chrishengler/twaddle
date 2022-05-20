@@ -105,6 +105,6 @@ def _(lookup: RantLookupObject):
 
 @run.register(RantIndefiniteArticleObject)
 def _(indef: RantIndefiniteArticleObject):
-    Formatter.prepare_indefinite_article()
+    Formatter.add_indefinite_article(indef.default_upper)
     return None
 

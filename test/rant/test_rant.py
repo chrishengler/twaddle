@@ -33,7 +33,7 @@ def test_repetition():
 
 
 def test_indefinite_article():
-    assert r.run_sentence("\\a bow and \\a arrow") == "a bow and an arrow"
+    assert r.run_sentence("\\a bow and \\A arrow") == "a bow and An arrow"
     assert r.run_sentence(
         "[case:title]\\a bow and \\a arrow") == "A Bow And An Arrow"
     assert r.run_sentence(

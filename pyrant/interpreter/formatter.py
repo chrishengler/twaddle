@@ -1,9 +1,13 @@
 from rant_exceptions import RantInterpreterException
 from .formatting_object import *
+import re
 
 output_stack = list()
 sentence = str()
 current_strategy = FormattingStrategy.NONE
+
+# regex for finding next alphabetic string
+alphabetic_regex = re.compile(r"[^\W_]+", re.UNICODE)
 
 
 def reset():
@@ -18,19 +22,22 @@ def append(text: str):
     if text is None:
         return
     else:
-        previous = _get_previous_object()
+        previous = _get_previous_object_()
         output_stack.append(PlainText(previous, text))
 
 
-def _get_previous_object() -> type[FormattingObject]:
+def _get_previous_object_() -> type[FormattingObject]:
     if len(output_stack):
         return output_stack[-1]
     return None
 
 
 def _print_(text_object: PlainText):
+    _append_to_sentence_(text_object.text)
+
+
+def _append_to_sentence_(text: str):
     global sentence
-    text = text_object.text
     match current_strategy:
         case FormattingStrategy.NONE:
             sentence += text
@@ -61,16 +68,54 @@ def get() -> str:
 
 def set_strategy(strategy: FormattingStrategy):
     global output_stack
-    output_stack.append(StrategyChange(_get_previous_object(), strategy))
+    output_stack.append(StrategyChange(_get_previous_object_(), strategy))
 
 
 def _set_strategy_(strategy: FormattingStrategy):
     global current_strategy
     current_strategy = strategy.strategy
 
+def add_indefinite_article(default_upper = False):
+    global output_stack
+    previous = _get_previous_object_()
+    output_stack.append(IndefiniteArticle(previous, default_upper))
 
 def _apply_indefinite_article_(article: IndefiniteArticle):
     global sentence
+    next_word = _next_alphanumeric_string_(article)
+    chosen_article = 'an' if _indefinite_article_use_an_(next_word) else 'a'
+    if article.default_upper:
+        chosen_article = chosen_article.capitalize()
+    _append_to_sentence_(chosen_article)
+
+
+def _next_alphanumeric_string_(item: type[FormattingObject]) -> str:
+    if isinstance(item, PlainText):
+        result = alphabetic_regex.search(item.text)
+        if result:
+            return result[0]
+    if item.next:
+        return _next_alphanumeric_string_(item.next)
+    return None
+
+
+def _indefinite_article_use_an_(next_word: str) -> bool:
+    # exclude/include prefixes/words taken directly from old version of rant
+    # this can definitely be improved but will do for now
+    irregular_a_prefixes = { "uni", "use", "uri", "urol", "U.", "one", "uvu", "eul", "euk", "eur" }
+    irregular_an_prefixes = { "honest", "honor", "hour", "8" }
+    irregular_a_words = { "u" } 
+    irregular_an_words = { "f", "fbi", "fcc", "fda", "x", "l", "m", "n", "s", "h" }
+    if any(next_word.startswith(prefix) for prefix in irregular_a_prefixes):
+        return False
+    if any(next_word == word for word in irregular_a_words):
+        return False
+    if any(next_word.startswith(prefix) for prefix in irregular_an_prefixes):
+        return True
+    if any(next_word == word for word in irregular_an_words):
+        return True
+    return next_word[0].lower() in ['a', 'e', 'i', 'o', 'u']
+
 
 
 def apply_sentence_case(text: str) -> str:

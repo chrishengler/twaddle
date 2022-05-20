@@ -87,10 +87,13 @@ class RantCompiler:
                 case RantTokenType.RIGHT_ANGLE_BRACKET:
                     if self.context.current_context() is CompilerContext.LOOKUP:
                         return result
-                # more special cases to handle here later, just convert to text for now
-                case RantTokenType.INDEFINITE_ARTICLE:
+                case RantTokenType.LOWER_INDEFINITE_ARTICLE:
                     result.append(RantIndefiniteArticleObject())
                     tokens.popleft()
+                case RantTokenType.UPPER_INDEFINITE_ARTICLE:
+                    result.append(RantIndefiniteArticleObject(default_upper_case=True))
+                    tokens.popleft()
+                # more special cases to handle here later, just convert to text for now
                 case _:
                     result.append(to_plain_text_object(token))
                     tokens.popleft()

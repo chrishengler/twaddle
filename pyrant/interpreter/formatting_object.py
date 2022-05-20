@@ -29,5 +29,6 @@ class StrategyChange(FormattingObject):
 
 
 class IndefiniteArticle(FormattingObject):
-    def __init__(self, previous: FormattingObject):
+    def __init__(self, previous: FormattingObject, default_upper_case: bool = False):
         FormattingObject.__init__(self, previous)
+        self.default_upper = default_upper_case

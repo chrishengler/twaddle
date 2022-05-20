@@ -117,7 +117,7 @@ def test_indefinite_article():
     test_string = r'\a'
     result = RantLexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.INDEFINITE_ARTICLE)
+    expected_result = RantToken(RantTokenType.LOWER_INDEFINITE_ARTICLE)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -222,7 +222,7 @@ def test_realistic_sentence():
 
     expected_result = []
     expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "I work as "))
-    expected_result.append(RantToken(RantTokenType.INDEFINITE_ARTICLE))
+    expected_result.append(RantToken(RantTokenType.LOWER_INDEFINITE_ARTICLE))
     expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, " "))
     expected_result.append(RantToken(RantTokenType.LEFT_ANGLE_BRACKET))
     expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "noun"))
