@@ -41,8 +41,8 @@ def case(args: list[str]):
         case _:
             pass
 
+
 def rand(args: list[str]) -> str:
     minimum = int(args[0])
     maximum = int(args[1])
     return str(randint(minimum, maximum))
-

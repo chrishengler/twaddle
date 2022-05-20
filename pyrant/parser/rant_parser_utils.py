@@ -83,5 +83,6 @@ def merge_text_objects(raw: deque[RantTextObject]) -> RantTextObject:
         if isinstance(token, RantTextObject):
             value += token.text
         else:
-            raise RantParserException(f"[ParserUtils::merge_text_objects] object of type {typeof(token)} when RantTextObject was expected")
+            raise RantParserException(
+                f"[ParserUtils::merge_text_objects] object of type {typeof(token)} when RantTextObject was expected")
     return RantTextObject(value)

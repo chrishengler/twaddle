@@ -45,7 +45,7 @@ class LookupDictionary:
         self.labels = dict[str, LookupEntry]()
 
     def _get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
-            label_positive: str = None, labels_negative: set[str] = None) -> str:
+             label_positive: str = None, labels_negative: set[str] = None) -> str:
         if form is None:
             form = self.forms[0]
         if form not in self.forms:
@@ -150,5 +150,3 @@ class LookupManager:
     def do_lookup(lookup: RantLookupObject):
         dictionary = LookupManager[lookup.dictionary]
         return dictionary.get(lookup)
-
-

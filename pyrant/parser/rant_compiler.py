@@ -91,7 +91,8 @@ class RantCompiler:
                     result.append(RantIndefiniteArticleObject())
                     tokens.popleft()
                 case RantTokenType.UPPER_INDEFINITE_ARTICLE:
-                    result.append(RantIndefiniteArticleObject(default_upper_case=True))
+                    result.append(RantIndefiniteArticleObject(
+                        default_upper_case=True))
                     tokens.popleft()
                 # more special cases to handle here later, just convert to text for now
                 case _:

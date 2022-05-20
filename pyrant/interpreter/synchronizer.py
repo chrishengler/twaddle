@@ -52,8 +52,8 @@ class CyclicDeckSynchronizer(Synchronizer):
 class SynchronizerManager:
     sync_types = {
         'locked': LockedSynchronizer,
-        'deck'  : DeckSynchronizer,
-        'cdeck' :  CyclicDeckSynchronizer,
+        'deck': DeckSynchronizer,
+        'cdeck':  CyclicDeckSynchronizer,
     }
 
     synchronizers = dict[str, Synchronizer]()

@@ -15,6 +15,7 @@ from random import randrange
 
 compiler = RantCompiler()
 
+
 def interpret_external(sentence: str) -> str:
     SynchronizerManager.clear()
     BlockAttributeManager.clear()
@@ -36,12 +37,14 @@ def interpret_internal(parse_result: deque[RantObject]) -> str:
 def run(arg) -> str:
     return ''
 
+
 @run.register(RantRootObject)
 def _(block: RantRootObject):
     result = ''
     for item in block.contents:
         result += run(item)
     return result
+
 
 @run.register(RantBlockObject)
 def _(block: RantBlockObject):
@@ -98,13 +101,14 @@ def _(func: RantFunctionObject):
 def _(text: RantTextObject):
     return text.text
 
+
 @run.register(RantLookupObject)
 def _(lookup: RantLookupObject):
     dictionary = LookupManager[lookup.dictionary]
     return dictionary.get(lookup)
 
+
 @run.register(RantIndefiniteArticleObject)
 def _(indef: RantIndefiniteArticleObject):
     Formatter.add_indefinite_article(indef.default_upper)
     return None
-

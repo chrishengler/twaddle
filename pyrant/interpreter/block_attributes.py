@@ -1,5 +1,6 @@
 from .synchronizer import SynchronizerManager
 
+
 class BlockAttributes:
     def __init__(self):
         self.repetitions: int = 1
@@ -18,7 +19,6 @@ class BlockAttributeManager:
         attributes = BlockAttributeManager.current_attributes
         BlockAttributeManager.current_attributes = BlockAttributes()
         return attributes
-
 
     @staticmethod
     def set_synchronizer(args: list[str]):
