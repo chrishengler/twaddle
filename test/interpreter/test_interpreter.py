@@ -108,4 +108,4 @@ world!"""
 
 
 if __name__ == "__main__":
-    test_new_line()
+    test_case()

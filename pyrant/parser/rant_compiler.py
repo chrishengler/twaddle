@@ -47,7 +47,7 @@ class RantCompiler:
     def parse_root(self, tokens: deque[RantToken]) -> RantRootObject:
         result = RantRootObject()
         while tokens:
-            context = self.context.current_context
+            context = self.context.current_context()
             token = tokens[0]
             match token.type:
                 case RantTokenType.PLAIN_TEXT:
@@ -60,8 +60,12 @@ class RantCompiler:
                     self.context.add_context(CompilerContext.BLOCK)
                     result.append(self.parse_block(tokens))
                 case RantTokenType.LEFT_SQUARE_BRACKET:
-                    self.context.add_context(CompilerContext.FUNCTION)
-                    result.append(self.parse_function(tokens))
+                    if len(tokens) and tokens[1].type == RantTokenType.REGEX:
+                        self.context.add_context(CompilerContext.REGEX)
+                        result.append(self.parse_regex(tokens))
+                    else:
+                        self.context.add_context(CompilerContext.FUNCTION)
+                        result.append(self.parse_function(tokens))
                 case RantTokenType.PIPE:
                     if context is CompilerContext.BLOCK:
                         return result
@@ -74,17 +78,23 @@ class RantCompiler:
                 case RantTokenType.COLON:
                     if context is CompilerContext.FUNCTION:
                         return result
+                    if context is CompilerContext.REGEX:
+                        return result
                     else:
                         result.append(to_plain_text_object(token))
                         tokens.popleft()
                 case RantTokenType.SEMICOLON:
                     if context is CompilerContext.FUNCTION:
                         return result
+                    if context is CompilerContext.REGEX:
+                        return result
                     else:
                         result.append(to_plain_text_object(token))
                         tokens.popleft()
                 case RantTokenType.RIGHT_SQUARE_BRACKET:
                     if context is CompilerContext.FUNCTION:
+                        return result
+                    if context is CompilerContext.REGEX:
                         return result
                 case RantTokenType.RIGHT_ANGLE_BRACKET:
                     if context is CompilerContext.LOOKUP:
@@ -236,4 +246,52 @@ class RantCompiler:
                     continue
         # if we reach here, something went wrong
         raise RantParserException(
-            "[Compiler.parse_function] Error parsing dictionary lookup, probably an invalid character")
+            "[Compiler.parse_function] Error parsing function, probably an invalid character or missing closing bracket")
+
+    def parse_regex(self, tokens: deque[RantToken]) -> RantRegexObject:
+        regex = ""
+        scope = RantRootObject()
+        replacement = RantRootObject()
+
+        # first thing must always be the opening square bracket:
+        if tokens[0].type is not RantTokenType.LEFT_SQUARE_BRACKET:
+            raise RantParserException(
+                "[Compiler.parse_regex] input does not begin with left angle bracket")
+        tokens.popleft()
+
+        # next thing must always be the regex
+        if tokens[0].type is not RantTokenType.REGEX:
+            raise RantParserException(
+                "[Compiler.parse_regex] expected function name")
+        tokens.popleft()
+
+        while len(tokens) and tokens[0].type is not RantTokenType.REGEX:
+            token = tokens.popleft()
+            match token.type:
+                case RantTokenType.PLAIN_TEXT:
+                    regex += token.value
+                case _:
+                    regex += to_plain_text_object(token)
+
+
+        if len(tokens) == 0:
+            raise RantParserException("[Compiler.parse_regex] reached end of input without finding end of regex")
+        tokens.popleft()
+
+        while len(tokens):
+            token = tokens.popleft()
+            match token.type:
+                case RantTokenType.COLON:
+                    scope = self.parse_root(tokens)
+                case RantTokenType.SEMICOLON:
+                    replacement = self.parse_root(tokens)
+                case RantTokenType.RIGHT_SQUARE_BRACKET:
+                    self.context.remove_context(CompilerContext.REGEX)
+                    return RantRegexObject(regex, scope, replacement)
+                case _:
+                    continue
+        # if we reach here, something went wrong
+        raise RantParserException(
+            "[Compiler.parse_regex] Error parsing regex, probably an invalid character or missing closing bracket")
+
+

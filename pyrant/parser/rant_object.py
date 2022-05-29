@@ -12,6 +12,7 @@ class RantObjectType(Enum):
     FUNCTION = auto()           # call to a rant function
     INDEFINITE_ARTICLE = auto()  # a/an, depending what follows
     DIGIT = auto()              # a random digit 0-9
+    REGEX = auto()              # a regex
 
 
 class RantObject:
@@ -26,6 +27,9 @@ class RantRootObject:
 
     def __getitem__(self, n: int):
         return self.contents[n]
+
+    def __len__(self):
+        return len(self.contents)
 
     def append(self, new_content: RantObject):
         self.contents.append(new_content)
@@ -67,6 +71,14 @@ class RantFunctionObject(RantObject):
         RantObject.__init__(self, RantObjectType.FUNCTION)
         self.func = func
         self.args = args
+
+
+class RantRegexObject(RantObject):
+    def __init__(self, regex: str, scope: RantRootObject, replacement: RantRootObject):
+        RantObject.__init__(self, RantObjectType.REGEX)
+        self.regex = regex
+        self.scope = scope
+        self.replacement = replacement
 
 
 class RantIndefiniteArticleObject(RantObject):

@@ -62,7 +62,8 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
         case '/':
             if len(input_str) > 1 and input_str[1] == '/':
                 return RantTokenType.REGEX, 2
-            else return RantTokenType.FORWARD_SLASH, 1
+            else:
+                return RantTokenType.FORWARD_SLASH, 1
         case _: return RantTokenType.PLAIN_TEXT, 0
 
 

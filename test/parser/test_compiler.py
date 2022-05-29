@@ -129,5 +129,23 @@ def test_parse_indefinite_article():
     assert parser_output[3].text == " arrow"
 
 
+def test_parse_regex():
+    parser_output = get_compile_result("[//a//i:a bat;i]")
+    assert len(parser_output) == 1
+    assert isinstance(parser_output[0], RantRegexObject)
+    rro: RantRegexObject = parser_output[0]
+    assert rro.regex == 'a'
+    assert isinstance(rro.scope, RantRootObject)
+    assert len(rro.scope) == 1
+    assert isinstance(rro.scope[0], RantTextObject)
+    scope: RantTextObject = rro.scope[0]
+    assert scope.text == "a bat"
+    assert isinstance(rro.replacement, RantRootObject)
+    assert len(rro.replacement) == 1
+    assert isinstance(rro.replacement[0], RantTextObject)
+    replacement: RantTextObject = rro.replacement[0].text
+    assert replacement == 'i'
+
+
 if __name__ == "__main__":
-    test_parse_complex_lookups()
+    test_parse_regex()
