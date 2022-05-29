@@ -98,7 +98,7 @@ def test_case_block_interaction():
 def test_digit():
     result = get_interpreter_output(r"\d\d\d")
     for d in result:
-        assert int(d)
+        int(d)
 
 
 def test_new_line():
