@@ -6,11 +6,12 @@ from rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
 import interpreter.formatter as Formatter
 from lookup.lookup import LookupManager
+from parser.rant_object import *
 
 from collections import deque
 from functools import singledispatch
-from parser.rant_object import *
 from random import randrange, randint
+from re import sub
 
 
 compiler = RantCompiler()
@@ -116,3 +117,9 @@ def _(indef: RantIndefiniteArticleObject):
 @run.register(RantDigitObject)
 def _(digit: RantDigitObject):
     return str(randint(0,9))
+
+@run.register(RantRegexObject)
+def _(regex: RantRegexObject):
+    def repl(matchobj):
+        return run(regex.replacement)
+    return sub(regex.regex, repl, run(regex.scope))

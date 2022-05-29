@@ -106,6 +106,10 @@ def test_new_line():
     assert result == """hello
 world!"""
 
+def test_simple_regex():
+    result = get_interpreter_output("[//a//i:a bat;i]")
+    assert result == "i bit"
+
 
 if __name__ == "__main__":
     test_case()
