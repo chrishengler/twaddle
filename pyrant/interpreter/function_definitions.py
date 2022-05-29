@@ -1,6 +1,7 @@
 from interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 from .formatting_object import FormattingStrategy
 import interpreter.formatter as Formatter
+from .regex_state import RegexState
 from random import randint
 
 
@@ -40,6 +41,10 @@ def case(args: list[str]):
             Formatter.set_strategy(FormattingStrategy.TITLE)
         case _:
             pass
+
+
+def match(args: list[str]):
+    return RegexState.match
 
 
 def rand(args: list[str]) -> str:

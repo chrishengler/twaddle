@@ -8,4 +8,5 @@ function_definitions = {'rep': repeat,
                         'x': sync,
                         'sync': sync,
                         'case': case,
+                        'match': match,
                         }

@@ -1,0 +1,2 @@
+class RegexState:
+    match = str("")

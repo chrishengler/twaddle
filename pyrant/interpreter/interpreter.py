@@ -7,11 +7,12 @@ from .synchronizer import Synchronizer, SynchronizerManager
 import interpreter.formatter as Formatter
 from lookup.lookup import LookupManager
 from parser.rant_object import *
+from .regex_state import RegexState
 
 from collections import deque
 from functools import singledispatch
 from random import randrange, randint
-from re import sub
+from re import sub, Match
 
 
 compiler = RantCompiler()
@@ -120,6 +121,7 @@ def _(digit: RantDigitObject):
 
 @run.register(RantRegexObject)
 def _(regex: RantRegexObject):
-    def repl(matchobj):
+    def repl(matchobj: Match):
+        RegexState.match = matchobj.group()
         return run(regex.replacement)
     return sub(regex.regex, repl, run(regex.scope))
