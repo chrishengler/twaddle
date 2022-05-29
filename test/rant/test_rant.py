@@ -39,5 +39,11 @@ def test_indefinite_article():
     assert r.run_sentence(
         "[case:upper]\\a bow and \\a arrow") == "A BOW AND AN ARROW"
 
+def test_regex():
+    assert r.run_sentence("[//a//i:a;\\a <noun-shape>]") == "a hexagon"
+    assert r.run_sentence("[//hexagon//:hexagon;a [match] has 6 sides]") == "a hexagon has 6 sides"
+    assert r.run_sentence("[//^\w\w[aou]?//i:this;{[match]tab}]") == "thtabis"
+    assert r.run_sentence("[//tab.*//i:[//^\w\w[aou]?//i:this;{[match]tab}];tab]") == "thtab"
+
 if __name__ == "__main__":
-    test_indefinite_article()
+    test_regex()

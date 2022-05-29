@@ -234,16 +234,3 @@ def test_realistic_sentence():
     for actual, expected in zip(result, expected_result):
         assert actual == expected
 
-
-def test_throws_on_invalid_escape():
-    test_string = r'\m'
-    with pytest.raises(RantLexerException) as rle:
-        result = RantLexer.lex(test_string)
-    assert rle.value.message == f"Unknown escape code '\\m'"
-
-
-def test_throws_when_escaping_nothing():
-    test_string = '\\'
-    with pytest.raises(RantLexerException) as rle:
-        result = RantLexer.lex(test_string)
-    assert rle.value.message == f"Tried to escape nothing"

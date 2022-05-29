@@ -129,7 +129,7 @@ def test_parse_indefinite_article():
     assert parser_output[3].text == " arrow"
 
 
-def test_parse_regex():
+def test_parse_simple_regex():
     parser_output = get_compile_result("[//a//i:a bat;i]")
     assert len(parser_output) == 1
     rro: RantRegexObject = parser_output[0]
@@ -138,5 +138,11 @@ def test_parse_regex():
     assert rro.replacement[0].text == 'i'
 
 
+def test_parse_complex_regex():
+    parser_output = get_compile_result("[//^\w\w[aeiou]?//i:whatever;something]")
+    assert len(parser_output) == 1
+    rro: RantRegexObject = parser_output[0]
+    assert rro.regex == "^\w\w[aeiou]?"
+
 if __name__ == "__main__":
-    test_parse_regex()
+    test_parse_complex_regex()

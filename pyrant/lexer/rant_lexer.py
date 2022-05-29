@@ -39,22 +39,25 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
         case ';': return RantTokenType.SEMICOLON, 1
         case '\\':
             if len(input_str) > 1:
-                if input_str[1] == 'n':
-                    return RantTokenType.NEW_LINE, 2
-                elif input_str[1] == 'a':
-                    return RantTokenType.LOWER_INDEFINITE_ARTICLE, 2
-                elif input_str[1] == 'A':
-                    return RantTokenType.UPPER_INDEFINITE_ARTICLE, 2
-                elif input_str[1] == '\\':
-                    return RantTokenType.BACKSLASH, 2
-                elif input_str[1] == 'd':
-                    return RantTokenType.DIGIT, 2
-                elif input_str[1] == 't':
-                    return RantTokenType.TAB, 2
-                raise RantLexerException(
-                    f"Unknown escape code '\\{input_str[1]}'")
-            else:
-                raise RantLexerException(f"Tried to escape nothing")
+                match input_str[1]:
+                    case 'n':
+                        return RantTokenType.NEW_LINE, 2
+                    case 'a':
+                        return RantTokenType.LOWER_INDEFINITE_ARTICLE, 2
+                    case 'A':
+                        return RantTokenType.UPPER_INDEFINITE_ARTICLE, 2
+                    case '\\':
+                        return RantTokenType.BACKSLASH, 2
+                    case 'd':
+                        return RantTokenType.DIGIT, 2
+                    case 't':
+                        return RantTokenType.TAB, 2
+                    case _:
+                        """
+                        this isn't ideal but avoids having to define special
+                        tokens which only have meaning in regices
+                        """
+                        return RantTokenType.BACKSLASH, 1
         case '"': return RantTokenType.QUOTE, 1
         case '!': return RantTokenType.EXCLAMATION_MARK, 1
         case '=': return RantTokenType.EQUALS, 1

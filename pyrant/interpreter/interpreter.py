@@ -44,7 +44,9 @@ def run(arg) -> str:
 def _(block: RantRootObject):
     result = ''
     for item in block.contents:
-        result += run(item)
+        item_result = run(item)
+        if item_result:
+            result += item_result
     return result
 
 

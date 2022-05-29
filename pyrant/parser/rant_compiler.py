@@ -41,7 +41,7 @@ class RantCompiler:
         result = self.parse_root(RantLexer.lex(sentence))
         if self.context.current_context() is not CompilerContext.ROOT:
             raise RantParserException(
-                "[RantCompiler::compile] reached end while still in {self.context.current_context().name} context")
+                f"[RantCompiler::compile] reached end while still in {self.context.current_context().name} context")
         return result
 
     def parse_root(self, tokens: deque[RantToken]) -> RantRootObject:
@@ -271,7 +271,7 @@ class RantCompiler:
                 case RantTokenType.PLAIN_TEXT:
                     regex += token.value
                 case _:
-                    regex += to_plain_text_object(token)
+                    regex += get_text_for_object(token)
 
 
         if len(tokens) == 0:
