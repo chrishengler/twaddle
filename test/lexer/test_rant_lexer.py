@@ -127,7 +127,7 @@ def test_slash():
     test_string = r'\\'
     result = RantLexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.SLASH)
+    expected_result = RantToken(RantTokenType.BACKSLASH)
 
     assert len(result) == 1
     assert result[0] == expected_result

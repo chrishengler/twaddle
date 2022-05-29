@@ -46,7 +46,7 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
                 elif input_str[1] == 'A':
                     return RantTokenType.UPPER_INDEFINITE_ARTICLE, 2
                 elif input_str[1] == '\\':
-                    return RantTokenType.SLASH, 2
+                    return RantTokenType.BACKSLASH, 2
                 elif input_str[1] == 'd':
                     return RantTokenType.DIGIT, 2
                 elif input_str[1] == 't':
@@ -59,6 +59,10 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
         case '!': return RantTokenType.EXCLAMATION_MARK, 1
         case '=': return RantTokenType.EQUALS, 1
         case '.': return RantTokenType.DOT, 1
+        case '/':
+            if len(input_str) > 1 and input_str[1] == '/':
+                return RantTokenType.REGEX, 2
+            else return RantTokenType.FORWARD_SLASH, 1
         case _: return RantTokenType.PLAIN_TEXT, 0
 
 

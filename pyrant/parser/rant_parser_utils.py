@@ -20,7 +20,7 @@ def to_plain_text_token(raw: RantToken) -> RantToken:
             return RantToken(RantTokenType.PLAIN_TEXT, '-')
         case RantTokenType.DOUBLE_COLON:
             return RantToken(RantTokenType.PLAIN_TEXT, '::')
-        case RantTokenType.SLASH:
+        case RantTokenType.BACKSLASH:
             return RantToken(RantTokenType.PLAIN_TEXT, '/')
         case RantTokenType.DOT:
             return RantToken(RantTokenType.PLAIN_TEXT, '.')
@@ -70,8 +70,12 @@ def get_text_for_object(raw: RantToken) -> str:
             return r"\a"
         case RantTokenType.UPPER_INDEFINITE_ARTICLE:
             return r"\A"
-        case RantTokenType.SLASH:
+        case RantTokenType.BACKSLASH:
             return "\\"
+        case RantTokenType.FORWARD_SLASH:
+            return "/"
+        case RantTokenType.REGEX:
+            return "//"
         case RantTokenType.DIGIT:
             return r"\d"
         case RantTokenType.EXCLAMATION_MARK:

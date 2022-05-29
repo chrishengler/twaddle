@@ -12,6 +12,7 @@ class CompilerContext(Enum):
     FUNCTION = auto()
     LOOKUP = auto()
     BLOCK = auto()
+    REGEX = auto()
 
 
 class CompilerContextStack:
@@ -46,6 +47,7 @@ class RantCompiler:
     def parse_root(self, tokens: deque[RantToken]) -> RantRootObject:
         result = RantRootObject()
         while tokens:
+            context = self.context.current_context
             token = tokens[0]
             match token.type:
                 case RantTokenType.PLAIN_TEXT:
@@ -61,31 +63,31 @@ class RantCompiler:
                     self.context.add_context(CompilerContext.FUNCTION)
                     result.append(self.parse_function(tokens))
                 case RantTokenType.PIPE:
-                    if self.context.current_context() is CompilerContext.BLOCK:
+                    if context is CompilerContext.BLOCK:
                         return result
                     else:
                         result.append(to_plain_text_object(token))
                         tokens.popleft()
                 case RantTokenType.RIGHT_CURLY_BRACKET:
-                    if self.context.current_context() is CompilerContext.BLOCK:
+                    if context is CompilerContext.BLOCK:
                         return result
                 case RantTokenType.COLON:
-                    if self.context.current_context() is CompilerContext.FUNCTION:
+                    if context is CompilerContext.FUNCTION:
                         return result
                     else:
                         result.append(to_plain_text_object(token))
                         tokens.popleft()
                 case RantTokenType.SEMICOLON:
-                    if self.context.current_context() is CompilerContext.FUNCTION:
+                    if context is CompilerContext.FUNCTION:
                         return result
                     else:
                         result.append(to_plain_text_object(token))
                         tokens.popleft()
                 case RantTokenType.RIGHT_SQUARE_BRACKET:
-                    if self.context.current_context() is CompilerContext.FUNCTION:
+                    if context is CompilerContext.FUNCTION:
                         return result
                 case RantTokenType.RIGHT_ANGLE_BRACKET:
-                    if self.context.current_context() is CompilerContext.LOOKUP:
+                    if context is CompilerContext.LOOKUP:
                         return result
                 case RantTokenType.LOWER_INDEFINITE_ARTICLE:
                     result.append(RantIndefiniteArticleObject())
