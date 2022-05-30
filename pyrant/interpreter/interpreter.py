@@ -1,12 +1,11 @@
-import lexer.rant_lexer as Lexer
-from parser.rant_compiler import RantCompiler
+from parser.compiler import Compiler
 from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
 from rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
 import interpreter.formatter as Formatter
 from lookup.lookup import LookupManager
-from parser.rant_object import *
+from parser.compiler_objects import *
 from .regex_state import RegexState
 
 from collections import deque
@@ -15,7 +14,7 @@ from random import randrange, randint
 from re import sub, Match
 
 
-compiler = RantCompiler()
+compiler = Compiler()
 
 
 def interpret_external(sentence: str) -> str:

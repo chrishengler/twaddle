@@ -1,14 +1,13 @@
 from collections import deque
 from types import WrapperDescriptorType
-from parser.rant_compiler import CompilerContextStack, CompilerContext, RantCompiler
-from parser.rant_object import *
+from parser.compiler import CompilerContextStack, CompilerContext, Compiler
+from parser.compiler_objects import *
 from rant_exceptions import RantParserException
-from lexer.rant_token import *
-import lexer.rant_lexer as RantLexer
-from parser.rant_compiler import RantCompiler
+from lexer.lexer_tokens import *
+import lexer.lexer as RantLexer
 import pytest
 
-compiler = RantCompiler()
+compiler = Compiler()
 
 
 def get_compile_result(sentence: str) -> RantRootObject:

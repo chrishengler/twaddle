@@ -1,9 +1,7 @@
 from collections import OrderedDict
 from random import choice
-from parser.rant_object import RantLookupObject
+from parser.compiler_objects import RantLookupObject
 from rant_exceptions import RantLookupException
-from typing import TextIO
-from glob import glob
 import os
 
 

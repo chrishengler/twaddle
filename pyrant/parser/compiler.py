@@ -1,10 +1,9 @@
-from enum import Enum, auto
-from lexer.rant_token import *
-from lexer.rant_lexer import lex
-from .rant_object import *
+from lexer.lexer_tokens import *
+from lexer.lexer import lex
+from .compiler_objects import *
 from rant_exceptions import RantParserException
 from collections import deque
-from .rant_parser_utils import *
+from .compiler_utils import *
 
 
 class CompilerContext(Enum):
@@ -33,12 +32,12 @@ class CompilerContextStack:
         self.stack.pop()
 
 
-class RantCompiler:
+class Compiler:
     def __init__(self):
         self.context = CompilerContextStack()
 
     def compile(self, sentence: str) -> RantRootObject:
-        result = self.parse_root(RantLexer.lex(sentence))
+        result = self.parse_root(lex(sentence))
         if self.context.current_context() is not CompilerContext.ROOT:
             raise RantParserException(
                 f"[RantCompiler::compile] reached end while still in {self.context.current_context().name} context")
@@ -272,7 +271,6 @@ class RantCompiler:
                     regex += token.value
                 case _:
                     regex += get_text_for_object(token)
-
 
         if len(tokens) == 0:
             raise RantParserException("[Compiler.parse_regex] reached end of input without finding end of regex")

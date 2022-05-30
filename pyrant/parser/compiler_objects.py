@@ -1,8 +1,6 @@
 from enum import Enum, auto
 from typing import Type
 
-import lexer.rant_lexer as RantLexer
-
 
 class RantObjectType(Enum):
     ROOT = auto()

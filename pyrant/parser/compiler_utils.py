@@ -1,6 +1,6 @@
 from collections import deque
-from parser.rant_object import *
-from lexer.rant_token import *
+from parser.compiler_objects import *
+from lexer.lexer_tokens import *
 from rant_exceptions import RantParserException
 
 
@@ -114,5 +114,5 @@ def merge_text_objects(raw: deque[RantTextObject]) -> RantTextObject:
             value += token.text
         else:
             raise RantParserException(
-                f"[ParserUtils::merge_text_objects] object of type {typeof(token)} when RantTextObject was expected")
+                f"[ParserUtils::merge_text_objects] object of type {type(token)} when RantTextObject was expected")
     return RantTextObject(value)

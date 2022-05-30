@@ -39,11 +39,24 @@ def test_indefinite_article():
     assert r.run_sentence(
         "[case:upper]\\a bow and \\a arrow") == "A BOW AND AN ARROW"
 
+
 def test_regex():
     assert r.run_sentence("[//a//i:a;\\a <noun-shape>]") == "a hexagon"
-    assert r.run_sentence("[//hexagon//:hexagon;a [match] has 6 sides]") == "a hexagon has 6 sides"
+    assert r.run_sentence(
+        "[//hexagon//:hexagon;a [match] has 6 sides]") == "a hexagon has 6 sides"
     assert r.run_sentence("[//^\w\w[aou]?//i:this;{[match]tab}]") == "thtabis"
-    assert r.run_sentence("[//tab.*//i:[//^\w\w[aou]?//i:this;{[match]tab}];tab]") == "thtab"
+    assert r.run_sentence(
+        "[//tab.*//i:[//^\w\w[aou]?//i:this;{[match]tab}];tab]") == "thtab"
+
+
+def test_complex_sentence():
+    assert r.run_sentence("[rep:2]{[//[aeiou]//:<noun-shape>;o]}") == "hoxogonhoxogon"
+    assert r.run_sentence("[case:title]the <noun-building-small::=a> and \\a [//hat//:hat;<noun-building::!=a>]") == "The Shed And A Factory"
+    assert r.run_sentence("[//s\w//:suspicious slimy slithery snakes;ss[match]]") == "sssussspicious ssslimy ssslithery sssnakes"
+    assert r.run_sentence("[//[3-5]//:[rep:3][sep:\\n]{123456};x]") == """12xxx6
+12xxx6
+12xxx6"""
+
 
 if __name__ == "__main__":
     test_regex()

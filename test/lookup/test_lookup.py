@@ -1,5 +1,5 @@
 from rant_exceptions import RantLookupException
-from parser.rant_object import RantLookupObject
+from parser.compiler_objects import RantLookupObject
 from lookup.lookup import *
 import os
 import pytest

@@ -1,13 +1,13 @@
 import pytest
 
-from lexer.rant_token import RantToken, RantTokenType
+from lexer.lexer_tokens import RantToken, RantTokenType
 from rant_exceptions import RantLexerException
-import lexer.rant_lexer as RantLexer
+import lexer.lexer as Lexer
 
 
 def test_angle_brackets():
     test_string = '<>'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = []
     expected_result.append(RantToken(RantTokenType.LEFT_ANGLE_BRACKET))
@@ -20,7 +20,7 @@ def test_angle_brackets():
 
 def test_square_brackets():
     test_string = '[]'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = []
     expected_result.append(RantToken(RantTokenType.LEFT_SQUARE_BRACKET))
@@ -33,7 +33,7 @@ def test_square_brackets():
 
 def test_curly_brackets():
     test_string = '{}'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = []
     expected_result.append(RantToken(RantTokenType.LEFT_CURLY_BRACKET))
@@ -46,7 +46,7 @@ def test_curly_brackets():
 
 def test_pipe():
     test_string = '|'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.PIPE)
 
@@ -56,7 +56,7 @@ def test_pipe():
 
 def test_hyphen():
     test_string = '-'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.HYPHEN)
 
@@ -66,7 +66,7 @@ def test_hyphen():
 
 def test_semicolon():
     test_string = ';'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.SEMICOLON)
 
@@ -75,7 +75,7 @@ def test_semicolon():
 
 def test_colon():
     test_string = ':'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.COLON)
 
@@ -85,7 +85,7 @@ def test_colon():
 
 def test_double_colon():
     test_string = '::'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.DOUBLE_COLON)
 
@@ -95,7 +95,7 @@ def test_double_colon():
 
 def test_quote():
     test_string = '"'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.QUOTE)
 
@@ -105,7 +105,7 @@ def test_quote():
 
 def test_new_line():
     test_string = r'\n'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.NEW_LINE)
 
@@ -115,7 +115,7 @@ def test_new_line():
 
 def test_indefinite_article():
     test_string = r'\a'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.LOWER_INDEFINITE_ARTICLE)
 
@@ -125,7 +125,7 @@ def test_indefinite_article():
 
 def test_slash():
     test_string = r'\\'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.BACKSLASH)
 
@@ -135,7 +135,7 @@ def test_slash():
 
 def test_digit():
     test_string = r'\d'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.DIGIT)
 
@@ -145,7 +145,7 @@ def test_digit():
 
 def test_plaintext():
     test_string = 'hello'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.PLAIN_TEXT, 'hello')
 
@@ -155,7 +155,7 @@ def test_plaintext():
 
 def test_exclamation_mark():
     test_string = '!'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.EXCLAMATION_MARK)
 
@@ -165,7 +165,7 @@ def test_exclamation_mark():
 
 def test_equals():
     test_string = '='
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.EQUALS)
 
@@ -175,7 +175,7 @@ def test_equals():
 
 def test_dot():
     test_string = '.'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = RantToken(RantTokenType.DOT)
 
@@ -185,7 +185,7 @@ def test_dot():
 
 def test_long_string():
     test_string = 'angle brackets <:> curly brackets{ ::  } square brackets []plaintext-hello|'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = []
     expected_result.append(
@@ -218,7 +218,7 @@ def test_long_string():
 
 def test_realistic_sentence():
     test_string = r'I work as \a <noun-job>'
-    result = RantLexer.lex(test_string)
+    result = Lexer.lex(test_string)
 
     expected_result = []
     expected_result.append(RantToken(RantTokenType.PLAIN_TEXT, "I work as "))

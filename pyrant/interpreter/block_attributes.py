@@ -1,6 +1,3 @@
-from .synchronizer import SynchronizerManager
-
-
 class BlockAttributes:
     def __init__(self):
         self.repetitions: int = 1

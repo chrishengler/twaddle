@@ -20,6 +20,7 @@ class LockedSynchronizer(Synchronizer):
 class DeckSynchronizer(Synchronizer):
     def __init__(self, num_choices: int):
         self.num_choices = num_choices
+        self.deck = list()
         self.shuffle_deck()
 
     def shuffle_deck(self):
@@ -35,6 +36,7 @@ class DeckSynchronizer(Synchronizer):
 class CyclicDeckSynchronizer(Synchronizer):
     def __init__(self, num_choices: int):
         self.num_choices = num_choices
+        self.deck = list()
         self.shuffle_deck()
         self.pos = 0
 
