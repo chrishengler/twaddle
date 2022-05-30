@@ -1,5 +1,4 @@
 from enum import Enum, auto
-from typing import Type
 
 
 class RantObjectType(Enum):
@@ -41,8 +40,8 @@ class RantTextObject(RantObject):
 
 class RantLookupObject(RantObject):
     def __init__(self, dictionary: str, form: str = None,
-                 positive_tags: set[str] = {}, negative_tags: set[str] = {},
-                 positive_label: str = None, negative_labels: set[str] = {}):
+                 positive_tags: set[str] = None, negative_tags: set[str] = None,
+                 positive_label: str = None, negative_labels: set[str] = None):
         RantObject.__init__(self, RantObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
@@ -53,7 +52,7 @@ class RantLookupObject(RantObject):
 
 
 class RantBlockObject(RantObject):
-    def __init__(self, choices: list[RantObject]):
+    def __init__(self, choices: list[RantRootObject]):
         RantObject.__init__(self, RantObjectType.BLOCK)
         self.choices = choices
 

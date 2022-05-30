@@ -3,16 +3,14 @@ from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
 from rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
-import interpreter.formatter as Formatter
-from lookup.lookup import LookupManager
+import interpreter.formatter as formatter
+from lookup.lookup import LookupManager, LookupDictionary
 from parser.compiler_objects import *
 from .regex_state import RegexState
 
-from collections import deque
 from functools import singledispatch
 from random import randrange, randint
 from re import sub, Match
-
 
 compiler = Compiler()
 
@@ -24,16 +22,15 @@ def interpret_external(sentence: str) -> str:
     return interpret_internal(compiler.compile(sentence))
 
 
-def interpret_internal(parse_result: deque[RantObject]) -> str:
-    result: str = ""
-
+def interpret_internal(parse_result: RantRootObject) -> str:
     for obj in parse_result:
         obj_result = run(obj)
         if obj_result is not None:
-            Formatter.append(obj_result)
-    return Formatter.get()
+            formatter.append(obj_result)
+    return formatter.get()
 
 
+# noinspection PyUnusedLocal
 @singledispatch
 def run(arg) -> str:
     return ''
@@ -54,7 +51,7 @@ def _(block: RantBlockObject):
     attributes: BlockAttributes = BlockAttributeManager.get_attributes()
     block_result = ''
     first_repetition = True
-    synchronizer: Synchronizer = None
+    synchronizer: Synchronizer | None = None
     if attributes.synchronizer is not None:
         if SynchronizerManager.synchronizer_exists(attributes.synchronizer):
             synchronizer = SynchronizerManager.get_synchronizer(
@@ -79,7 +76,7 @@ def _(block: RantBlockObject):
             block_result += attributes.first
         elif attributes.repetitions == 1:
             block_result += attributes.last
-        attributes.repetitions = attributes.repetitions-1
+        attributes.repetitions = attributes.repetitions - 1
         partial_result = interpret_internal(
             block.choices[choice])
         block_result += partial_result
@@ -107,22 +104,28 @@ def _(text: RantTextObject):
 
 @run.register(RantLookupObject)
 def _(lookup: RantLookupObject):
-    dictionary = LookupManager[lookup.dictionary]
+    dictionary: LookupDictionary = LookupManager[lookup.dictionary]
     return dictionary.get(lookup)
 
 
+# noinspection SpellCheckingInspection
 @run.register(RantIndefiniteArticleObject)
 def _(indef: RantIndefiniteArticleObject):
-    Formatter.add_indefinite_article(indef.default_upper)
+    formatter.add_indefinite_article(indef.default_upper)
     return None
 
+
+# noinspection PyUnusedLocal
 @run.register(RantDigitObject)
 def _(digit: RantDigitObject):
-    return str(randint(0,9))
+    return str(randint(0, 9))
+
 
 @run.register(RantRegexObject)
 def _(regex: RantRegexObject):
+    # noinspection SpellCheckingInspection
     def repl(matchobj: Match):
         RegexState.match = matchobj.group()
         return run(regex.replacement)
+
     return sub(regex.regex, repl, run(regex.scope))

@@ -1,6 +1,6 @@
-from interpreter.block_attributes import BlockAttributeManager, BlockAttributes
+from interpreter.block_attributes import BlockAttributeManager
 from .formatting_object import FormattingStrategy
-import interpreter.formatter as Formatter
+import interpreter.formatter as formatter
 from .regex_state import RegexState
 from random import randint
 
@@ -30,19 +30,20 @@ def case(args: list[str]):
     arg = args[0].strip().lower()
     match arg:
         case "none":
-            Formatter.set_strategy(FormattingStrategy.NONE)
+            formatter.set_strategy(FormattingStrategy.NONE)
         case "upper":
-            Formatter.set_strategy(FormattingStrategy.UPPER)
+            formatter.set_strategy(FormattingStrategy.UPPER)
         case "lower":
-            Formatter.set_strategy(FormattingStrategy.LOWER)
+            formatter.set_strategy(FormattingStrategy.LOWER)
         case "sentence":
-            Formatter.set_strategy(FormattingStrategy.SENTENCE)
+            formatter.set_strategy(FormattingStrategy.SENTENCE)
         case "title":
-            Formatter.set_strategy(FormattingStrategy.TITLE)
+            formatter.set_strategy(FormattingStrategy.TITLE)
         case _:
             pass
 
 
+# noinspection PyUnusedLocal
 def match(args: list[str]):
     return RegexState.match
 

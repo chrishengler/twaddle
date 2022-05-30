@@ -96,14 +96,7 @@ def to_plain_text_token_except(raw: RantToken, accept_list: tuple[RantTokenType]
     if raw.type in accept_list:
         return raw
     else:
-        return to_plain_text_token
-
-
-def to_plain_text_object_except(raw: RantToken, accept_list: tuple[RantTokenType]) -> RantObject:
-    if raw.type in accept_list:
-        return raw
-    else:
-        return to_plain_text_object
+        return to_plain_text_token(raw)
 
 
 def merge_text_objects(raw: deque[RantTextObject]) -> RantTextObject:

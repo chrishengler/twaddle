@@ -1,34 +1,40 @@
 from interpreter.formatting_object import FormattingStrategy
-import interpreter.formatter as Formatter
+import interpreter.formatter as formatter
 
 
 def test_simple_print():
-    Formatter.append("hello")
-    assert Formatter.get() == "hello"
+    formatter.append("hello")
+    assert formatter.get() == "hello"
+
 
 def test_normal_upper():
-    Formatter.append("abc")
-    Formatter.set_strategy(FormattingStrategy.UPPER)
-    Formatter.append("def")
-    assert Formatter.get() == "abcDEF"
+    formatter.append("abc")
+    formatter.set_strategy(FormattingStrategy.UPPER)
+    formatter.append("def")
+    assert formatter.get() == "abcDEF"
 
+
+# noinspection SpellCheckingInspection
 def test_upper_lower():
-    Formatter.append("abc")
-    Formatter.set_strategy(FormattingStrategy.UPPER)
-    Formatter.append("def")
-    Formatter.set_strategy(FormattingStrategy.LOWER)
-    Formatter.append("GHI")
-    assert Formatter.get() == "abcDEFghi"
+    formatter.append("abc")
+    formatter.set_strategy(FormattingStrategy.UPPER)
+    formatter.append("def")
+    formatter.set_strategy(FormattingStrategy.LOWER)
+    formatter.append("GHI")
+    assert formatter.get() == "abcDEFghi"
+
 
 def test_sentence():
-    Formatter.set_strategy(FormattingStrategy.SENTENCE)
-    Formatter.append("hey there! this is. a test")
-    assert Formatter.get() == "Hey there! This is. A test"
+    formatter.set_strategy(FormattingStrategy.SENTENCE)
+    formatter.append("hey there! this is. a test")
+    assert formatter.get() == "Hey there! This is. A test"
+
 
 def test_title():
-    Formatter.set_strategy(FormattingStrategy.TITLE)
-    Formatter.append("hey there! this text's a test")
-    assert Formatter.get() == "Hey There! This Text's A Test"
+    formatter.set_strategy(FormattingStrategy.TITLE)
+    formatter.append("hey there! this text's a test")
+    assert formatter.get() == "Hey There! This Text's A Test"
+
 
 if __name__ == "__main__":
     test_sentence()

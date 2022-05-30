@@ -1,6 +1,6 @@
-import interpreter.interpreter as Interpreter
+import interpreter.interpreter as interpreter
 
 
 while True:
     sentence = input(">")
-    print(Interpreter.interpret_external(sentence))
+    print(interpreter.interpret_external(sentence))

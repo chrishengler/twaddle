@@ -19,7 +19,7 @@ def lex(input_str: str) -> deque[RantToken]:
     return output
 
 
-def _get_token_type(input_str: str) -> tuple[RantToken, int]:
+def _get_token_type(input_str: str) -> tuple[RantTokenType, int]:
     assert(len(input_str) != 0)
     match input_str[0]:
         case '<': return RantTokenType.LEFT_ANGLE_BRACKET, 1
@@ -69,7 +69,7 @@ def _get_token_type(input_str: str) -> tuple[RantToken, int]:
         case _: return RantTokenType.PLAIN_TEXT, 0
 
 
-def _consume_plain_text(input_str: str) -> tuple[str, int]:
+def _consume_plain_text(input_str: str) -> tuple[RantToken, int]:
     i = 0
     while i < len(input_str):
         next_type, _ = _get_token_type(input_str[i:])

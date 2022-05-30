@@ -1,8 +1,4 @@
-from lexer.lexer_tokens import *
 from lexer.lexer import lex
-from .compiler_objects import *
-from rant_exceptions import RantParserException
-from collections import deque
 from .compiler_utils import *
 
 
@@ -114,8 +110,7 @@ class Compiler:
                     tokens.popleft()
         return result
 
-    def parse_lookup(self, tokens: deque[RantToken]) -> deque[RantObject]:
-        dictionary = None
+    def parse_lookup(self, tokens: deque[RantToken]) -> RantObject:
         form = None
         positive_tags = set[str]()
         negative_tags = set[str]()
@@ -188,7 +183,7 @@ class Compiler:
 
     def parse_block(self, tokens: deque[RantToken]) -> RantBlockObject:
         choices = list()
-        this_choice = deque()
+        this_choice = RantRootObject()
         if tokens[0].type is not RantTokenType.LEFT_CURLY_BRACKET:
             raise RantParserException(
                 "[Compiler.parse_block] block factory called without '{', this shouldn't happen!")
@@ -211,8 +206,8 @@ class Compiler:
         raise RantParserException(
             "[Compiler.parse_block] something went wrong, probably a missing '}'")
 
+    # noinspection GrazieInspection
     def parse_function(self, tokens: deque[RantToken]) -> RantFunctionObject:
-        func = ""
         args = list()
 
         # first thing must always be the opening square bracket:

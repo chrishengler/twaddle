@@ -19,7 +19,6 @@ def test_rant_choice_object():
     r2 = RantLookupObject("name")
     choices = [r1, r2]
     rc = RantBlockObject(choices)
-    ro = RantObject(RantObjectType.TEXT)
     assert rc.type == RantObjectType.BLOCK
     assert len(rc.choices) == 2
     assert rc.choices[0] == r1

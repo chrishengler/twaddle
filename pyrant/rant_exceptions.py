@@ -1,6 +1,3 @@
-from types import MemberDescriptorType
-
-
 class RantException(Exception):
     """Base class for others"""
 

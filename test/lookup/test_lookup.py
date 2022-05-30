@@ -1,5 +1,3 @@
-from rant_exceptions import RantLookupException
-from parser.compiler_objects import RantLookupObject
 from lookup.lookup import *
 import os
 import pytest
@@ -10,6 +8,7 @@ def relative_path_to_full_path(rel_path: str) -> str:
     return os.path.join(current_dir, rel_path)
 
 
+# noinspection SpellCheckingInspection
 def test_lookup_type():
     lookup_thing = LookupEntry({"singular": "thing",
                                 "plural": "things",
@@ -34,37 +33,37 @@ def test_dictionary():
 
 def test_tag_requirement():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
-    dictionary.add(["thing", "things"], set(["tag1"]))
-    dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
+    dictionary.add(["thing", "things"], {"tag1"})
+    dictionary.add(["hexagon", "hexagons"], {"tag2"})
     for _ in range(0, 5):
         assert dictionary._get("plural", {"tag1"}) == "things"
         assert dictionary._get("singular", {"tag2"}) == "hexagon"
-        assert dictionary._get("plural", {}, {"tag1"}) == "hexagons"
+        assert dictionary._get("plural", set(), {"tag1"}) == "hexagons"
 
 
 def test_label_positive():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
-    dictionary.add(["thing", "things"], set(["tag1"]))
-    dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
-    assert dictionary._get("singular", {"tag1"}, {}, "test") == "thing"
+    dictionary.add(["thing", "things"], {"tag1"})
+    dictionary.add(["hexagon", "hexagons"], {"tag2"})
+    assert dictionary._get("singular", {"tag1"}, set(), "test") == "thing"
     for _ in range(0, 5):
-        assert dictionary._get("singular", {}, {}, "test") == "thing"
+        assert dictionary._get("singular", set(), set(), "test") == "thing"
 
 
 def test_labels_negative():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
-    dictionary.add(["thing", "things"], set(["tag1"]))
-    dictionary.add(["hexagon", "hexagons"], set(["tag2"]))
-    assert dictionary._get("singular", {"tag1"}, {}, "test") == "thing"
+    dictionary.add(["thing", "things"], {"tag1"})
+    dictionary.add(["hexagon", "hexagons"], {"tag2"})
+    assert dictionary._get("singular", {"tag1"}, set(), "test") == "thing"
     for _ in range(0, 5):
-        assert dictionary._get("singular", {}, {}, None, {"test"}) == "hexagon"
+        assert dictionary._get("singular", set(), set(), None, {"test"}) == "hexagon"
         # just to check no problems with undefined labels
-        assert dictionary._get("singular", {}, {}, None, {"hat"})
+        assert dictionary._get("singular", set(), set(), None, {"hat"})
     dictionary.clear_labels()
     results_after_clearing = list[str]()
     for _ in range(0, 50):
         results_after_clearing.append(
-            dictionary._get("singular", {}, {}, None, {"test"}))
+            dictionary._get("singular", set(), set(), None, {"test"}))
     assert "thing" in results_after_clearing
 
 
@@ -104,8 +103,8 @@ def test_dictionary_manager():
     path = relative_path_to_full_path("../resources/")
     LookupManager.add_dictionaries_from_folder(path)
     assert len(LookupManager.dictionaries) == 2
-    noun_dictionary = LookupManager["noun"]
-    adj_dictionary = LookupManager["adj"]
+    noun_dictionary: LookupDictionary = LookupManager["noun"]
+    adj_dictionary: LookupDictionary = LookupManager["adj"]
     assert noun_dictionary._get("plural", {"shape"}) == "hexagons"
     assert adj_dictionary._get() == "happy"
 

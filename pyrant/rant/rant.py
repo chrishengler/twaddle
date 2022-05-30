@@ -7,5 +7,6 @@ class Rant:
         LookupManager.add_dictionaries_from_folder(path)
         pass
 
-    def run_sentence(self, sentence: str) -> str:
+    @staticmethod
+    def run_sentence(sentence: str) -> str:
         return interpret(sentence)

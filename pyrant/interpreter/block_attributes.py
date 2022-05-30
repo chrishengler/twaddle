@@ -1,11 +1,13 @@
 class BlockAttributes:
+    synchronizer: str | None
+
     def __init__(self):
         self.repetitions: int = 1
         self.separator: str = ''
         self.first: str = ''
         self.last: str = ''
-        self.synchronizer: str = None
-        self.synchronizer_type: str = None
+        self.synchronizer: str | None = None
+        self.synchronizer_type: str | None = None
 
 
 class BlockAttributeManager:
@@ -25,4 +27,4 @@ class BlockAttributeManager:
 
     @staticmethod
     def clear():
-        current_attributes = BlockAttributes()
+        BlockAttributeManager.current_attributes = BlockAttributes()

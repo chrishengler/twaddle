@@ -1,10 +1,6 @@
-from collections import deque
-from types import WrapperDescriptorType
 from parser.compiler import CompilerContextStack, CompilerContext, Compiler
 from parser.compiler_objects import *
 from rant_exceptions import RantParserException
-from lexer.lexer_tokens import *
-import lexer.lexer as RantLexer
 import pytest
 
 compiler = Compiler()
@@ -137,11 +133,13 @@ def test_parse_simple_regex():
     assert rro.replacement[0].text == 'i'
 
 
+# noinspection SpellCheckingInspection,PyPep8
 def test_parse_complex_regex():
     parser_output = get_compile_result("[//^\w\w[aeiou]?//i:whatever;something]")
     assert len(parser_output) == 1
     rro: RantRegexObject = parser_output[0]
     assert rro.regex == "^\w\w[aeiou]?"
+
 
 if __name__ == "__main__":
     test_parse_complex_regex()

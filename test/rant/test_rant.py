@@ -28,6 +28,7 @@ def test_lookups_with_labels():
         "my <noun-shape::=a> is a regular <noun::=a>") == "my hexagon is a regular hexagon"
 
 
+# noinspection SpellCheckingInspection
 def test_repetition():
     assert r.run_sentence("[rep:3]{<noun-shape>}") == "hexagonhexagonhexagon"
 
@@ -40,6 +41,7 @@ def test_indefinite_article():
         "[case:upper]\\a bow and \\a arrow") == "A BOW AND AN ARROW"
 
 
+# noinspection SpellCheckingInspection,PyPep8
 def test_regex():
     assert r.run_sentence("[//a//i:a;\\a <noun-shape>]") == "a hexagon"
     assert r.run_sentence(
@@ -49,6 +51,7 @@ def test_regex():
         "[//tab.*//i:[//^\w\w[aou]?//i:this;{[match]tab}];tab]") == "thtab"
 
 
+# noinspection SpellCheckingInspection,PyPep8
 def test_complex_sentence():
     assert r.run_sentence("[rep:2]{[//[aeiou]//:<noun-shape>;o]}") == "hoxogonhoxogon"
     assert r.run_sentence("[case:title]the <noun-building-small::=a> and \\a [//hat//:hat;<noun-building::!=a>]") == "The Shed And A Factory"

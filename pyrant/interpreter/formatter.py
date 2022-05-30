@@ -26,7 +26,7 @@ def append(text: str):
         output_stack.append(PlainText(previous, text))
 
 
-def _get_previous_object_() -> type[FormattingObject]:
+def _get_previous_object_() -> Type[FormattingObject] | None:
     if len(output_stack):
         return output_stack[-1]
     return None
@@ -71,7 +71,7 @@ def set_strategy(strategy: FormattingStrategy):
     output_stack.append(StrategyChange(_get_previous_object_(), strategy))
 
 
-def _set_strategy_(strategy: FormattingStrategy):
+def _set_strategy_(strategy: StrategyChange):
     global current_strategy
     current_strategy = strategy.strategy
 
@@ -91,7 +91,7 @@ def _apply_indefinite_article_(article: IndefiniteArticle):
     _append_to_sentence_(chosen_article)
 
 
-def _next_alphanumeric_string_(item: type[FormattingObject]) -> str:
+def _next_alphanumeric_string_(item: Type[FormattingObject]) -> str | None:
     if isinstance(item, PlainText):
         result = alphabetic_regex.search(item.text)
         if result:
@@ -101,6 +101,7 @@ def _next_alphanumeric_string_(item: type[FormattingObject]) -> str:
     return None
 
 
+# noinspection SpellCheckingInspection
 def _indefinite_article_use_an_(next_word: str) -> bool:
     # exclude/include prefixes/words taken directly from old version of rant
     # this can definitely be improved but will do for now

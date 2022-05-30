@@ -1,10 +1,10 @@
-import interpreter.interpreter as Interpreter
+import interpreter.interpreter as interpreter
 from rant_exceptions import RantInterpreterException
 import pytest
 
 
 def get_interpreter_output(sentence):
-    return Interpreter.interpret_external(sentence)
+    return interpreter.interpret_external(sentence)
 
 
 def test_plain_text():
@@ -26,7 +26,7 @@ def test_choice():
 
 def test_unknown_function_error():
     with pytest.raises(RantInterpreterException) as e_info:
-        result = get_interpreter_output("[funk]")
+        get_interpreter_output("[funk]")
         assert e_info.message == "[Interpreter::run] no function found named 'funk'"
 
 
@@ -40,11 +40,13 @@ def test_nested_blocks():
     assert result in ['a', 'b', 'c', 'd']
 
 
+# noinspection SpellCheckingInspection
 def test_repeat_with_separator():
     result = get_interpreter_output("[rep:3][sep:x]{a}")
     assert result == 'axaxa'
 
 
+# noinspection SpellCheckingInspection
 def test_repeat_with_first_and_last():
     result = get_interpreter_output("[rep:5][first:a][last:z]{x}")
     assert result == 'axxxxzx'
@@ -67,9 +69,9 @@ def test_random_number():
         result_10 = int(get_interpreter_output("[rand:0;10]"))
         result_negative = int(get_interpreter_output("[rand:-10;-5]"))
         result_big = int(get_interpreter_output("[rand:1000;2000]"))
-        assert result_10 >= 0 and result_10 <= 10
-        assert result_negative >= -10 and result_negative <= -5
-        assert result_big >= 1000 and result_big <= 2000
+        assert 0 <= result_10 <= 10
+        assert -10 <= result_negative <= -5
+        assert 1000 <= result_big <= 2000
 
 
 def test_case():
@@ -82,10 +84,11 @@ def test_case():
     assert result == "This is a sentence. This is another sentence."
 
 
+# noinspection SpellCheckingInspection
 def test_case_block_interaction():
     result = get_interpreter_output("look, a {dog[case:upper]}!")
     assert result == "look, a dog!"
-    result = get_interpreter_output("{a [case:upper]A|a [case:upper]A}") 
+    result = get_interpreter_output("{a [case:upper]A|a [case:upper]A}")
     assert result == "a A"
     result = get_interpreter_output("the {[case:upper]A|[case:title]A} team")
     assert result == "the A team"
@@ -101,10 +104,12 @@ def test_digit():
         int(d)
 
 
+# noinspection SpellCheckingInspection
 def test_new_line():
     result = get_interpreter_output(r"hello\nworld!")
     assert result == """hello
 world!"""
+
 
 def test_simple_regex():
     result = get_interpreter_output("[//a//i:a bat;i]")

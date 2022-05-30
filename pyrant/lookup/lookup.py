@@ -83,13 +83,16 @@ class LookupDictionaryFactory:
     def __init__(self):
         pass
 
-    def get_forms(self, forms_line: str) -> list[str]:
+    @staticmethod
+    def get_forms(forms_line: str) -> list[str]:
         return forms_line.split()[1:]
 
-    def get_name(self, name_line: str) -> str:
+    @staticmethod
+    def get_name(name_line: str) -> str:
         return name_line.split()[1]
 
-    def get_entry(self, entry_line: str) -> list[str]:
+    @staticmethod
+    def get_entry(entry_line: str) -> list[str]:
         return entry_line.split('/')
 
     def read_from_file(self, path: str) -> LookupDictionary:
@@ -146,5 +149,5 @@ class LookupManager:
 
     @staticmethod
     def do_lookup(lookup: RantLookupObject):
-        dictionary = LookupManager[lookup.dictionary]
+        dictionary: LookupDictionary = LookupManager[lookup.dictionary]
         return dictionary.get(lookup)

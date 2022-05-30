@@ -1,5 +1,6 @@
 from interpreter.block_attributes import BlockAttributes, BlockAttributeManager
 
+
 def test_add_and_get_attributes():
     BlockAttributeManager.current_attributes.repetitions = 3
     BlockAttributeManager.current_attributes.separator = 'and'

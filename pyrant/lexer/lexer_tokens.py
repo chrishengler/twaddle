@@ -34,6 +34,8 @@ class RantToken:
         self.value = val
 
     def __eq__(self, o: object) -> bool:
+        if not isinstance(o, RantToken):
+            return NotImplemented
         return self.type == o.type and self.value == o.value
 
     def __str__(self) -> str:
