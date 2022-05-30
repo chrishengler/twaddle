@@ -1,7 +1,8 @@
 from enum import Enum, auto
+from typing import Type
 
 
-class RantObjectType(Enum):
+class ObjectType(Enum):
     ROOT = auto()
     TEXT = auto()               # plain text
     LOOKUP = auto()             # something looked up from a dictionary
@@ -12,15 +13,15 @@ class RantObjectType(Enum):
     REGEX = auto()              # a regex
 
 
-class RantObject:
-    def __init__(self, t: RantObjectType):
+class Object:
+    def __init__(self, t: ObjectType):
         self.type = t
 
 
-class RantRootObject:
+class RootObject(Object):
     def __init__(self):
-        RantObject.__init__(self, RantObjectType.ROOT)
-        self.contents = list[RantObject]()
+        Object.__init__(self, ObjectType.ROOT)
+        self.contents = list[Object]()
 
     def __getitem__(self, n: int):
         return self.contents[n]
@@ -28,21 +29,21 @@ class RantRootObject:
     def __len__(self):
         return len(self.contents)
 
-    def append(self, new_content: RantObject):
+    def append(self, new_content: Object):
         self.contents.append(new_content)
 
 
-class RantTextObject(RantObject):
+class TextObject(Object):
     def __init__(self, text: str):
-        RantObject.__init__(self, RantObjectType.TEXT)
+        Object.__init__(self, ObjectType.TEXT)
         self.text = text
 
 
-class RantLookupObject(RantObject):
+class LookupObject(Object):
     def __init__(self, dictionary: str, form: str = None,
                  positive_tags: set[str] = None, negative_tags: set[str] = None,
                  positive_label: str = None, negative_labels: set[str] = None):
-        RantObject.__init__(self, RantObjectType.LOOKUP)
+        Object.__init__(self, ObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
         self.positive_tags = positive_tags
@@ -51,9 +52,9 @@ class RantLookupObject(RantObject):
         self.negative_labels = negative_labels
 
 
-class RantBlockObject(RantObject):
-    def __init__(self, choices: list[RantRootObject]):
-        RantObject.__init__(self, RantObjectType.BLOCK)
+class BlockObject(Object):
+    def __init__(self, choices: list[Type[RootObject]]):
+        Object.__init__(self, ObjectType.BLOCK)
         self.choices = choices
 
     def __getitem__(self, n: int):
@@ -63,27 +64,27 @@ class RantBlockObject(RantObject):
         return len(self.choices)
 
 
-class RantFunctionObject(RantObject):
-    def __init__(self, func: str, args: list[str]):
-        RantObject.__init__(self, RantObjectType.FUNCTION)
+class FunctionObject(Object):
+    def __init__(self, func: str, args: list[RootObject]):
+        Object.__init__(self, ObjectType.FUNCTION)
         self.func = func
         self.args = args
 
 
-class RantRegexObject(RantObject):
-    def __init__(self, regex: str, scope: RantRootObject, replacement: RantRootObject):
-        RantObject.__init__(self, RantObjectType.REGEX)
+class RegexObject(Object):
+    def __init__(self, regex: str, scope: RootObject, replacement: RootObject):
+        Object.__init__(self, ObjectType.REGEX)
         self.regex = regex
         self.scope = scope
         self.replacement = replacement
 
 
-class RantIndefiniteArticleObject(RantObject):
+class IndefiniteArticleObject(Object):
     def __init__(self, default_upper_case: bool = False):
-        RantObject.__init__(self, RantObjectType.INDEFINITE_ARTICLE)
+        Object.__init__(self, ObjectType.INDEFINITE_ARTICLE)
         self.default_upper = default_upper_case
 
 
-class RantDigitObject(RantObject):
+class DigitObject(Object):
     def __init__(self):
-        RantObject.__init__(self, RantObjectType.DIGIT)
+        Object.__init__(self, ObjectType.DIGIT)

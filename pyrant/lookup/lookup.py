@@ -1,6 +1,6 @@
 from collections import OrderedDict
 from random import choice
-from parser.compiler_objects import RantLookupObject
+from parser.compiler_objects import LookupObject
 from rant_exceptions import RantLookupException
 import os
 
@@ -74,7 +74,7 @@ class LookupDictionary:
             self.labels[label_positive] = chosen_entry
         return chosen_entry[form]
 
-    def get(self, lookup: RantLookupObject) -> str:
+    def get(self, lookup: LookupObject) -> str:
         return self._get(lookup.form, lookup.positive_tags, lookup.negative_tags,
                          lookup.positive_label, lookup.negative_labels)
 
@@ -131,7 +131,7 @@ class LookupManager:
     dictionaries = dict[str, LookupDictionary]()
 
     @staticmethod
-    def __class_getitem__(name: str):
+    def __class_getitem__(name: str) -> LookupDictionary:
         return LookupManager.dictionaries[name]
 
     @staticmethod
@@ -148,6 +148,6 @@ class LookupManager:
             dictionary.clear_labels()
 
     @staticmethod
-    def do_lookup(lookup: RantLookupObject):
+    def do_lookup(lookup: LookupObject):
         dictionary: LookupDictionary = LookupManager[lookup.dictionary]
         return dictionary.get(lookup)

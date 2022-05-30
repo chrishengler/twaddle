@@ -6,7 +6,7 @@ import pytest
 compiler = Compiler()
 
 
-def get_compile_result(sentence: str) -> RantRootObject:
+def get_compile_result(sentence: str) -> RootObject:
     return compiler.compile(sentence).contents
 
 
@@ -26,23 +26,23 @@ def test_compiler_context_stack():
 def test_parse_text():
     result = get_compile_result("hello")
     assert len(result) == 1
-    assert result[0].type == RantObjectType.TEXT
+    assert result[0].type == ObjectType.TEXT
     assert result[0].text == "hello"
 
 
 def test_parse_simple_lookup():
     result = get_compile_result("<whatever>")
     assert len(result) == 1
-    lookup: RantLookupObject = result[0]
-    assert lookup.type == RantObjectType.LOOKUP
+    lookup: LookupObject = result[0]
+    assert lookup.type == ObjectType.LOOKUP
     assert lookup.dictionary == "whatever"
 
 
 def test_parse_complex_lookups():
     result = get_compile_result("<dictionary.form-category>")
     assert len(result) == 1
-    lookup: RantLookupObject = result[0]
-    assert lookup.type == RantObjectType.LOOKUP
+    lookup: LookupObject = result[0]
+    assert lookup.type == ObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
     assert lookup.positive_tags == {"category"}
@@ -63,8 +63,8 @@ def test_parse_complex_lookups():
 def test_parse_function():
     lex_result = get_compile_result("[function:arg1;arg2]")
     assert len(lex_result) == 1
-    assert isinstance(lex_result[0], RantFunctionObject)
-    func: RantFunctionObject = lex_result[0]
+    assert isinstance(lex_result[0], FunctionObject)
+    func: FunctionObject = lex_result[0]
     assert func.func == "function"
     assert len(func.args) == 2
     assert func.args[0][0].text == "arg1"
@@ -74,9 +74,9 @@ def test_parse_function():
 def test_parse_choice():
     parser_output = get_compile_result("{this|that}")
     assert len(parser_output) == 1
-    assert isinstance(parser_output[0], RantBlockObject)
-    choice_result: RantBlockObject = parser_output[0]
-    assert choice_result.type == RantObjectType.BLOCK
+    assert isinstance(parser_output[0], BlockObject)
+    choice_result: BlockObject = parser_output[0]
+    assert choice_result.type == ObjectType.BLOCK
     assert len(choice_result.choices) == 2
     for choice in choice_result.choices:
         assert len(choice.contents) == 1
@@ -88,9 +88,9 @@ def test_nested_block():
     parser_output = get_compile_result("{{a|b}|{c|d}}")
     assert len(parser_output) == 1
     outer_block = parser_output[0]
-    assert isinstance(outer_block, RantBlockObject)
-    ab: RantBlockObject = outer_block[0][0]
-    cd: RantBlockObject = outer_block[1][0]
+    assert isinstance(outer_block, BlockObject)
+    ab: BlockObject = outer_block[0][0]
+    cd: BlockObject = outer_block[1][0]
     assert len(ab) == 2
     assert len(cd) == 2
     assert ab[0][0].text == 'a'
@@ -102,12 +102,12 @@ def test_nested_block():
 def test_parse_choice_with_lookups():
     parser_output = get_compile_result("{this|<something.form-category>}")
     assert len(parser_output) == 1
-    assert isinstance(parser_output[0], RantBlockObject)
-    block: RantBlockObject = parser_output[0]
-    assert isinstance(block[0][0], RantTextObject)
+    assert isinstance(parser_output[0], BlockObject)
+    block: BlockObject = parser_output[0]
+    assert isinstance(block[0][0], TextObject)
     assert block[0][0].text == 'this'
-    assert isinstance(block[1][0], RantLookupObject)
-    lookup: RantLookupObject = block[1][0]
+    assert isinstance(block[1][0], LookupObject)
+    lookup: LookupObject = block[1][0]
     assert lookup.dictionary == 'something'
     assert lookup.form == 'form'
     assert lookup.positive_tags == {'category'}
@@ -116,18 +116,18 @@ def test_parse_choice_with_lookups():
 def test_parse_indefinite_article():
     parser_output = get_compile_result("\\a bow and \\a arrow")
     assert len(parser_output) == 4
-    assert isinstance(parser_output[0], RantIndefiniteArticleObject)
-    assert isinstance(parser_output[1], RantTextObject)
+    assert isinstance(parser_output[0], IndefiniteArticleObject)
+    assert isinstance(parser_output[1], TextObject)
     assert parser_output[1].text == " bow and "
-    assert isinstance(parser_output[2], RantIndefiniteArticleObject)
-    assert isinstance(parser_output[3], RantTextObject)
+    assert isinstance(parser_output[2], IndefiniteArticleObject)
+    assert isinstance(parser_output[3], TextObject)
     assert parser_output[3].text == " arrow"
 
 
 def test_parse_simple_regex():
     parser_output = get_compile_result("[//a//i:a bat;i]")
     assert len(parser_output) == 1
-    rro: RantRegexObject = parser_output[0]
+    rro: RegexObject = parser_output[0]
     assert rro.regex == 'a'
     assert rro.scope[0].text == 'a bat'
     assert rro.replacement[0].text == 'i'
@@ -137,7 +137,7 @@ def test_parse_simple_regex():
 def test_parse_complex_regex():
     parser_output = get_compile_result("[//^\w\w[aeiou]?//i:whatever;something]")
     assert len(parser_output) == 1
-    rro: RantRegexObject = parser_output[0]
+    rro: RegexObject = parser_output[0]
     assert rro.regex == "^\w\w[aeiou]?"
 
 

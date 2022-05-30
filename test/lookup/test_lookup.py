@@ -112,7 +112,7 @@ def test_dictionary_manager():
 def test_lookup_from_object():
     path = relative_path_to_full_path("../resources/")
     LookupManager.add_dictionaries_from_folder(path)
-    lookup = RantLookupObject("adj")
+    lookup = LookupObject("adj")
     assert LookupManager.do_lookup(lookup) == "happy"
 
 

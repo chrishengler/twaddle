@@ -1,7 +1,7 @@
 from enum import Enum, auto
 
 
-class RantTokenType(Enum):
+class TokenType(Enum):
     LEFT_ANGLE_BRACKET = auto()
     RIGHT_ANGLE_BRACKET = auto()
     LEFT_CURLY_BRACKET = auto()
@@ -28,13 +28,13 @@ class RantTokenType(Enum):
     PLAIN_TEXT = auto()
 
 
-class RantToken:
-    def __init__(self, t: RantTokenType, val: str = ""):
+class Token:
+    def __init__(self, t: TokenType, val: str = ""):
         self.type = t
         self.value = val
 
     def __eq__(self, o: object) -> bool:
-        if not isinstance(o, RantToken):
+        if not isinstance(o, Token):
             return NotImplemented
         return self.type == o.type and self.value == o.value
 

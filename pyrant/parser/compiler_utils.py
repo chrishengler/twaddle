@@ -4,87 +4,87 @@ from lexer.lexer_tokens import *
 from rant_exceptions import RantParserException
 
 
-def to_plain_text_token(raw: RantToken) -> RantToken:
+def to_plain_text_token(raw: Token) -> Token:
     match raw.type:
-        case RantTokenType.PLAIN_TEXT:
+        case TokenType.PLAIN_TEXT:
             return raw
-        case RantTokenType.EXCLAMATION_MARK:
-            return RantToken(RantTokenType.PLAIN_TEXT, '!')
-        case RantTokenType.COLON:
-            return RantToken(RantTokenType.PLAIN_TEXT, ':')
-        case RantTokenType.SEMICOLON:
-            return RantToken(RantTokenType.PLAIN_TEXT, ';')
-        case RantTokenType.PIPE:
-            return RantToken(RantTokenType.PLAIN_TEXT, '|')
-        case RantTokenType.HYPHEN:
-            return RantToken(RantTokenType.PLAIN_TEXT, '-')
-        case RantTokenType.DOUBLE_COLON:
-            return RantToken(RantTokenType.PLAIN_TEXT, '::')
-        case RantTokenType.BACKSLASH:
-            return RantToken(RantTokenType.PLAIN_TEXT, '/')
-        case RantTokenType.DOT:
-            return RantToken(RantTokenType.PLAIN_TEXT, '.')
-        case RantTokenType.EQUALS:
-            return RantToken(RantTokenType.PLAIN_TEXT, '=')
+        case TokenType.EXCLAMATION_MARK:
+            return Token(TokenType.PLAIN_TEXT, '!')
+        case TokenType.COLON:
+            return Token(TokenType.PLAIN_TEXT, ':')
+        case TokenType.SEMICOLON:
+            return Token(TokenType.PLAIN_TEXT, ';')
+        case TokenType.PIPE:
+            return Token(TokenType.PLAIN_TEXT, '|')
+        case TokenType.HYPHEN:
+            return Token(TokenType.PLAIN_TEXT, '-')
+        case TokenType.DOUBLE_COLON:
+            return Token(TokenType.PLAIN_TEXT, '::')
+        case TokenType.BACKSLASH:
+            return Token(TokenType.PLAIN_TEXT, '/')
+        case TokenType.DOT:
+            return Token(TokenType.PLAIN_TEXT, '.')
+        case TokenType.EQUALS:
+            return Token(TokenType.PLAIN_TEXT, '=')
         # unrecognised token type
         # should throw an error here once everything's ready
         case _:
-            return RantToken(RantTokenType.PLAIN_TEXT, raw.value)
+            return Token(TokenType.PLAIN_TEXT, raw.value)
 
 
-def to_plain_text_object(raw: RantToken) -> RantTextObject:
-    return RantTextObject(get_text_for_object(raw))
+def to_plain_text_object(raw: Token) -> TextObject:
+    return TextObject(get_text_for_object(raw))
 
 
-def get_text_for_object(raw: RantToken) -> str:
+def get_text_for_object(raw: Token) -> str:
     match raw.type:
-        case RantTokenType.LEFT_ANGLE_BRACKET:
+        case TokenType.LEFT_ANGLE_BRACKET:
             return "<"
-        case RantTokenType.RIGHT_ANGLE_BRACKET:
+        case TokenType.RIGHT_ANGLE_BRACKET:
             return ">"
-        case RantTokenType.LEFT_CURLY_BRACKET:
+        case TokenType.LEFT_CURLY_BRACKET:
             return "{"
-        case RantTokenType.RIGHT_CURLY_BRACKET:
+        case TokenType.RIGHT_CURLY_BRACKET:
             return "}"
-        case RantTokenType.LEFT_SQUARE_BRACKET:
+        case TokenType.LEFT_SQUARE_BRACKET:
             return "["
-        case RantTokenType.RIGHT_SQUARE_BRACKET:
+        case TokenType.RIGHT_SQUARE_BRACKET:
             return "]"
-        case RantTokenType.PIPE:
+        case TokenType.PIPE:
             return "|"
-        case RantTokenType.HYPHEN:
+        case TokenType.HYPHEN:
             return "-"
-        case RantTokenType.SEMICOLON:
+        case TokenType.SEMICOLON:
             return ";"
-        case RantTokenType.COLON:
+        case TokenType.COLON:
             return ":"
-        case RantTokenType.DOUBLE_COLON:
+        case TokenType.DOUBLE_COLON:
             return "::"
-        case RantTokenType.QUOTE:
+        case TokenType.QUOTE:
             return "\""
-        case RantTokenType.NEW_LINE:
+        case TokenType.NEW_LINE:
             return "\n"
-        case RantTokenType.TAB:
+        case TokenType.TAB:
             return "\t"
-        case RantTokenType.LOWER_INDEFINITE_ARTICLE:
+        case TokenType.LOWER_INDEFINITE_ARTICLE:
             return r"\a"
-        case RantTokenType.UPPER_INDEFINITE_ARTICLE:
+        case TokenType.UPPER_INDEFINITE_ARTICLE:
             return r"\A"
-        case RantTokenType.BACKSLASH:
+        case TokenType.BACKSLASH:
             return "\\"
-        case RantTokenType.FORWARD_SLASH:
+        case TokenType.FORWARD_SLASH:
             return "/"
-        case RantTokenType.REGEX:
+        case TokenType.REGEX:
             return "//"
-        case RantTokenType.DIGIT:
+        case TokenType.DIGIT:
             return r"\d"
-        case RantTokenType.EXCLAMATION_MARK:
+        case TokenType.EXCLAMATION_MARK:
             return "!"
-        case RantTokenType.DOT:
+        case TokenType.DOT:
             return "."
-        case RantTokenType.EQUALS:
+        case TokenType.EQUALS:
             return "="
-        case RantTokenType.PLAIN_TEXT:
+        case TokenType.PLAIN_TEXT:
             return raw.value
         # unrecognised token type
         case _:
@@ -92,20 +92,20 @@ def get_text_for_object(raw: RantToken) -> str:
                 f"[get_plain_text_for_object] unknown token type: {raw.type}")
 
 
-def to_plain_text_token_except(raw: RantToken, accept_list: tuple[RantTokenType]) -> RantToken:
+def to_plain_text_token_except(raw: Token, accept_list: tuple[TokenType]) -> Token:
     if raw.type in accept_list:
         return raw
     else:
         return to_plain_text_token(raw)
 
 
-def merge_text_objects(raw: deque[RantTextObject]) -> RantTextObject:
+def merge_text_objects(raw: deque[TextObject]) -> TextObject:
     value = ''
 
     for token in raw:
-        if isinstance(token, RantTextObject):
+        if isinstance(token, TextObject):
             value += token.text
         else:
             raise RantParserException(
                 f"[ParserUtils::merge_text_objects] object of type {type(token)} when RantTextObject was expected")
-    return RantTextObject(value)
+    return TextObject(value)

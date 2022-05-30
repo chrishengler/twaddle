@@ -22,7 +22,7 @@ def interpret_external(sentence: str) -> str:
     return interpret_internal(compiler.compile(sentence))
 
 
-def interpret_internal(parse_result: RantRootObject) -> str:
+def interpret_internal(parse_result: RootObject) -> str:
     for obj in parse_result:
         obj_result = run(obj)
         if obj_result is not None:
@@ -36,8 +36,8 @@ def run(arg) -> str:
     return ''
 
 
-@run.register(RantRootObject)
-def _(block: RantRootObject):
+@run.register(RootObject)
+def _(block: RootObject):
     result = ''
     for item in block.contents:
         item_result = run(item)
@@ -46,8 +46,8 @@ def _(block: RantRootObject):
     return result
 
 
-@run.register(RantBlockObject)
-def _(block: RantBlockObject):
+@run.register(BlockObject)
+def _(block: BlockObject):
     attributes: BlockAttributes = BlockAttributeManager.get_attributes()
     block_result = ''
     first_repetition = True
@@ -85,8 +85,8 @@ def _(block: RantBlockObject):
     return block_result
 
 
-@run.register(RantFunctionObject)
-def _(func: RantFunctionObject):
+@run.register(FunctionObject)
+def _(func: FunctionObject):
     evaluated_args = list()
     for arg in func.args:
         evaluated_args.append(run(arg))
@@ -97,32 +97,32 @@ def _(func: RantFunctionObject):
             f"[Interpreter::run] no function found named '{func.func}'")
 
 
-@run.register(RantTextObject)
-def _(text: RantTextObject):
+@run.register(TextObject)
+def _(text: TextObject):
     return text.text
 
 
-@run.register(RantLookupObject)
-def _(lookup: RantLookupObject):
+@run.register(LookupObject)
+def _(lookup: LookupObject):
     dictionary: LookupDictionary = LookupManager[lookup.dictionary]
     return dictionary.get(lookup)
 
 
 # noinspection SpellCheckingInspection
-@run.register(RantIndefiniteArticleObject)
-def _(indef: RantIndefiniteArticleObject):
+@run.register(IndefiniteArticleObject)
+def _(indef: IndefiniteArticleObject):
     formatter.add_indefinite_article(indef.default_upper)
     return None
 
 
 # noinspection PyUnusedLocal
-@run.register(RantDigitObject)
-def _(digit: RantDigitObject):
+@run.register(DigitObject)
+def _(digit: DigitObject):
     return str(randint(0, 9))
 
 
-@run.register(RantRegexObject)
-def _(regex: RantRegexObject):
+@run.register(RegexObject)
+def _(regex: RegexObject):
     # noinspection SpellCheckingInspection
     def repl(matchobj: Match):
         RegexState.match = matchobj.group()

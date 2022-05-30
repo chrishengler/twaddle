@@ -1,14 +1,14 @@
-from lexer.lexer_tokens import RantToken, RantTokenType
+from lexer.lexer_tokens import Token, TokenType
 
 
 def test_rant_token_equality():
-    plaintext = RantToken(RantTokenType.PLAIN_TEXT, "plaintext")
-    duplicate_plaintext = RantToken(RantTokenType.PLAIN_TEXT, "plaintext")
-    different_plaintext = RantToken(
-        RantTokenType.PLAIN_TEXT, "different plaintext")
-    empty_plaintext = RantToken(RantTokenType.PLAIN_TEXT)
-    left_angle = RantToken(RantTokenType.LEFT_ANGLE_BRACKET)
-    hyphen = RantToken(RantTokenType.HYPHEN)
+    plaintext = Token(TokenType.PLAIN_TEXT, "plaintext")
+    duplicate_plaintext = Token(TokenType.PLAIN_TEXT, "plaintext")
+    different_plaintext = Token(
+        TokenType.PLAIN_TEXT, "different plaintext")
+    empty_plaintext = Token(TokenType.PLAIN_TEXT)
+    left_angle = Token(TokenType.LEFT_ANGLE_BRACKET)
+    hyphen = Token(TokenType.HYPHEN)
 
     assert plaintext == duplicate_plaintext
     assert plaintext != empty_plaintext

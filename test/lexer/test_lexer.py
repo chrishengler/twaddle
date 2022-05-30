@@ -1,4 +1,4 @@
-from lexer.lexer_tokens import RantToken, RantTokenType
+from lexer.lexer_tokens import Token, TokenType
 import lexer.lexer as lexer
 
 
@@ -6,7 +6,7 @@ def test_angle_brackets():
     test_string = '<>'
     result = lexer.lex(test_string)
 
-    expected_result = [RantToken(RantTokenType.LEFT_ANGLE_BRACKET), RantToken(RantTokenType.RIGHT_ANGLE_BRACKET)]
+    expected_result = [Token(TokenType.LEFT_ANGLE_BRACKET), Token(TokenType.RIGHT_ANGLE_BRACKET)]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -17,7 +17,7 @@ def test_square_brackets():
     test_string = '[]'
     result = lexer.lex(test_string)
 
-    expected_result = [RantToken(RantTokenType.LEFT_SQUARE_BRACKET), RantToken(RantTokenType.RIGHT_SQUARE_BRACKET)]
+    expected_result = [Token(TokenType.LEFT_SQUARE_BRACKET), Token(TokenType.RIGHT_SQUARE_BRACKET)]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -28,7 +28,7 @@ def test_curly_brackets():
     test_string = '{}'
     result = lexer.lex(test_string)
 
-    expected_result = [RantToken(RantTokenType.LEFT_CURLY_BRACKET), RantToken(RantTokenType.RIGHT_CURLY_BRACKET)]
+    expected_result = [Token(TokenType.LEFT_CURLY_BRACKET), Token(TokenType.RIGHT_CURLY_BRACKET)]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -39,7 +39,7 @@ def test_pipe():
     test_string = '|'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.PIPE)
+    expected_result = Token(TokenType.PIPE)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -49,7 +49,7 @@ def test_hyphen():
     test_string = '-'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.HYPHEN)
+    expected_result = Token(TokenType.HYPHEN)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -59,7 +59,7 @@ def test_semicolon():
     test_string = ';'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.SEMICOLON)
+    expected_result = Token(TokenType.SEMICOLON)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -69,7 +69,7 @@ def test_colon():
     test_string = ':'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.COLON)
+    expected_result = Token(TokenType.COLON)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -79,7 +79,7 @@ def test_double_colon():
     test_string = '::'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.DOUBLE_COLON)
+    expected_result = Token(TokenType.DOUBLE_COLON)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -89,7 +89,7 @@ def test_quote():
     test_string = '"'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.QUOTE)
+    expected_result = Token(TokenType.QUOTE)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -99,7 +99,7 @@ def test_new_line():
     test_string = r'\n'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.NEW_LINE)
+    expected_result = Token(TokenType.NEW_LINE)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -109,7 +109,7 @@ def test_indefinite_article():
     test_string = r'\a'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.LOWER_INDEFINITE_ARTICLE)
+    expected_result = Token(TokenType.LOWER_INDEFINITE_ARTICLE)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -119,7 +119,7 @@ def test_slash():
     test_string = r'\\'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.BACKSLASH)
+    expected_result = Token(TokenType.BACKSLASH)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -129,7 +129,7 @@ def test_digit():
     test_string = r'\d'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.DIGIT)
+    expected_result = Token(TokenType.DIGIT)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -139,7 +139,7 @@ def test_plaintext():
     test_string = 'hello'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.PLAIN_TEXT, 'hello')
+    expected_result = Token(TokenType.PLAIN_TEXT, 'hello')
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -149,7 +149,7 @@ def test_exclamation_mark():
     test_string = '!'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.EXCLAMATION_MARK)
+    expected_result = Token(TokenType.EXCLAMATION_MARK)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -159,7 +159,7 @@ def test_equals():
     test_string = '='
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.EQUALS)
+    expected_result = Token(TokenType.EQUALS)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -169,7 +169,7 @@ def test_dot():
     test_string = '.'
     result = lexer.lex(test_string)
 
-    expected_result = RantToken(RantTokenType.DOT)
+    expected_result = Token(TokenType.DOT)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -179,17 +179,17 @@ def test_long_string():
     test_string = 'angle brackets <:> curly brackets{ ::  } square brackets []plaintext-hello|'
     result = lexer.lex(test_string)
 
-    expected_result = [RantToken(RantTokenType.PLAIN_TEXT, 'angle brackets '),
-                       RantToken(RantTokenType.LEFT_ANGLE_BRACKET), RantToken(RantTokenType.COLON),
-                       RantToken(RantTokenType.RIGHT_ANGLE_BRACKET),
-                       RantToken(RantTokenType.PLAIN_TEXT, ' curly brackets'),
-                       RantToken(RantTokenType.LEFT_CURLY_BRACKET), RantToken(RantTokenType.PLAIN_TEXT, ' '),
-                       RantToken(RantTokenType.DOUBLE_COLON), RantToken(RantTokenType.PLAIN_TEXT, '  '),
-                       RantToken(RantTokenType.RIGHT_CURLY_BRACKET),
-                       RantToken(RantTokenType.PLAIN_TEXT, ' square brackets '),
-                       RantToken(RantTokenType.LEFT_SQUARE_BRACKET), RantToken(RantTokenType.RIGHT_SQUARE_BRACKET),
-                       RantToken(RantTokenType.PLAIN_TEXT, 'plaintext'), RantToken(RantTokenType.HYPHEN),
-                       RantToken(RantTokenType.PLAIN_TEXT, 'hello'), RantToken(RantTokenType.PIPE)]
+    expected_result = [Token(TokenType.PLAIN_TEXT, 'angle brackets '),
+                       Token(TokenType.LEFT_ANGLE_BRACKET), Token(TokenType.COLON),
+                       Token(TokenType.RIGHT_ANGLE_BRACKET),
+                       Token(TokenType.PLAIN_TEXT, ' curly brackets'),
+                       Token(TokenType.LEFT_CURLY_BRACKET), Token(TokenType.PLAIN_TEXT, ' '),
+                       Token(TokenType.DOUBLE_COLON), Token(TokenType.PLAIN_TEXT, '  '),
+                       Token(TokenType.RIGHT_CURLY_BRACKET),
+                       Token(TokenType.PLAIN_TEXT, ' square brackets '),
+                       Token(TokenType.LEFT_SQUARE_BRACKET), Token(TokenType.RIGHT_SQUARE_BRACKET),
+                       Token(TokenType.PLAIN_TEXT, 'plaintext'), Token(TokenType.HYPHEN),
+                       Token(TokenType.PLAIN_TEXT, 'hello'), Token(TokenType.PIPE)]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -200,11 +200,11 @@ def test_realistic_sentence():
     test_string = r'I work as \a <noun-job>'
     result = lexer.lex(test_string)
 
-    expected_result = [RantToken(RantTokenType.PLAIN_TEXT, "I work as "),
-                       RantToken(RantTokenType.LOWER_INDEFINITE_ARTICLE), RantToken(RantTokenType.PLAIN_TEXT, " "),
-                       RantToken(RantTokenType.LEFT_ANGLE_BRACKET), RantToken(RantTokenType.PLAIN_TEXT, "noun"),
-                       RantToken(RantTokenType.HYPHEN), RantToken(RantTokenType.PLAIN_TEXT, "job"),
-                       RantToken(RantTokenType.RIGHT_ANGLE_BRACKET)]
+    expected_result = [Token(TokenType.PLAIN_TEXT, "I work as "),
+                       Token(TokenType.LOWER_INDEFINITE_ARTICLE), Token(TokenType.PLAIN_TEXT, " "),
+                       Token(TokenType.LEFT_ANGLE_BRACKET), Token(TokenType.PLAIN_TEXT, "noun"),
+                       Token(TokenType.HYPHEN), Token(TokenType.PLAIN_TEXT, "job"),
+                       Token(TokenType.RIGHT_ANGLE_BRACKET)]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):

@@ -1,6 +1,4 @@
 class BlockAttributes:
-    synchronizer: str | None
-
     def __init__(self):
         self.repetitions: int = 1
         self.separator: str = ''
