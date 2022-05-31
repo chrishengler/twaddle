@@ -1,6 +1,7 @@
 from interpreter.formatting_object import FormattingStrategy
-import interpreter.formatter as formatter
+from interpreter.formatter import Formatter
 
+formatter = Formatter()
 
 def test_simple_print():
     formatter.append("hello")

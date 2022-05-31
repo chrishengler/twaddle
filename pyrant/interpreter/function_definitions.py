@@ -1,5 +1,5 @@
 from interpreter.block_attributes import BlockAttributeManager
-from .formatting_object import FormattingStrategy
+from .formatting_object import FormattingStrategy, StrategyChange
 import interpreter.formatter as formatter
 from .regex_state import RegexState
 from random import randint
@@ -30,15 +30,15 @@ def case(args: list[str]):
     arg = args[0].strip().lower()
     match arg:
         case "none":
-            formatter.set_strategy(FormattingStrategy.NONE)
+            return FormattingStrategy.NONE
         case "upper":
-            formatter.set_strategy(FormattingStrategy.UPPER)
+            return FormattingStrategy.UPPER
         case "lower":
-            formatter.set_strategy(FormattingStrategy.LOWER)
+            return FormattingStrategy.LOWER
         case "sentence":
-            formatter.set_strategy(FormattingStrategy.SENTENCE)
+            return FormattingStrategy.SENTENCE
         case "title":
-            formatter.set_strategy(FormattingStrategy.TITLE)
+            return FormattingStrategy.TITLE
         case _:
             pass
 

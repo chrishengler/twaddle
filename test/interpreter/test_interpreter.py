@@ -94,7 +94,7 @@ def test_case_block_interaction():
     assert result == "the A team"
     result = get_interpreter_output("[case:upper]The {cow|chicken}")
     assert result in ["THE COW", "THE CHICKEN"]
-    result = get_interpreter_output("[case:title]The {[case:upper]BIG[case:lower]small}")
+    result = get_interpreter_output("[case:title]The [case:none]{[case:upper]BIG[case:lower]small}")
     assert result == "The BIGsmall"
 
 
@@ -116,6 +116,13 @@ def test_simple_regex():
     assert result == "i bit"
     result = get_interpreter_output("[//a//i:a;[match][match]]")
     assert result == "aa"
+
+
+def test_indefinite_article_in_regex():
+    result = get_interpreter_output("[//[aeiou]//:i'm \\a cat;x]")
+    assert result == "x'm x cxt"
+    result = get_interpreter_output("[//[aeiou]//:i'm \\a elephant;x]")
+    assert result == "x'm xn xlxphxnt"
 
 
 if __name__ == "__main__":

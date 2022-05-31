@@ -3,7 +3,7 @@ from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
 from rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
-import interpreter.formatter as formatter
+from interpreter.formatter import Formatter
 from lookup.lookup import LookupManager, LookupDictionary
 from parser.compiler_objects import *
 from .regex_state import RegexState
@@ -23,9 +23,10 @@ def interpret_external(sentence: str) -> str:
 
 
 def interpret_internal(parse_result: RootObject) -> str:
+    formatter = Formatter()
     for obj in parse_result:
         obj_result = run(obj)
-        if obj_result is not None:
+        if obj_result:
             formatter.append(obj_result)
     return formatter.get()
 
@@ -37,13 +38,13 @@ def run(arg) -> str:
 
 
 @run.register(RootObject)
-def _(block: RootObject):
-    result = ''
-    for item in block.contents:
+def _(root: RootObject):
+    formatter = Formatter()
+    for item in root.contents:
         item_result = run(item)
         if item_result:
-            result += item_result
-    return result
+            formatter.append(item_result)
+    return formatter.get()
 
 
 @run.register(BlockObject)
@@ -111,8 +112,7 @@ def _(lookup: LookupObject):
 # noinspection SpellCheckingInspection
 @run.register(IndefiniteArticleObject)
 def _(indef: IndefiniteArticleObject):
-    formatter.add_indefinite_article(indef.default_upper)
-    return None
+    return indef
 
 
 # noinspection PyUnusedLocal

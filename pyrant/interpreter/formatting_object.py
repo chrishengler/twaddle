@@ -12,6 +12,7 @@ class FormattingStrategy(Enum):
 
 class FormattingObject:
     def __init__(self, previous):
+        self.previous = None
         if previous is not None:
             self.previous = previous
             previous.next = self
