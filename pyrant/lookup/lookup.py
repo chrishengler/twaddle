@@ -96,7 +96,7 @@ class LookupDictionaryFactory:
         return entry_line.split('/')
 
     def read_from_file(self, path: str) -> LookupDictionary:
-        with open(path) as input_file:
+        with open(path, encoding="utf-8") as input_file:
             name = str()
             forms = list[str]()
             dictionary = None
