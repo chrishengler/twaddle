@@ -45,25 +45,25 @@ def test_label_positive():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], {"tag1"})
     dictionary.add(["hexagon", "hexagons"], {"tag2"})
-    assert dictionary._get("singular", {"tag1"}, set(), "test") == "thing"
+    assert dictionary._get("singular", {"tag1"}, set(), "tests") == "thing"
     for _ in range(0, 5):
-        assert dictionary._get("singular", set(), set(), "test") == "thing"
+        assert dictionary._get("singular", set(), set(), "tests") == "thing"
 
 
 def test_labels_negative():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], {"tag1"})
     dictionary.add(["hexagon", "hexagons"], {"tag2"})
-    assert dictionary._get("singular", {"tag1"}, set(), "test") == "thing"
+    assert dictionary._get("singular", {"tag1"}, set(), "tests") == "thing"
     for _ in range(0, 5):
-        assert dictionary._get("singular", set(), set(), None, {"test"}) == "hexagon"
+        assert dictionary._get("singular", set(), set(), None, {"tests"}) == "hexagon"
         # just to check no problems with undefined labels
         assert dictionary._get("singular", set(), set(), None, {"hat"})
     dictionary.clear_labels()
     results_after_clearing = list[str]()
     for _ in range(0, 50):
         results_after_clearing.append(
-            dictionary._get("singular", set(), set(), None, {"test"}))
+            dictionary._get("singular", set(), set(), None, {"tests"}))
     assert "thing" in results_after_clearing
 
 

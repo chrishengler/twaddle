@@ -54,13 +54,13 @@ def test_repeat_with_first_and_last():
 
 def test_synchronizer_locked():
     result = get_interpreter_output(
-        "[x:test;locked]{a|b|c}[x:test]{a|b|c}[x:test]{a|b|c}")
+        "[x:tests;locked]{a|b|c}[x:tests]{a|b|c}[x:tests]{a|b|c}")
     assert result in ['aaa', 'bbb', 'ccc']
 
 
 def test_synchronizer_deck():
     for _ in range(0, 10):
-        result = get_interpreter_output("[x:test;deck]{a|b}[x:test]{a|b}")
+        result = get_interpreter_output("[x:tests;deck]{a|b}[x:tests]{a|b}")
         assert result in ['ab', 'ba']
 
 

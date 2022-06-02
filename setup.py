@@ -7,5 +7,5 @@ if __name__ == "__main__":
           author='Chris Hengler',
           author_email='dr.c.hengler@gmail.com',
           url='https://github.com/chrishengler/PyRant',
-          packages=['pyrant', 'test'],
+          packages=['pyrant', 'tests'],
           )
