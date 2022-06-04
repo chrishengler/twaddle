@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from random import randrange, shuffle
-from rant_exceptions import RantInterpreterException
+from pyrant.rant_exceptions import RantInterpreterException
 
 
 class Synchronizer(ABC):

@@ -1,4 +1,4 @@
-from rant.rant import Rant
+from pyrant.rant.rant import Rant
 import os
 
 

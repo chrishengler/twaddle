@@ -1,4 +1,4 @@
-from interpreter.synchronizer import *
+from pyrant.interpreter.synchronizer import *
 
 
 def test_synchronizer_manager():

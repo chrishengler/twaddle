@@ -1,4 +1,4 @@
-from lookup.lookup import *
+from pyrant.lookup.lookup import *
 import os
 import pytest
 

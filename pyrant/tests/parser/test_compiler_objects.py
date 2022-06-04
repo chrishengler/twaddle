@@ -1,4 +1,4 @@
-from parser.compiler_objects import *
+from pyrant.parser.compiler_objects import *
 
 
 def test_rant_text_object():

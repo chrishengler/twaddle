@@ -1,4 +1,4 @@
-from lexer.lexer import lex
+from pyrant.lexer.lexer import lex
 from .compiler_utils import *
 
 

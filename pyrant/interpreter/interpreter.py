@@ -1,11 +1,11 @@
-from parser.compiler import Compiler
+from pyrant.parser.compiler import Compiler
 from .function_dict import function_definitions
 from .block_attributes import BlockAttributeManager, BlockAttributes
-from rant_exceptions import RantInterpreterException
+from pyrant.rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
-from interpreter.formatter import Formatter
-from lookup.lookup import LookupManager, LookupDictionary
-from parser.compiler_objects import *
+from pyrant.interpreter.formatter import Formatter
+from pyrant.lookup.lookup import LookupManager, LookupDictionary
+from pyrant.parser.compiler_objects import *
 from .regex_state import RegexState
 
 from functools import singledispatch

@@ -1,4 +1,4 @@
-from lexer.lexer_tokens import Token, TokenType
+from pyrant.lexer.lexer_tokens import Token, TokenType
 
 
 def test_rant_token_equality():

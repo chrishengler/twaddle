@@ -1,6 +1,5 @@
-from interpreter.block_attributes import BlockAttributeManager
-from .formatting_object import FormattingStrategy, StrategyChange
-import interpreter.formatter as formatter
+from pyrant.interpreter.block_attributes import BlockAttributeManager
+from .formatting_object import FormattingStrategy
 from .regex_state import RegexState
 from random import randint
 
