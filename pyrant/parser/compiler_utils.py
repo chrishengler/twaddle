@@ -1,7 +1,7 @@
 from collections import deque
-from parser.compiler_objects import *
-from lexer.lexer_tokens import *
-from rant_exceptions import RantParserException
+from pyrant.parser.compiler_objects import *
+from pyrant.lexer.lexer_tokens import *
+from pyrant.rant_exceptions import RantParserException
 
 
 def to_plain_text_token(raw: Token) -> Token:

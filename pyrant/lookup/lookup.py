@@ -1,7 +1,7 @@
 from collections import OrderedDict
 from random import choice
-from parser.compiler_objects import LookupObject
-from rant_exceptions import RantLookupException
+from pyrant.parser.compiler_objects import LookupObject
+from pyrant.rant_exceptions import RantLookupException
 import os
 
 

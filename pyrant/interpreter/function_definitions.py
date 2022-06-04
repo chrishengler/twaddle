@@ -1,4 +1,4 @@
-from interpreter.block_attributes import BlockAttributeManager
+from pyrant.interpreter.block_attributes import BlockAttributeManager
 from .formatting_object import FormattingStrategy, StrategyChange
 import interpreter.formatter as formatter
 from .regex_state import RegexState

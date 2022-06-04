@@ -1,5 +1,5 @@
-from lexer.lexer_tokens import Token, TokenType
-import lexer.lexer as lexer
+from pyrant.lexer.lexer_tokens import Token, TokenType
+import pyrant.lexer.lexer as lexer
 
 
 def test_angle_brackets():

@@ -1,5 +1,5 @@
-import interpreter.interpreter as interpreter
-from rant_exceptions import RantInterpreterException
+import pyrant.interpreter.interpreter as interpreter
+from pyrant.rant_exceptions import RantInterpreterException
 import pytest
 
 

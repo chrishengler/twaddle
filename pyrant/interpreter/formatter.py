@@ -1,5 +1,5 @@
-from rant_exceptions import RantInterpreterException
-from parser.compiler_objects import IndefiniteArticleObject
+from pyrant.rant_exceptions import RantInterpreterException
+from pyrant.parser.compiler_objects import IndefiniteArticleObject
 from .formatting_object import *
 import re
 

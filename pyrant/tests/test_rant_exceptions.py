@@ -1,4 +1,4 @@
-import rant_exceptions
+import pyrant.rant_exceptions as rant_exceptions
 
 
 def test_create_lexer_exception_with_message():

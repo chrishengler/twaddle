@@ -1,5 +1,5 @@
 from collections import deque
-from lexer.lexer_tokens import Token, TokenType
+from pyrant.lexer.lexer_tokens import Token, TokenType
 
 
 def lex(input_str: str) -> deque[Token]:
