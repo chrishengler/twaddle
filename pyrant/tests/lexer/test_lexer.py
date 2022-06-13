@@ -3,10 +3,13 @@ import pyrant.lexer.lexer as lexer
 
 
 def test_angle_brackets():
-    test_string = '<>'
+    test_string = "<>"
     result = lexer.lex(test_string)
 
-    expected_result = [Token(TokenType.LEFT_ANGLE_BRACKET), Token(TokenType.RIGHT_ANGLE_BRACKET)]
+    expected_result = [
+        Token(TokenType.LEFT_ANGLE_BRACKET),
+        Token(TokenType.RIGHT_ANGLE_BRACKET),
+    ]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -14,10 +17,13 @@ def test_angle_brackets():
 
 
 def test_square_brackets():
-    test_string = '[]'
+    test_string = "[]"
     result = lexer.lex(test_string)
 
-    expected_result = [Token(TokenType.LEFT_SQUARE_BRACKET), Token(TokenType.RIGHT_SQUARE_BRACKET)]
+    expected_result = [
+        Token(TokenType.LEFT_SQUARE_BRACKET),
+        Token(TokenType.RIGHT_SQUARE_BRACKET),
+    ]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -25,10 +31,13 @@ def test_square_brackets():
 
 
 def test_curly_brackets():
-    test_string = '{}'
+    test_string = "{}"
     result = lexer.lex(test_string)
 
-    expected_result = [Token(TokenType.LEFT_CURLY_BRACKET), Token(TokenType.RIGHT_CURLY_BRACKET)]
+    expected_result = [
+        Token(TokenType.LEFT_CURLY_BRACKET),
+        Token(TokenType.RIGHT_CURLY_BRACKET),
+    ]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -36,7 +45,7 @@ def test_curly_brackets():
 
 
 def test_pipe():
-    test_string = '|'
+    test_string = "|"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.PIPE)
@@ -46,7 +55,7 @@ def test_pipe():
 
 
 def test_hyphen():
-    test_string = '-'
+    test_string = "-"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.HYPHEN)
@@ -56,7 +65,7 @@ def test_hyphen():
 
 
 def test_semicolon():
-    test_string = ';'
+    test_string = ";"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.SEMICOLON)
@@ -66,7 +75,7 @@ def test_semicolon():
 
 
 def test_colon():
-    test_string = ':'
+    test_string = ":"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.COLON)
@@ -76,7 +85,7 @@ def test_colon():
 
 
 def test_double_colon():
-    test_string = '::'
+    test_string = "::"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.DOUBLE_COLON)
@@ -96,7 +105,7 @@ def test_quote():
 
 
 def test_new_line():
-    test_string = r'\n'
+    test_string = r"\n"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.NEW_LINE)
@@ -106,7 +115,7 @@ def test_new_line():
 
 
 def test_indefinite_article():
-    test_string = r'\a'
+    test_string = r"\a"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.LOWER_INDEFINITE_ARTICLE)
@@ -116,7 +125,7 @@ def test_indefinite_article():
 
 
 def test_slash():
-    test_string = r'\\'
+    test_string = r"\\"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.BACKSLASH)
@@ -126,7 +135,7 @@ def test_slash():
 
 
 def test_digit():
-    test_string = r'\d'
+    test_string = r"\d"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.DIGIT)
@@ -136,17 +145,17 @@ def test_digit():
 
 
 def test_plaintext():
-    test_string = 'hello'
+    test_string = "hello"
     result = lexer.lex(test_string)
 
-    expected_result = Token(TokenType.PLAIN_TEXT, 'hello')
+    expected_result = Token(TokenType.PLAIN_TEXT, "hello")
 
     assert len(result) == 1
     assert result[0] == expected_result
 
 
 def test_exclamation_mark():
-    test_string = '!'
+    test_string = "!"
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.EXCLAMATION_MARK)
@@ -156,7 +165,7 @@ def test_exclamation_mark():
 
 
 def test_equals():
-    test_string = '='
+    test_string = "="
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.EQUALS)
@@ -166,7 +175,7 @@ def test_equals():
 
 
 def test_dot():
-    test_string = '.'
+    test_string = "."
     result = lexer.lex(test_string)
 
     expected_result = Token(TokenType.DOT)
@@ -176,20 +185,30 @@ def test_dot():
 
 
 def test_long_string():
-    test_string = 'angle brackets <:> curly brackets{ ::  } square brackets []plaintext-hello|'
+    test_string = (
+        "angle brackets <:> curly brackets{ ::  } square brackets []plaintext-hello|"
+    )
     result = lexer.lex(test_string)
 
-    expected_result = [Token(TokenType.PLAIN_TEXT, 'angle brackets '),
-                       Token(TokenType.LEFT_ANGLE_BRACKET), Token(TokenType.COLON),
-                       Token(TokenType.RIGHT_ANGLE_BRACKET),
-                       Token(TokenType.PLAIN_TEXT, ' curly brackets'),
-                       Token(TokenType.LEFT_CURLY_BRACKET), Token(TokenType.PLAIN_TEXT, ' '),
-                       Token(TokenType.DOUBLE_COLON), Token(TokenType.PLAIN_TEXT, '  '),
-                       Token(TokenType.RIGHT_CURLY_BRACKET),
-                       Token(TokenType.PLAIN_TEXT, ' square brackets '),
-                       Token(TokenType.LEFT_SQUARE_BRACKET), Token(TokenType.RIGHT_SQUARE_BRACKET),
-                       Token(TokenType.PLAIN_TEXT, 'plaintext'), Token(TokenType.HYPHEN),
-                       Token(TokenType.PLAIN_TEXT, 'hello'), Token(TokenType.PIPE)]
+    expected_result = [
+        Token(TokenType.PLAIN_TEXT, "angle brackets "),
+        Token(TokenType.LEFT_ANGLE_BRACKET),
+        Token(TokenType.COLON),
+        Token(TokenType.RIGHT_ANGLE_BRACKET),
+        Token(TokenType.PLAIN_TEXT, " curly brackets"),
+        Token(TokenType.LEFT_CURLY_BRACKET),
+        Token(TokenType.PLAIN_TEXT, " "),
+        Token(TokenType.DOUBLE_COLON),
+        Token(TokenType.PLAIN_TEXT, "  "),
+        Token(TokenType.RIGHT_CURLY_BRACKET),
+        Token(TokenType.PLAIN_TEXT, " square brackets "),
+        Token(TokenType.LEFT_SQUARE_BRACKET),
+        Token(TokenType.RIGHT_SQUARE_BRACKET),
+        Token(TokenType.PLAIN_TEXT, "plaintext"),
+        Token(TokenType.HYPHEN),
+        Token(TokenType.PLAIN_TEXT, "hello"),
+        Token(TokenType.PIPE),
+    ]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):
@@ -197,14 +216,19 @@ def test_long_string():
 
 
 def test_realistic_sentence():
-    test_string = r'I work as \a <noun-job>'
+    test_string = r"I work as \a <noun-job>"
     result = lexer.lex(test_string)
 
-    expected_result = [Token(TokenType.PLAIN_TEXT, "I work as "),
-                       Token(TokenType.LOWER_INDEFINITE_ARTICLE), Token(TokenType.PLAIN_TEXT, " "),
-                       Token(TokenType.LEFT_ANGLE_BRACKET), Token(TokenType.PLAIN_TEXT, "noun"),
-                       Token(TokenType.HYPHEN), Token(TokenType.PLAIN_TEXT, "job"),
-                       Token(TokenType.RIGHT_ANGLE_BRACKET)]
+    expected_result = [
+        Token(TokenType.PLAIN_TEXT, "I work as "),
+        Token(TokenType.LOWER_INDEFINITE_ARTICLE),
+        Token(TokenType.PLAIN_TEXT, " "),
+        Token(TokenType.LEFT_ANGLE_BRACKET),
+        Token(TokenType.PLAIN_TEXT, "noun"),
+        Token(TokenType.HYPHEN),
+        Token(TokenType.PLAIN_TEXT, "job"),
+        Token(TokenType.RIGHT_ANGLE_BRACKET),
+    ]
 
     assert len(result) == len(expected_result)
     for actual, expected in zip(result, expected_result):

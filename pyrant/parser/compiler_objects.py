@@ -4,13 +4,13 @@ from typing import Type
 
 class ObjectType(Enum):
     ROOT = auto()
-    TEXT = auto()               # plain text
-    LOOKUP = auto()             # something looked up from a dictionary
-    BLOCK = auto()              # choice from multiple options
-    FUNCTION = auto()           # call to a rant function
+    TEXT = auto()  # plain text
+    LOOKUP = auto()  # something looked up from a dictionary
+    BLOCK = auto()  # choice from multiple options
+    FUNCTION = auto()  # call to a rant function
     INDEFINITE_ARTICLE = auto()  # a/an, depending what follows
-    DIGIT = auto()              # a random digit 0-9
-    REGEX = auto()              # a regex
+    DIGIT = auto()  # a random digit 0-9
+    REGEX = auto()  # a regex
 
 
 class Object:
@@ -40,9 +40,15 @@ class TextObject(Object):
 
 
 class LookupObject(Object):
-    def __init__(self, dictionary: str, form: str = None,
-                 positive_tags: set[str] = None, negative_tags: set[str] = None,
-                 positive_label: str = None, negative_labels: set[str] = None):
+    def __init__(
+        self,
+        dictionary: str,
+        form: str = None,
+        positive_tags: set[str] = None,
+        negative_tags: set[str] = None,
+        positive_label: str = None,
+        negative_labels: set[str] = None,
+    ):
         Object.__init__(self, ObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
