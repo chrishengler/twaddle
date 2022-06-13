@@ -75,10 +75,12 @@ def test_random_number():
 
 
 def test_case():
-    result = get_interpreter_output("[case:upper]uPpEr [case:lower]loWeR")
-    assert result == "UPPER lower"
-    result = get_interpreter_output("[case:title]it's a title")
-    assert result == "It's A Title"
+    # result = get_interpreter_output("[case:upper]uPpEr [case:lower]loWeR")
+    # assert result == "UPPER lower"
+    # result = get_interpreter_output("[case:title]it's a title")
+    # assert result == "It's A Title"
+    result = get_interpreter_output("\\a [case:title]egg")
+    assert result == "an Egg"
     result = get_interpreter_output(
         "[case:sentence]this is a sentence. this is another SENTENCE.")
     assert result == "This is a sentence. This is another sentence."
@@ -90,11 +92,11 @@ def test_case_block_interaction():
     assert result == "look, a dog!"
     result = get_interpreter_output("{a [case:upper]A|a [case:upper]A}")
     assert result == "a A"
-    result = get_interpreter_output("the {[case:upper]A|[case:title]A} team")
-    assert result == "the A team"
+    result = get_interpreter_output("the {[case:title]A} team")
+    assert result == "the A Team"
     result = get_interpreter_output("[case:upper]The {cow|chicken}")
     assert result in ["THE COW", "THE CHICKEN"]
-    result = get_interpreter_output("[case:title]The [case:none]{[case:upper]BIG[case:lower]small}")
+    result = get_interpreter_output("[case:title]The {[case:upper]BIG[case:lower]small}")
     assert result == "The BIGsmall"
 
 

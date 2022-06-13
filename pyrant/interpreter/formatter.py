@@ -3,8 +3,6 @@ from pyrant.parser.compiler_objects import IndefiniteArticleObject
 from .formatting_object import *
 import re
 
-from functools import singledispatch
-
 
 class Formatter:
     # regex for finding next alphabetic string
@@ -22,7 +20,7 @@ class Formatter:
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
-    def append(self, item: str | FormattingStrategy):
+    def append(self, item: str | FormattingStrategy | IndefiniteArticleObject | FormattingObject):
         if item is None:
             return
         elif isinstance(item, FormattingStrategy):
@@ -34,8 +32,16 @@ class Formatter:
             if self.indefinite_article_waiting:
                 self._replace_indefinite_articles(item)
             return
-        elif isinstance(item, IndefiniteArticleObject):
+        elif isinstance(item, IndefiniteArticleObject) or isinstance(item, IndefiniteArticle):
             self.add_indefinite_article(item.default_upper)
+        elif isinstance(item, PlainText):
+            previous = self._get_previous_object_()
+            self.output_stack.append(PlainText(previous, item.text))
+            if self.indefinite_article_waiting:
+                self._replace_indefinite_articles(item.text)
+        elif isinstance(item, FormattingObject):
+            item.previous = self._get_previous_object_()
+            self.output_stack.append(item)
         else:
             raise RantInterpreterException(f"[Formatter.append] tried to append unexpected type {type(item)}")
 
@@ -66,7 +72,12 @@ class Formatter:
                 raise RantInterpreterException(
                     f"[Formatter.append] no handling defined for {self.current_strategy}")
 
-    def get(self) -> str:
+    def __iadd__(self, other):
+        for item in other.output_stack:
+            self.append(item)
+        return self
+
+    def resolve(self) -> str:
         function_dict = {PlainText: self._print_,
                          StrategyChange: self._set_strategy_,
                          IndefiniteArticle: self._default_indefinite_article_,

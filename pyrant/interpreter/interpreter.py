@@ -22,19 +22,20 @@ def interpret_external(sentence: str) -> str:
     return interpret_internal(compiler.compile(sentence))
 
 
-def interpret_internal(parse_result: RootObject) -> str:
+def interpret_internal(parse_result: RootObject) -> Formatter:
     formatter = Formatter()
     for obj in parse_result:
-        obj_result = run(obj)
-        if obj_result:
-            formatter.append(obj_result)
-    return formatter.get()
+        resulting_formatter = run(obj)
+        if resulting_formatter:
+            formatter += resulting_formatter
+    return formatter.resolve()
 
 
 # noinspection PyUnusedLocal
 @singledispatch
-def run(arg) -> str:
-    return ''
+def run(arg) -> Formatter:
+    formatter = Formatter()
+    return formatter
 
 
 @run.register(RootObject)
@@ -43,14 +44,14 @@ def _(root: RootObject):
     for item in root.contents:
         item_result = run(item)
         if item_result:
-            formatter.append(item_result)
-    return formatter.get()
+            formatter += item_result
+    return formatter
 
 
 @run.register(BlockObject)
 def _(block: BlockObject):
+    formatter = Formatter()
     attributes: BlockAttributes = BlockAttributeManager.get_attributes()
-    block_result = ''
     first_repetition = True
     synchronizer: Synchronizer | None = None
     if attributes.synchronizer is not None:
@@ -74,58 +75,69 @@ def _(block: BlockObject):
                     f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} - when using synchronizers, make sure you have the same number of choices each time")
         if first_repetition:
             first_repetition = False
-            block_result += attributes.first
+            formatter.append(attributes.first)
         elif attributes.repetitions == 1:
-            block_result += attributes.last
+            formatter.append(attributes.last)
         attributes.repetitions = attributes.repetitions - 1
-        partial_result = interpret_internal(
+        partial_result = run(
             block.choices[choice])
-        block_result += partial_result
+        formatter += partial_result
         if attributes.repetitions:
-            block_result += attributes.separator
-    return block_result
+            formatter.append(attributes.separator)
+    return formatter
 
 
 @run.register(FunctionObject)
 def _(func: FunctionObject):
+    formatter = Formatter()
     evaluated_args = list()
     for arg in func.args:
-        evaluated_args.append(run(arg))
+        evaluated_args.append(run(arg).resolve())
     if func.func in function_definitions:
-        return function_definitions[func.func](evaluated_args)
+        formatter.append(function_definitions[func.func](evaluated_args))
     else:
         raise RantInterpreterException(
             f"[Interpreter::run] no function found named '{func.func}'")
+    return formatter
 
 
 @run.register(TextObject)
 def _(text: TextObject):
-    return text.text
+    formatter = Formatter()
+    formatter.append(text.text)
+    return formatter
 
 
 @run.register(LookupObject)
 def _(lookup: LookupObject):
+    formatter = Formatter()
     dictionary: LookupDictionary = LookupManager[lookup.dictionary]
-    return dictionary.get(lookup)
+    formatter.append(dictionary.get(lookup))
 
 
 # noinspection SpellCheckingInspection
 @run.register(IndefiniteArticleObject)
 def _(indef: IndefiniteArticleObject):
-    return indef
-
+    formatter = Formatter()
+    formatter.add_indefinite_article()
+    return formatter
 
 # noinspection PyUnusedLocal
 @run.register(DigitObject)
 def _(digit: DigitObject):
-    return str(randint(0, 9))
+    formatter = Formatter()
+    formatter.append(str(randint(0, 9)))
+    return formatter
 
 
 @run.register(RegexObject)
 def _(regex: RegexObject):
     # noinspection SpellCheckingInspection
+    formatter = Formatter()
+
     def repl(matchobj: Match):
         RegexState.match = matchobj.group()
-        return run(regex.replacement)
+        return run(regex.replacement).resolve()
 
-    return sub(regex.regex, repl, run(regex.scope))
+    formatter.append(sub(regex.regex, repl, run(regex.scope).resolve()))
+    return formatter
