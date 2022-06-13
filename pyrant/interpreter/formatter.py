@@ -47,6 +47,9 @@ class Formatter:
     def _print_(self, text_object: PlainText):
         self._append_to_sentence_(text_object.text)
 
+    def _default_indefinite_article_(self, _: IndefiniteArticle):
+        self._append_to_sentence_('a')
+
     def _append_to_sentence_(self, text: str):
         match self.current_strategy:
             case FormattingStrategy.NONE:
@@ -66,6 +69,7 @@ class Formatter:
     def get(self) -> str:
         function_dict = {PlainText: self._print_,
                          StrategyChange: self._set_strategy_,
+                         IndefiniteArticle: self._default_indefinite_article_,
                          }
         for item in self.output_stack:
             function_dict[type(item)](item)
