@@ -61,5 +61,8 @@ def test_complex_sentence():
 12xxx6"""
 
 
+def test_indefinite_article_at_block_end():
+    assert r.run_sentence("{\\a} cat and {\\a} egg") == "a cat and a egg"
+
 if __name__ == "__main__":
     test_regex()
