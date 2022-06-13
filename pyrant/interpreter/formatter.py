@@ -32,7 +32,9 @@ class Formatter:
             if self.indefinite_article_waiting:
                 self._replace_indefinite_articles(item)
             return
-        elif isinstance(item, IndefiniteArticleObject) or isinstance(item, IndefiniteArticle):
+        elif isinstance(item, IndefiniteArticleObject):
+            self.add_indefinite_article(item.default_upper)
+        elif isinstance(item, IndefiniteArticle):
             self.add_indefinite_article(item.default_upper)
         elif isinstance(item, PlainText):
             previous = self._get_previous_object_()

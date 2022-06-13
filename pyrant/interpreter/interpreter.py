@@ -113,13 +113,14 @@ def _(lookup: LookupObject):
     formatter = Formatter()
     dictionary: LookupDictionary = LookupManager[lookup.dictionary]
     formatter.append(dictionary.get(lookup))
+    return formatter
 
 
 # noinspection SpellCheckingInspection
 @run.register(IndefiniteArticleObject)
 def _(indef: IndefiniteArticleObject):
     formatter = Formatter()
-    formatter.add_indefinite_article()
+    formatter.add_indefinite_article(indef.default_upper)
     return formatter
 
 # noinspection PyUnusedLocal
