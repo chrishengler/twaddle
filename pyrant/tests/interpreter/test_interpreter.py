@@ -21,7 +21,7 @@ def test_text_with_special_characters():
 
 def test_choice():
     result = get_interpreter_output("{a|b}")
-    assert result == 'a' or result == 'b'
+    assert result == "a" or result == "b"
 
 
 def test_unknown_function_error():
@@ -32,36 +32,37 @@ def test_unknown_function_error():
 
 def test_repeat():
     result = get_interpreter_output("[rep:3]{a}")
-    assert result == 'aaa'
+    assert result == "aaa"
 
 
 def test_nested_blocks():
     result = get_interpreter_output("{{a|b}|{c|d}}")
-    assert result in ['a', 'b', 'c', 'd']
+    assert result in ["a", "b", "c", "d"]
 
 
 # noinspection SpellCheckingInspection
 def test_repeat_with_separator():
     result = get_interpreter_output("[rep:3][sep:x]{a}")
-    assert result == 'axaxa'
+    assert result == "axaxa"
 
 
 # noinspection SpellCheckingInspection
 def test_repeat_with_first_and_last():
     result = get_interpreter_output("[rep:5][first:a][last:z]{x}")
-    assert result == 'axxxxzx'
+    assert result == "axxxxzx"
 
 
 def test_synchronizer_locked():
     result = get_interpreter_output(
-        "[x:tests;locked]{a|b|c}[x:tests]{a|b|c}[x:tests]{a|b|c}")
-    assert result in ['aaa', 'bbb', 'ccc']
+        "[x:tests;locked]{a|b|c}[x:tests]{a|b|c}[x:tests]{a|b|c}"
+    )
+    assert result in ["aaa", "bbb", "ccc"]
 
 
 def test_synchronizer_deck():
     for _ in range(0, 10):
         result = get_interpreter_output("[x:tests;deck]{a|b}[x:tests]{a|b}")
-        assert result in ['ab', 'ba']
+        assert result in ["ab", "ba"]
 
 
 def test_random_number():
@@ -82,7 +83,8 @@ def test_case():
     result = get_interpreter_output("\\a [case:title]egg")
     assert result == "an Egg"
     result = get_interpreter_output(
-        "[case:sentence]this is a sentence. this is another SENTENCE.")
+        "[case:sentence]this is a sentence. this is another SENTENCE."
+    )
     assert result == "This is a sentence. This is another sentence."
 
 
@@ -96,7 +98,9 @@ def test_case_block_interaction():
     assert result == "the A Team"
     result = get_interpreter_output("[case:upper]The {cow|chicken}")
     assert result in ["THE COW", "THE CHICKEN"]
-    result = get_interpreter_output("[case:title]The {[case:upper]BIG[case:lower]small}")
+    result = get_interpreter_output(
+        "[case:title]The {[case:upper]BIG[case:lower]small}"
+    )
     assert result == "The BIGsmall"
 
 
@@ -109,8 +113,11 @@ def test_digit():
 # noinspection SpellCheckingInspection
 def test_new_line():
     result = get_interpreter_output(r"hello\nworld!")
-    assert result == """hello
+    assert (
+        result
+        == """hello
 world!"""
+    )
 
 
 def test_simple_regex():

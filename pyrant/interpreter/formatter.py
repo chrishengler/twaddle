@@ -20,7 +20,10 @@ class Formatter:
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
-    def append(self, item: str | FormattingStrategy | IndefiniteArticleObject | FormattingObject):
+    def append(
+        self,
+        item: str | FormattingStrategy | IndefiniteArticleObject | FormattingObject,
+    ):
         if item is None:
             return
         elif isinstance(item, FormattingStrategy):
@@ -45,7 +48,9 @@ class Formatter:
             item.previous = self._get_previous_object_()
             self.output_stack.append(item)
         else:
-            raise RantInterpreterException(f"[Formatter.append] tried to append unexpected type {type(item)}")
+            raise RantInterpreterException(
+                f"[Formatter.append] tried to append unexpected type {type(item)}"
+            )
 
     def _get_previous_object_(self) -> Type[FormattingObject] | None:
         if len(self.output_stack):
@@ -56,7 +61,7 @@ class Formatter:
         self._append_to_sentence_(text_object.text)
 
     def _default_indefinite_article_(self, _: IndefiniteArticle):
-        self._append_to_sentence_('a')
+        self._append_to_sentence_("a")
 
     def _append_to_sentence_(self, text: str):
         match self.current_strategy:
@@ -72,7 +77,8 @@ class Formatter:
                 self.sentence += self.apply_title_case(text)
             case _:
                 raise RantInterpreterException(
-                    f"[Formatter.append] no handling defined for {self.current_strategy}")
+                    f"[Formatter.append] no handling defined for {self.current_strategy}"
+                )
 
     def __iadd__(self, other):
         for item in other.output_stack:
@@ -80,10 +86,11 @@ class Formatter:
         return self
 
     def resolve(self) -> str:
-        function_dict = {PlainText: self._print_,
-                         StrategyChange: self._set_strategy_,
-                         IndefiniteArticle: self._default_indefinite_article_,
-                         }
+        function_dict = {
+            PlainText: self._print_,
+            StrategyChange: self._set_strategy_,
+            IndefiniteArticle: self._default_indefinite_article_,
+        }
         for item in self.output_stack:
             function_dict[type(item)](item)
         result = self.sentence
@@ -105,12 +112,17 @@ class Formatter:
         next_word = self._find_alphabetic_string_(text)
         if next_word is None:
             return
-        chosen_article = 'an' if self._indefinite_article_use_an_(next_word) else 'a'
-        self.output_stack = (
-        [item if not isinstance(item, IndefiniteArticle) else self._convert_article(item, chosen_article) for item in
-         self.output_stack])
+        chosen_article = "an" if self._indefinite_article_use_an_(next_word) else "a"
+        self.output_stack = [
+            item
+            if not isinstance(item, IndefiniteArticle)
+            else self._convert_article(item, chosen_article)
+            for item in self.output_stack
+        ]
 
-    def _convert_article(self, article: IndefiniteArticle, chosen_article: str) -> PlainText:
+    def _convert_article(
+        self, article: IndefiniteArticle, chosen_article: str
+    ) -> PlainText:
         if article.default_upper:
             chosen_article = chosen_article.capitalize()
         self.indefinite_article_waiting = False
@@ -130,12 +142,21 @@ class Formatter:
     def _indefinite_article_use_an_(self, next_word: str) -> bool:
         # exclude/include prefixes/words taken directly from old version of rant
         # this can definitely be improved but will do for now
-        irregular_a_prefixes = {"uni", "use", "uri",
-                                "urol", "U.", "one", "uvu", "eul", "euk", "eur"}
+        irregular_a_prefixes = {
+            "uni",
+            "use",
+            "uri",
+            "urol",
+            "U.",
+            "one",
+            "uvu",
+            "eul",
+            "euk",
+            "eur",
+        }
         irregular_an_prefixes = {"honest", "honor", "hour", "8"}
         irregular_a_words = {"u"}
-        irregular_an_words = {"f", "fbi", "fcc",
-                              "fda", "x", "l", "m", "n", "s", "h"}
+        irregular_an_words = {"f", "fbi", "fcc", "fda", "x", "l", "m", "n", "s", "h"}
         if any(next_word.startswith(prefix) for prefix in irregular_a_prefixes):
             return False
         if any(next_word == word for word in irregular_a_words):
@@ -144,7 +165,7 @@ class Formatter:
             return True
         if any(next_word == word for word in irregular_an_words):
             return True
-        return next_word[0].lower() in ['a', 'e', 'i', 'o', 'u']
+        return next_word[0].lower() in ["a", "e", "i", "o", "u"]
 
     def apply_sentence_case(self, text: str) -> str:
         result = str()

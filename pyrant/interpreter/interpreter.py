@@ -56,14 +56,17 @@ def _(block: BlockObject):
     synchronizer: Synchronizer | None = None
     if attributes.synchronizer is not None:
         if SynchronizerManager.synchronizer_exists(attributes.synchronizer):
-            synchronizer = SynchronizerManager.get_synchronizer(
-                attributes.synchronizer)
+            synchronizer = SynchronizerManager.get_synchronizer(attributes.synchronizer)
         else:
             if attributes.synchronizer_type is None:
                 raise RantInterpreterException(
-                    f"[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type")
+                    f"[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type"
+                )
             synchronizer = SynchronizerManager.create_synchronizer(
-                attributes.synchronizer, attributes.synchronizer_type, len(block.choices))
+                attributes.synchronizer,
+                attributes.synchronizer_type,
+                len(block.choices),
+            )
 
     while attributes.repetitions:
         if synchronizer is None:
@@ -72,15 +75,15 @@ def _(block: BlockObject):
             choice = synchronizer.next()
             if choice >= len(block.choices):
                 raise RantInterpreterException(
-                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} - when using synchronizers, make sure you have the same number of choices each time")
+                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} - when using synchronizers, make sure you have the same number of choices each time"
+                )
         if first_repetition:
             first_repetition = False
             formatter.append(attributes.first)
         elif attributes.repetitions == 1:
             formatter.append(attributes.last)
         attributes.repetitions = attributes.repetitions - 1
-        partial_result = run(
-            block.choices[choice])
+        partial_result = run(block.choices[choice])
         formatter += partial_result
         if attributes.repetitions:
             formatter.append(attributes.separator)
@@ -97,7 +100,8 @@ def _(func: FunctionObject):
         formatter.append(function_definitions[func.func](evaluated_args))
     else:
         raise RantInterpreterException(
-            f"[Interpreter::run] no function found named '{func.func}'")
+            f"[Interpreter::run] no function found named '{func.func}'"
+        )
     return formatter
 
 
@@ -122,6 +126,7 @@ def _(indef: IndefiniteArticleObject):
     formatter = Formatter()
     formatter.add_indefinite_article(indef.default_upper)
     return formatter
+
 
 # noinspection PyUnusedLocal
 @run.register(DigitObject)

@@ -3,6 +3,7 @@ from pyrant.interpreter.formatter import Formatter
 
 formatter = Formatter()
 
+
 def test_simple_print():
     formatter.append("hello")
     assert formatter.resolve() == "hello"

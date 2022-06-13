@@ -10,10 +10,14 @@ def relative_path_to_full_path(rel_path: str) -> str:
 
 # noinspection SpellCheckingInspection
 def test_lookup_type():
-    lookup_thing = LookupEntry({"singular": "thing",
-                                "plural": "things",
-                                "possessive": "thing's",
-                                "pluralpossessive": "things'"})
+    lookup_thing = LookupEntry(
+        {
+            "singular": "thing",
+            "plural": "things",
+            "possessive": "thing's",
+            "pluralpossessive": "things'",
+        }
+    )
     assert lookup_thing["singular"] == "thing"
     assert lookup_thing["plural"] == "things"
     assert lookup_thing["possessive"] == "thing's"
@@ -28,7 +32,10 @@ def test_dictionary():
     assert dictionary._get("plural") == "hexagons"
     with pytest.raises(RantLookupException) as e_info:
         dictionary._get("invalid")
-        assert e_info.message == "[LookupDictionary.get] dictionary 'noun' has no form 'invalid'"
+        assert (
+            e_info.message
+            == "[LookupDictionary.get] dictionary 'noun' has no form 'invalid'"
+        )
 
 
 def test_tag_requirement():
@@ -63,7 +70,8 @@ def test_labels_negative():
     results_after_clearing = list[str]()
     for _ in range(0, 50):
         results_after_clearing.append(
-            dictionary._get("singular", set(), set(), None, {"tests"}))
+            dictionary._get("singular", set(), set(), None, {"tests"})
+        )
     assert "thing" in results_after_clearing
 
 

@@ -32,4 +32,3 @@ def test_rant_function_object():
     assert len(rf.args) == 2
     assert rf.args[0].text == "arg0"
     assert rf.args[1].text == "arg1"
-
