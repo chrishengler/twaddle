@@ -60,7 +60,7 @@ def _(block: BlockObject):
         else:
             if attributes.synchronizer_type is None:
                 raise RantInterpreterException(
-                    f"[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type"
+                    "[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type"
                 )
             synchronizer = SynchronizerManager.create_synchronizer(
                 attributes.synchronizer,
