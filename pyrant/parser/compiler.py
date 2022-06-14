@@ -1,5 +1,20 @@
+from collections import deque
 from pyrant.lexer.lexer import lex
-from .compiler_utils import *
+from enum import Enum, auto
+from .compiler_utils import to_plain_text_object, get_text_for_object
+from .compiler_objects import (
+    Object,
+    RootObject,
+    DigitObject,
+    FunctionObject,
+    RegexObject,
+    BlockObject,
+    LookupObject,
+    IndefiniteArticleObject,
+    TextObject,
+)
+from pyrant.lexer.lexer_tokens import TokenType, Token
+from pyrant.rant_exceptions import RantParserException
 
 
 class CompilerContext(Enum):
@@ -24,7 +39,8 @@ class CompilerContextStack:
     def remove_context(self, context: CompilerContext):
         if self.current_context() is not context:
             raise RantParserException(
-                f"[CompilerContextStack::remove_context] tried to remove {context.name} but current context is {self.stack[-1].name}"
+                f"[CompilerContextStack::remove_context] tried to remove {context.name} "
+                "but current context is {self.stack[-1].name}"
             )
         self.stack.pop()
 

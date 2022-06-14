@@ -5,7 +5,16 @@ from pyrant.rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
 from pyrant.interpreter.formatter import Formatter
 from pyrant.lookup.lookup import LookupManager, LookupDictionary
-from pyrant.parser.compiler_objects import *
+from pyrant.parser.compiler_objects import (
+    RootObject,
+    BlockObject,
+    FunctionObject,
+    TextObject,
+    LookupObject,
+    IndefiniteArticleObject,
+    DigitObject,
+    RegexObject,
+)
 from .regex_state import RegexState
 
 from functools import singledispatch
@@ -60,7 +69,7 @@ def _(block: BlockObject):
         else:
             if attributes.synchronizer_type is None:
                 raise RantInterpreterException(
-                    f"[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type"
+                    "[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type"
                 )
             synchronizer = SynchronizerManager.create_synchronizer(
                 attributes.synchronizer,
@@ -75,7 +84,8 @@ def _(block: BlockObject):
             choice = synchronizer.next()
             if choice >= len(block.choices):
                 raise RantInterpreterException(
-                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} - when using synchronizers, make sure you have the same number of choices each time"
+                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} -"
+                    "when using synchronizers, make sure you have the same number of choices each time"
                 )
         if first_repetition:
             first_repetition = False

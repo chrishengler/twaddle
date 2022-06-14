@@ -1,6 +1,13 @@
 from pyrant.rant_exceptions import RantInterpreterException
 from pyrant.parser.compiler_objects import IndefiniteArticleObject
-from .formatting_object import *
+from .formatting_object import (
+    FormattingStrategy,
+    FormattingObject,
+    StrategyChange,
+    PlainText,
+    IndefiniteArticle,
+)
+from typing import Type
 import re
 
 
