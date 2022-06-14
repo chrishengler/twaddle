@@ -1,4 +1,10 @@
-from pyrant.parser.compiler_objects import *
+from pyrant.parser.compiler_objects import (
+    ObjectType,
+    TextObject,
+    LookupObject,
+    BlockObject,
+    FunctionObject,
+)
 
 
 def test_rant_text_object():

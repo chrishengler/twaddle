@@ -132,30 +132,47 @@ class LookupDictionaryFactory:
             dictionary = None
             classes = set[str]()
             for line in input_file:
-                line = line.strip()
-                if dictionary:
-                    if line.startswith("#class add"):
-                        classes.add(line.split()[-1])
-                    elif (
-                        line.startswith("#class remove") and line.split()[-1] in classes
-                    ):
-                        classes.remove(line.split()[-1])
-                    elif line.startswith("> "):
-                        line = line[2:]
-                        entry = self.get_entry(line)
-                        if len(entry) == len(forms):
-                            dictionary.add(entry, set.copy(classes))
-                if name and forms:
-                    if dictionary is None:
+                if dictionary is None:
+                    if not name:
+                        name = self._try_name(line)
+                    if not forms:
+                        forms = self._try_forms(line)
+                    if name and forms:
                         dictionary = LookupDictionary(name, forms)
                 else:
-                    if line.startswith("#name"):
-                        name = self.get_name(line)
-                        continue
-                    elif line.startswith("#forms") or line.startswith("#subs"):
-                        forms = self.get_forms(line)
-                        continue
+                    self._read_line(line, name, forms, classes, dictionary)
             return dictionary
+
+    def _try_name(self, line: str) -> str:
+        name = None
+        if line.startswith("#name"):
+            name = self.get_name(line)
+        return name
+
+    def _try_forms(self, line: str) -> list[str]:
+        forms = None
+        if line.startswith("#forms") or line.startswith("#subs"):
+            forms = self.get_forms(line)
+        return forms
+
+    def _read_line(
+        self,
+        line: str,
+        name: str,
+        forms: list[str],
+        classes: list[str],
+        dictionary: LookupDictionary,
+    ):
+        line = line.strip()
+        if line.startswith("#class add"):
+            classes.add(line.split()[-1])
+        elif line.startswith("#class remove") and line.split()[-1] in classes:
+            classes.remove(line.split()[-1])
+        elif line.startswith("> "):
+            line = line[2:]
+            entry = self.get_entry(line)
+            if len(entry) == len(forms):
+                dictionary.add(entry, set.copy(classes))
 
 
 class LookupManager:

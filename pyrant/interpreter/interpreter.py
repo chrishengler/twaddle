@@ -5,7 +5,16 @@ from pyrant.rant_exceptions import RantInterpreterException
 from .synchronizer import Synchronizer, SynchronizerManager
 from pyrant.interpreter.formatter import Formatter
 from pyrant.lookup.lookup import LookupManager, LookupDictionary
-from pyrant.parser.compiler_objects import *
+from pyrant.parser.compiler_objects import (
+    RootObject,
+    BlockObject,
+    FunctionObject,
+    TextObject,
+    LookupObject,
+    IndefiniteArticleObject,
+    DigitObject,
+    RegexObject,
+)
 from .regex_state import RegexState
 
 from functools import singledispatch

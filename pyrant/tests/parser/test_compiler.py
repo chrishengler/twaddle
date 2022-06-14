@@ -1,5 +1,14 @@
 from pyrant.parser.compiler import CompilerContextStack, CompilerContext, Compiler
-from pyrant.parser.compiler_objects import *
+from pyrant.parser.compiler_objects import (
+    ObjectType,
+    TextObject,
+    LookupObject,
+    BlockObject,
+    FunctionObject,
+    RootObject,
+    IndefiniteArticleObject,
+    RegexObject,
+)
 from pyrant.rant_exceptions import RantParserException
 import pytest
 
