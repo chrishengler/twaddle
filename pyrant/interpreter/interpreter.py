@@ -84,7 +84,8 @@ def _(block: BlockObject):
             choice = synchronizer.next()
             if choice >= len(block.choices):
                 raise RantInterpreterException(
-                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} - when using synchronizers, make sure you have the same number of choices each time"
+                    f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} -"
+                    "when using synchronizers, make sure you have the same number of choices each time"
                 )
         if first_repetition:
             first_repetition = False

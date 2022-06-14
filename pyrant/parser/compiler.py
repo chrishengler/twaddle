@@ -39,7 +39,8 @@ class CompilerContextStack:
     def remove_context(self, context: CompilerContext):
         if self.current_context() is not context:
             raise RantParserException(
-                f"[CompilerContextStack::remove_context] tried to remove {context.name} but current context is {self.stack[-1].name}"
+                f"[CompilerContextStack::remove_context] tried to remove {context.name} "
+                "but current context is {self.stack[-1].name}"
             )
         self.stack.pop()
 
