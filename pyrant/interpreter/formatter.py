@@ -1,14 +1,16 @@
-from pyrant.rant_exceptions import RantInterpreterException
-from pyrant.parser.compiler_objects import IndefiniteArticleObject
-from .formatting_object import (
-    FormattingStrategy,
-    FormattingObject,
-    StrategyChange,
-    PlainText,
-    IndefiniteArticle,
-)
-from typing import Type
 import re
+from typing import Type
+
+from pyrant.parser.compiler_objects import IndefiniteArticleObject
+from pyrant.rant_exceptions import RantInterpreterException
+
+from .formatting_object import (
+    FormattingObject,
+    FormattingStrategy,
+    IndefiniteArticle,
+    PlainText,
+    StrategyChange,
+)
 
 
 class Formatter:

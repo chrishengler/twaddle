@@ -1,5 +1,6 @@
-from pyrant.rant.rant import Rant
 import os
+
+from pyrant.rant.rant import Rant
 
 
 def relative_path_to_full_path(rel_path: str) -> str:

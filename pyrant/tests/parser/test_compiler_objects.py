@@ -1,9 +1,9 @@
 from pyrant.parser.compiler_objects import (
-    ObjectType,
-    TextObject,
-    LookupObject,
     BlockObject,
     FunctionObject,
+    LookupObject,
+    ObjectType,
+    TextObject,
 )
 
 

@@ -1,5 +1,5 @@
-from pyrant.interpreter.formatting_object import FormattingStrategy
 from pyrant.interpreter.formatter import Formatter
+from pyrant.interpreter.formatting_object import FormattingStrategy
 
 formatter = Formatter()
 

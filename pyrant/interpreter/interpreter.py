@@ -1,25 +1,26 @@
-from pyrant.parser.compiler import Compiler
-from .function_dict import function_definitions
-from .block_attributes import BlockAttributeManager, BlockAttributes
-from pyrant.rant_exceptions import RantInterpreterException
-from .synchronizer import Synchronizer, SynchronizerManager
-from pyrant.interpreter.formatter import Formatter
-from pyrant.lookup.lookup import LookupManager, LookupDictionary
-from pyrant.parser.compiler_objects import (
-    RootObject,
-    BlockObject,
-    FunctionObject,
-    TextObject,
-    LookupObject,
-    IndefiniteArticleObject,
-    DigitObject,
-    RegexObject,
-)
-from .regex_state import RegexState
-
 from functools import singledispatch
-from random import randrange, randint
-from re import sub, Match
+from random import randint, randrange
+from re import Match, sub
+
+from pyrant.interpreter.formatter import Formatter
+from pyrant.lookup.lookup import LookupDictionary, LookupManager
+from pyrant.parser.compiler import Compiler
+from pyrant.parser.compiler_objects import (
+    BlockObject,
+    DigitObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
+from pyrant.rant_exceptions import RantInterpreterException
+
+from .block_attributes import BlockAttributeManager, BlockAttributes
+from .function_dict import function_definitions
+from .regex_state import RegexState
+from .synchronizer import Synchronizer, SynchronizerManager
 
 compiler = Compiler()
 
@@ -69,7 +70,8 @@ def _(block: BlockObject):
         else:
             if attributes.synchronizer_type is None:
                 raise RantInterpreterException(
-                    "[Interpreter.run](RantBlockObject) tried to define new synchronizer without defining synchronizer type"
+                    "[Interpreter.run](RantBlockObject) tried to define new synchronizer "
+                    "without defining synchronizer type"
                 )
             synchronizer = SynchronizerManager.create_synchronizer(
                 attributes.synchronizer,

@@ -1,4 +1,5 @@
 from collections import deque
+
 from pyrant.lexer.lexer_tokens import Token, TokenType
 
 

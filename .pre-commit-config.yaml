@@ -10,10 +10,10 @@ repos:
         language_version: python3.10
 
   - repo: https://github.com/pycqa/flake8
-    rev: 3.7.9
+    rev: 4.0.1
     hooks:
       - id: flake8
-        args: [--ignore=W605,W503]
+        args: ["--ignore=W605,W503", "--max-line-length=120"]
 
   - repo: https://github.com/pycqa/isort
     rev: 5.6.4

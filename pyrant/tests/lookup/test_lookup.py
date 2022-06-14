@@ -1,13 +1,15 @@
+import os
+
+import pytest
+
 from pyrant.lookup.lookup import (
-    LookupEntry,
     LookupDictionary,
     LookupDictionaryFactory,
+    LookupEntry,
     LookupManager,
     LookupObject,
 )
 from pyrant.rant_exceptions import RantLookupException
-import os
-import pytest
 
 
 def relative_path_to_full_path(rel_path: str) -> str:

@@ -1,20 +1,22 @@
 from collections import deque
-from pyrant.lexer.lexer import lex
 from enum import Enum, auto
-from .compiler_utils import to_plain_text_object, get_text_for_object
+
+from pyrant.lexer.lexer import lex
+from pyrant.lexer.lexer_tokens import Token, TokenType
+from pyrant.rant_exceptions import RantParserException
+
 from .compiler_objects import (
-    Object,
-    RootObject,
+    BlockObject,
     DigitObject,
     FunctionObject,
-    RegexObject,
-    BlockObject,
-    LookupObject,
     IndefiniteArticleObject,
+    LookupObject,
+    Object,
+    RegexObject,
+    RootObject,
     TextObject,
 )
-from pyrant.lexer.lexer_tokens import TokenType, Token
-from pyrant.rant_exceptions import RantParserException
+from .compiler_utils import get_text_for_object, to_plain_text_object
 
 
 class CompilerContext(Enum):

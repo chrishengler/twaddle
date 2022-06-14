@@ -1,6 +1,7 @@
 from collections import deque
+
+from pyrant.lexer.lexer_tokens import Token, TokenType
 from pyrant.parser.compiler_objects import TextObject
-from pyrant.lexer.lexer_tokens import TokenType, Token
 from pyrant.rant_exceptions import RantParserException
 
 
