@@ -1,16 +1,17 @@
-from pyrant.parser.compiler import CompilerContextStack, CompilerContext, Compiler
+import pytest
+
+from pyrant.parser.compiler import Compiler, CompilerContext, CompilerContextStack
 from pyrant.parser.compiler_objects import (
-    ObjectType,
-    TextObject,
-    LookupObject,
     BlockObject,
     FunctionObject,
-    RootObject,
     IndefiniteArticleObject,
+    LookupObject,
+    ObjectType,
     RegexObject,
+    RootObject,
+    TextObject,
 )
 from pyrant.rant_exceptions import RantParserException
-import pytest
 
 compiler = Compiler()
 

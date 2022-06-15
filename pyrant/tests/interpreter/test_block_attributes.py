@@ -1,4 +1,4 @@
-from pyrant.interpreter.block_attributes import BlockAttributes, BlockAttributeManager
+from pyrant.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 
 
 def test_add_and_get_attributes():

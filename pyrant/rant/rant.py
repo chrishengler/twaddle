@@ -1,5 +1,5 @@
-from pyrant.lookup.lookup import LookupManager
 from pyrant.interpreter.interpreter import interpret_external as interpret
+from pyrant.lookup.lookup import LookupManager
 
 
 class Rant:

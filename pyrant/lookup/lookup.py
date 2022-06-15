@@ -1,8 +1,9 @@
+import os
 from collections import OrderedDict
 from random import choice
+
 from pyrant.parser.compiler_objects import LookupObject
 from pyrant.rant_exceptions import RantLookupException
-import os
 
 
 class LookupEntry:

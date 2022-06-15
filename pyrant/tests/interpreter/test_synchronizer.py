@@ -1,8 +1,8 @@
 from pyrant.interpreter.synchronizer import (
-    SynchronizerManager,
-    LockedSynchronizer,
     CyclicDeckSynchronizer,
     DeckSynchronizer,
+    LockedSynchronizer,
+    SynchronizerManager,
 )
 
 

@@ -1,6 +1,7 @@
+import pytest
+
 import pyrant.interpreter.interpreter as interpreter
 from pyrant.rant_exceptions import RantInterpreterException
-import pytest
 
 
 def get_interpreter_output(sentence):

@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from random import randrange, shuffle
+
 from pyrant.rant_exceptions import RantInterpreterException
 
 

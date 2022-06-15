@@ -1,12 +1,12 @@
 from .function_definitions import (
-    repeat,
-    separator,
-    rand,
+    case,
     first,
     last,
-    sync,
-    case,
     match,
+    rand,
+    repeat,
+    separator,
+    sync,
 )
 
 function_definitions = {
