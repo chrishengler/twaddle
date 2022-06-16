@@ -1,6 +1,7 @@
 from collections import deque
-from pyrant.parser.compiler_objects import *
-from pyrant.lexer.lexer_tokens import *
+
+from pyrant.lexer.lexer_tokens import Token, TokenType
+from pyrant.parser.compiler_objects import TextObject
 from pyrant.rant_exceptions import RantParserException
 
 
@@ -9,23 +10,23 @@ def to_plain_text_token(raw: Token) -> Token:
         case TokenType.PLAIN_TEXT:
             return raw
         case TokenType.EXCLAMATION_MARK:
-            return Token(TokenType.PLAIN_TEXT, '!')
+            return Token(TokenType.PLAIN_TEXT, "!")
         case TokenType.COLON:
-            return Token(TokenType.PLAIN_TEXT, ':')
+            return Token(TokenType.PLAIN_TEXT, ":")
         case TokenType.SEMICOLON:
-            return Token(TokenType.PLAIN_TEXT, ';')
+            return Token(TokenType.PLAIN_TEXT, ";")
         case TokenType.PIPE:
-            return Token(TokenType.PLAIN_TEXT, '|')
+            return Token(TokenType.PLAIN_TEXT, "|")
         case TokenType.HYPHEN:
-            return Token(TokenType.PLAIN_TEXT, '-')
+            return Token(TokenType.PLAIN_TEXT, "-")
         case TokenType.DOUBLE_COLON:
-            return Token(TokenType.PLAIN_TEXT, '::')
+            return Token(TokenType.PLAIN_TEXT, "::")
         case TokenType.BACKSLASH:
-            return Token(TokenType.PLAIN_TEXT, '/')
+            return Token(TokenType.PLAIN_TEXT, "/")
         case TokenType.DOT:
-            return Token(TokenType.PLAIN_TEXT, '.')
+            return Token(TokenType.PLAIN_TEXT, ".")
         case TokenType.EQUALS:
-            return Token(TokenType.PLAIN_TEXT, '=')
+            return Token(TokenType.PLAIN_TEXT, "=")
         # unrecognised token type
         # should throw an error here once everything's ready
         case _:
@@ -61,7 +62,7 @@ def get_text_for_object(raw: Token) -> str:
         case TokenType.DOUBLE_COLON:
             return "::"
         case TokenType.QUOTE:
-            return "\""
+            return '"'
         case TokenType.NEW_LINE:
             return "\n"
         case TokenType.TAB:
@@ -89,7 +90,8 @@ def get_text_for_object(raw: Token) -> str:
         # unrecognised token type
         case _:
             raise RantParserException(
-                f"[get_plain_text_for_object] unknown token type: {raw.type}")
+                f"[get_plain_text_for_object] unknown token type: {raw.type}"
+            )
 
 
 def to_plain_text_token_except(raw: Token, accept_list: tuple[TokenType]) -> Token:
@@ -100,12 +102,13 @@ def to_plain_text_token_except(raw: Token, accept_list: tuple[TokenType]) -> Tok
 
 
 def merge_text_objects(raw: deque[TextObject]) -> TextObject:
-    value = ''
+    value = ""
 
     for token in raw:
         if isinstance(token, TextObject):
             value += token.text
         else:
             raise RantParserException(
-                f"[ParserUtils::merge_text_objects] object of type {type(token)} when RantTextObject was expected")
+                f"[ParserUtils::merge_text_objects] object of type {type(token)} when RantTextObject was expected"
+            )
     return TextObject(value)

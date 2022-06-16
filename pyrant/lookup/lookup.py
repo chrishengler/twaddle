@@ -1,8 +1,9 @@
+import os
 from collections import OrderedDict
 from random import choice
+
 from pyrant.parser.compiler_objects import LookupObject
 from pyrant.rant_exceptions import RantLookupException
-import os
 
 
 class LookupEntry:
@@ -35,48 +36,78 @@ class LookupDictionary:
     def add(self, forms: list[str], tags: set[str] = None):
         if len(forms) != len(self.forms):
             raise RantLookupException(
-                "[LookupDictionary.add] wrong number of forms provided")
+                "[LookupDictionary.add] wrong number of forms provided"
+            )
         lookup = LookupEntry(OrderedDict(zip(self.forms, forms)), tags)
         self.entries.append(lookup)
 
     def clear_labels(self):
         self.labels = dict[str, LookupEntry]()
 
-    def _get(self, form: str = None, tags_positive: set[str] = None, tags_negative: set[str] = None,
-             label_positive: str = None, labels_negative: set[str] = None) -> str:
+    def _get_form(self, form: str) -> str:
         if form is None:
             form = self.forms[0]
         if form not in self.forms:
             raise RantLookupException(
-                f"[LookupDictionary.get] dictionary '{self.name}' has no form '{form}'")
-        if label_positive and label_positive in self.labels:
-            return self.labels[label_positive][form]
+                f"[LookupDictionary.get] dictionary '{self.name}' has no form '{form}'"
+            )
+        return form
+
+    def _get_valid_choices(
+        self,
+        tags_positive: set[str] = None,
+        tags_negative: set[str] = None,
+        labels_negative: set[str] = None,
+    ) -> list[LookupEntry]:
         valid_choices = list[LookupEntry]()
-        if not tags_negative and not tags_positive:
-            valid_choices = list.copy(self.entries)
-        else:
-            for entry in self.entries:
-                valid = False
-                if not tags_positive or entry.has_all_tags(tags_positive):
-                    valid = True
-                if entry.has_any_tag_of(tags_negative):
-                    valid = False
-                if valid:
-                    valid_choices.append(entry)
+        for entry in self.entries:
+            if entry.has_any_tag_of(tags_negative):
+                continue
+            if not tags_positive or entry.has_all_tags(tags_positive):
+                valid_choices.append(entry)
         if not valid_choices:
-            valid_choices = self.entries
+            valid_choices = list.copy(self.entries)
+        valid_choices = self._prune_valid_choices(valid_choices, labels_negative)
+        return valid_choices
+
+    def _prune_valid_choices(
+        self, valid_choices: list[LookupEntry], labels_negative: set[str]
+    ) -> list[LookupEntry]:
         if labels_negative:
             for label in labels_negative:
                 if label in self.labels and self.labels[label] in valid_choices:
                     valid_choices.remove(self.labels[label])
+        return valid_choices
+
+    def _get(
+        self,
+        form: str = None,
+        tags_positive: set[str] = None,
+        tags_negative: set[str] = None,
+        label_positive: str = None,
+        labels_negative: set[str] = None,
+    ) -> str:
+        form = self._get_form(form)
+        if label_positive and label_positive in self.labels:
+            return self.labels[label_positive][form]
+
+        valid_choices = self._get_valid_choices(
+            tags_positive, tags_negative, labels_negative
+        )
+
         chosen_entry = choice(valid_choices)
         if label_positive:
             self.labels[label_positive] = chosen_entry
         return chosen_entry[form]
 
     def get(self, lookup: LookupObject) -> str:
-        return self._get(lookup.form, lookup.positive_tags, lookup.negative_tags,
-                         lookup.positive_label, lookup.negative_labels)
+        return self._get(
+            lookup.form,
+            lookup.positive_tags,
+            lookup.negative_tags,
+            lookup.positive_label,
+            lookup.negative_labels,
+        )
 
 
 class LookupDictionaryFactory:
@@ -93,7 +124,7 @@ class LookupDictionaryFactory:
 
     @staticmethod
     def get_entry(entry_line: str) -> list[str]:
-        return entry_line.split('/')
+        return entry_line.split("/")
 
     def read_from_file(self, path: str) -> LookupDictionary:
         with open(path, encoding="utf-8") as input_file:
@@ -102,28 +133,47 @@ class LookupDictionaryFactory:
             dictionary = None
             classes = set[str]()
             for line in input_file:
-                line = line.strip()
-                if dictionary:
-                    if line.startswith("#class add"):
-                        classes.add(line.split()[-1])
-                    elif line.startswith("#class remove") and line.split()[-1] in classes:
-                        classes.remove(line.split()[-1])
-                    elif line.startswith("> "):
-                        line = line[2:]
-                        entry = self.get_entry(line)
-                        if len(entry) == len(forms):
-                            dictionary.add(entry, set.copy(classes))
-                if name and forms:
-                    if dictionary is None:
+                if dictionary is None:
+                    if not name:
+                        name = self._try_name(line)
+                    if not forms:
+                        forms = self._try_forms(line)
+                    if name and forms:
                         dictionary = LookupDictionary(name, forms)
                 else:
-                    if line.startswith("#name"):
-                        name = self.get_name(line)
-                        continue
-                    elif line.startswith("#forms") or line.startswith("#subs"):
-                        forms = self.get_forms(line)
-                        continue
+                    self._read_line(line, name, forms, classes, dictionary)
             return dictionary
+
+    def _try_name(self, line: str) -> str:
+        name = None
+        if line.startswith("#name"):
+            name = self.get_name(line)
+        return name
+
+    def _try_forms(self, line: str) -> list[str]:
+        forms = None
+        if line.startswith("#forms") or line.startswith("#subs"):
+            forms = self.get_forms(line)
+        return forms
+
+    def _read_line(
+        self,
+        line: str,
+        name: str,
+        forms: list[str],
+        classes: list[str],
+        dictionary: LookupDictionary,
+    ):
+        line = line.strip()
+        if line.startswith("#class add"):
+            classes.add(line.split()[-1])
+        elif line.startswith("#class remove") and line.split()[-1] in classes:
+            classes.remove(line.split()[-1])
+        elif line.startswith("> "):
+            line = line[2:]
+            entry = self.get_entry(line)
+            if len(entry) == len(forms):
+                dictionary.add(entry, set.copy(classes))
 
 
 class LookupManager:
@@ -139,7 +189,8 @@ class LookupManager:
         for f in os.listdir(path):
             if f.endswith(".dic"):
                 new_dictionary = LookupManager.factory.read_from_file(
-                    os.path.join(path, f))
+                    os.path.join(path, f)
+                )
                 LookupManager.dictionaries[new_dictionary.name] = new_dictionary
 
     @staticmethod

@@ -1,7 +1,17 @@
-from pyrant.parser.compiler import CompilerContextStack, CompilerContext, Compiler
-from pyrant.parser.compiler_objects import *
-from pyrant.rant_exceptions import RantParserException
 import pytest
+
+from pyrant.parser.compiler import Compiler, CompilerContext, CompilerContextStack
+from pyrant.parser.compiler_objects import (
+    BlockObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    ObjectType,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
+from pyrant.rant_exceptions import RantParserException
 
 compiler = Compiler()
 
@@ -20,7 +30,10 @@ def test_compiler_context_stack():
     assert stack.current_context() == CompilerContext.FUNCTION
     with pytest.raises(RantParserException) as e_info:
         stack.remove_context(CompilerContext.BLOCK)
-        assert e_info.message == "[CompilerContextStack::remove_context] tried to remove BLOCK but current context is FUNCTION"
+        assert (
+            e_info.message
+            == "[CompilerContextStack::remove_context] tried to remove BLOCK but current context is FUNCTION"
+        )
 
 
 def test_parse_text():
@@ -51,8 +64,7 @@ def test_parse_complex_lookups():
     assert len(lookup.positive_tags) == 0
     assert lookup.negative_tags == {"category"}
     assert lookup.positive_label == "a"
-    result = get_compile_result(
-        "<dictionary-category1-category2-!category3::!=b>")
+    result = get_compile_result("<dictionary-category1-category2-!category3::!=b>")
     lookup = result[0]
     assert lookup.positive_tags == {"category1", "category2"}
     assert lookup.negative_tags == {"category3"}
@@ -93,10 +105,10 @@ def test_nested_block():
     cd: BlockObject = outer_block[1][0]
     assert len(ab) == 2
     assert len(cd) == 2
-    assert ab[0][0].text == 'a'
-    assert ab[1][0].text == 'b'
-    assert cd[0][0].text == 'c'
-    assert cd[1][0].text == 'd'
+    assert ab[0][0].text == "a"
+    assert ab[1][0].text == "b"
+    assert cd[0][0].text == "c"
+    assert cd[1][0].text == "d"
 
 
 def test_parse_choice_with_lookups():
@@ -105,12 +117,12 @@ def test_parse_choice_with_lookups():
     assert isinstance(parser_output[0], BlockObject)
     block: BlockObject = parser_output[0]
     assert isinstance(block[0][0], TextObject)
-    assert block[0][0].text == 'this'
+    assert block[0][0].text == "this"
     assert isinstance(block[1][0], LookupObject)
     lookup: LookupObject = block[1][0]
-    assert lookup.dictionary == 'something'
-    assert lookup.form == 'form'
-    assert lookup.positive_tags == {'category'}
+    assert lookup.dictionary == "something"
+    assert lookup.form == "form"
+    assert lookup.positive_tags == {"category"}
 
 
 def test_parse_indefinite_article():
@@ -128,9 +140,9 @@ def test_parse_simple_regex():
     parser_output = get_compile_result("[//a//i:a bat;i]")
     assert len(parser_output) == 1
     rro: RegexObject = parser_output[0]
-    assert rro.regex == 'a'
-    assert rro.scope[0].text == 'a bat'
-    assert rro.replacement[0].text == 'i'
+    assert rro.regex == "a"
+    assert rro.scope[0].text == "a bat"
+    assert rro.replacement[0].text == "i"
 
 
 # noinspection SpellCheckingInspection,PyPep8

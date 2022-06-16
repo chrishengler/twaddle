@@ -1,4 +1,10 @@
-from pyrant.parser.compiler_objects import *
+from pyrant.parser.compiler_objects import (
+    BlockObject,
+    FunctionObject,
+    LookupObject,
+    ObjectType,
+    TextObject,
+)
 
 
 def test_rant_text_object():
@@ -32,4 +38,3 @@ def test_rant_function_object():
     assert len(rf.args) == 2
     assert rf.args[0].text == "arg0"
     assert rf.args[1].text == "arg1"
-

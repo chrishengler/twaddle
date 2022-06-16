@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from random import randrange, shuffle
+
 from pyrant.rant_exceptions import RantInterpreterException
 
 
@@ -53,9 +54,9 @@ class CyclicDeckSynchronizer(Synchronizer):
 
 class SynchronizerManager:
     sync_types = {
-        'locked': LockedSynchronizer,
-        'deck': DeckSynchronizer,
-        'cdeck':  CyclicDeckSynchronizer,
+        "locked": LockedSynchronizer,
+        "deck": DeckSynchronizer,
+        "cdeck": CyclicDeckSynchronizer,
     }
 
     synchronizers = dict[str, Synchronizer]()
@@ -66,15 +67,17 @@ class SynchronizerManager:
 
     @staticmethod
     def create_synchronizer(name: str, sync_type: str, length: int) -> Synchronizer:
-        SynchronizerManager.synchronizers[name] = SynchronizerManager.sync_types[sync_type](
-            length)
+        SynchronizerManager.synchronizers[name] = SynchronizerManager.sync_types[
+            sync_type
+        ](length)
         return SynchronizerManager.synchronizers[name]
 
     @staticmethod
     def get_synchronizer(name: str) -> Synchronizer:
         if not SynchronizerManager.synchronizer_exists(name):
             raise RantInterpreterException(
-                f"[SynchronizerManager.get_synchronizer] tried to access non-existing synchronizer {name}")
+                f"[SynchronizerManager.get_synchronizer] tried to access non-existing synchronizer {name}"
+            )
         return SynchronizerManager.synchronizers[name]
 
     @staticmethod

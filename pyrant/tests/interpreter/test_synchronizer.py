@@ -1,8 +1,13 @@
-from pyrant.interpreter.synchronizer import *
+from pyrant.interpreter.synchronizer import (
+    CyclicDeckSynchronizer,
+    DeckSynchronizer,
+    LockedSynchronizer,
+    SynchronizerManager,
+)
 
 
 def test_synchronizer_manager():
-    locked = SynchronizerManager.create_synchronizer('x', 'locked', 1)
+    locked = SynchronizerManager.create_synchronizer("x", "locked", 1)
     assert isinstance(locked, LockedSynchronizer)
 
 

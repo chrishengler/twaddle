@@ -1,4 +1,5 @@
 from collections import deque
+
 from pyrant.lexer.lexer_tokens import Token, TokenType
 
 
@@ -20,36 +21,45 @@ def lex(input_str: str) -> deque[Token]:
 
 
 def _get_token_type(input_str: str) -> tuple[TokenType, int]:
-    assert(len(input_str) != 0)
+    assert len(input_str) != 0
     match input_str[0]:
-        case '<': return TokenType.LEFT_ANGLE_BRACKET, 1
-        case '>': return TokenType.RIGHT_ANGLE_BRACKET, 1
-        case '{': return TokenType.LEFT_CURLY_BRACKET, 1
-        case '}': return TokenType.RIGHT_CURLY_BRACKET, 1
-        case '[': return TokenType.LEFT_SQUARE_BRACKET, 1
-        case ']': return TokenType.RIGHT_SQUARE_BRACKET, 1
-        case '|': return TokenType.PIPE, 1
-        case '-': return TokenType.HYPHEN, 1
-        case ':':
-            if len(input_str) > 1 and input_str[1] == ':':
+        case "<":
+            return TokenType.LEFT_ANGLE_BRACKET, 1
+        case ">":
+            return TokenType.RIGHT_ANGLE_BRACKET, 1
+        case "{":
+            return TokenType.LEFT_CURLY_BRACKET, 1
+        case "}":
+            return TokenType.RIGHT_CURLY_BRACKET, 1
+        case "[":
+            return TokenType.LEFT_SQUARE_BRACKET, 1
+        case "]":
+            return TokenType.RIGHT_SQUARE_BRACKET, 1
+        case "|":
+            return TokenType.PIPE, 1
+        case "-":
+            return TokenType.HYPHEN, 1
+        case ":":
+            if len(input_str) > 1 and input_str[1] == ":":
                 return TokenType.DOUBLE_COLON, 2
             else:
                 return TokenType.COLON, 1
-        case ';': return TokenType.SEMICOLON, 1
-        case '\\':
+        case ";":
+            return TokenType.SEMICOLON, 1
+        case "\\":
             if len(input_str) > 1:
                 match input_str[1]:
-                    case 'n':
+                    case "n":
                         return TokenType.NEW_LINE, 2
-                    case 'a':
+                    case "a":
                         return TokenType.LOWER_INDEFINITE_ARTICLE, 2
-                    case 'A':
+                    case "A":
                         return TokenType.UPPER_INDEFINITE_ARTICLE, 2
-                    case '\\':
+                    case "\\":
                         return TokenType.BACKSLASH, 2
-                    case 'd':
+                    case "d":
                         return TokenType.DIGIT, 2
-                    case 't':
+                    case "t":
                         return TokenType.TAB, 2
                     case _:
                         """
@@ -57,16 +67,21 @@ def _get_token_type(input_str: str) -> tuple[TokenType, int]:
                         tokens which only have meaning in regices
                         """
                         return TokenType.BACKSLASH, 1
-        case '"': return TokenType.QUOTE, 1
-        case '!': return TokenType.EXCLAMATION_MARK, 1
-        case '=': return TokenType.EQUALS, 1
-        case '.': return TokenType.DOT, 1
-        case '/':
-            if len(input_str) > 1 and input_str[1] == '/':
+        case '"':
+            return TokenType.QUOTE, 1
+        case "!":
+            return TokenType.EXCLAMATION_MARK, 1
+        case "=":
+            return TokenType.EQUALS, 1
+        case ".":
+            return TokenType.DOT, 1
+        case "/":
+            if len(input_str) > 1 and input_str[1] == "/":
                 return TokenType.REGEX, 2
             else:
                 return TokenType.FORWARD_SLASH, 1
-        case _: return TokenType.PLAIN_TEXT, 0
+        case _:
+            return TokenType.PLAIN_TEXT, 0
 
 
 def _consume_plain_text(input_str: str) -> tuple[Token, int]:

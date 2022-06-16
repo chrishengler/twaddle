@@ -1,5 +1,6 @@
-from pyrant.rant.rant import Rant
 import sys
+
+from pyrant.rant.rant import Rant
 
 
 def main():
