@@ -1,6 +1,6 @@
 import os
 
-from runner import Runner
+from twaddle.runner import Runner
 
 
 def relative_path_to_full_path(rel_path: str) -> str:
