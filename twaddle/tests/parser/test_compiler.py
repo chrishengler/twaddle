@@ -1,5 +1,6 @@
 import pytest
 
+from twaddle.exceptions import TwaddleParserException
 from twaddle.parser.compiler import Compiler, CompilerContext, CompilerContextStack
 from twaddle.parser.compiler_objects import (
     BlockObject,
@@ -11,7 +12,6 @@ from twaddle.parser.compiler_objects import (
     RootObject,
     TextObject,
 )
-from twaddle.rant_exceptions import RantParserException
 
 compiler = Compiler()
 
@@ -28,7 +28,7 @@ def test_compiler_context_stack():
     assert stack.current_context() == CompilerContext.BLOCK
     stack.remove_context(CompilerContext.BLOCK)
     assert stack.current_context() == CompilerContext.FUNCTION
-    with pytest.raises(RantParserException) as e_info:
+    with pytest.raises(TwaddleParserException) as e_info:
         stack.remove_context(CompilerContext.BLOCK)
         assert (
             e_info.message

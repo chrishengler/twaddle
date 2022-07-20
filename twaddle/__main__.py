@@ -1,6 +1,6 @@
 import sys
 
-from twaddle.rant.rant import Rant
+from runner import Runner
 
 
 def main():
@@ -9,7 +9,7 @@ def main():
         return
 
     path = sys.argv[1]
-    rant = Rant(path)
+    rant = Runner(path)
 
     print("hello")
 

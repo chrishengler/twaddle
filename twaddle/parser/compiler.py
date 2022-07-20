@@ -1,9 +1,9 @@
 from collections import deque
 from enum import Enum, auto
 
+from twaddle.exceptions import TwaddleParserException
 from twaddle.lexer.lexer import lex
 from twaddle.lexer.lexer_tokens import Token, TokenType
-from twaddle.rant_exceptions import RantParserException
 
 from .compiler_objects import (
     BlockObject,
@@ -40,7 +40,7 @@ class CompilerContextStack:
 
     def remove_context(self, context: CompilerContext):
         if self.current_context() is not context:
-            raise RantParserException(
+            raise TwaddleParserException(
                 f"[CompilerContextStack::remove_context] tried to remove {context.name} "
                 "but current context is {self.stack[-1].name}"
             )
@@ -54,7 +54,7 @@ class Compiler:
     def compile(self, sentence: str) -> RootObject:
         result = self.parse_root(lex(sentence))
         if self.context.current_context() is not CompilerContext.ROOT:
-            raise RantParserException(
+            raise TwaddleParserException(
                 f"[RantCompiler::compile] reached end while still in {self.context.current_context().name} context"
             )
         return result
@@ -138,14 +138,14 @@ class Compiler:
 
         # first thing must always be the opening angle bracket:
         if tokens[0].type is not TokenType.LEFT_ANGLE_BRACKET:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_block] input does not begin with left angle bracket"
             )
         tokens.popleft()
 
         # next thing must always be the dictionary name, so it has to be text:
         if tokens[0].type is not TokenType.PLAIN_TEXT:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_block] opening angle bracket must be followed by dictionary name"
             )
 
@@ -167,7 +167,7 @@ class Compiler:
                     )
                 case TokenType.DOT:
                     if tokens[0].type is not TokenType.PLAIN_TEXT:
-                        raise RantParserException(
+                        raise TwaddleParserException(
                             "[Compiler.parse_block] dot must be followed by form"
                         )
                     form = tokens.popleft().value
@@ -178,7 +178,7 @@ class Compiler:
                         tokens.popleft()
                         positive = False
                     if tokens[0].type is not TokenType.PLAIN_TEXT:
-                        raise RantParserException(
+                        raise TwaddleParserException(
                             "[Compiler.parse_block] hyphen must be followed by category"
                         )
                     category = tokens.popleft().value
@@ -193,7 +193,7 @@ class Compiler:
                         if len(tokens) > 0 and tokens[0].type is TokenType.PLAIN_TEXT:
                             positive_label = tokens.popleft().value
                         else:
-                            raise RantParserException(
+                            raise TwaddleParserException(
                                 "[Compiler.parse_block] no valid definition for match"
                             )
                     elif tokens[0].type is TokenType.EXCLAMATION_MARK:
@@ -208,13 +208,13 @@ class Compiler:
                             # get label name
                             negative_labels.add(tokens.popleft().value)
                         else:
-                            raise RantParserException(
+                            raise TwaddleParserException(
                                 "[Compiler.parse_block] no valid definition for anti-match"
                             )
                 case _:
                     continue
         # if we reach here, something went wrong
-        raise RantParserException(
+        raise TwaddleParserException(
             "[Compiler.parse_block] Error parsing dictionary lookup, probably an invalid character"
         )
 
@@ -222,7 +222,7 @@ class Compiler:
         choices = list()
         this_choice = RootObject()
         if tokens[0].type is not TokenType.LEFT_CURLY_BRACKET:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_block] block factory called without '{', this shouldn't happen!"
             )
         tokens.popleft()
@@ -241,7 +241,7 @@ class Compiler:
                 case _:
                     this_choice = self.parse_root(tokens)
         # something went wrong, fall over
-        raise RantParserException(
+        raise TwaddleParserException(
             "[Compiler.parse_block] something went wrong, probably a missing '}'"
         )
 
@@ -251,14 +251,14 @@ class Compiler:
 
         # first thing must always be the opening square bracket:
         if tokens[0].type is not TokenType.LEFT_SQUARE_BRACKET:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_function] input does not begin with left angle bracket"
             )
         tokens.popleft()
 
         # next thing must always be the function name, so it has to be text:
         if tokens[0].type is not TokenType.PLAIN_TEXT:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_function] expected function name"
             )
 
@@ -280,7 +280,7 @@ class Compiler:
                 case _:
                     continue
         # if we reach here, something went wrong
-        raise RantParserException(
+        raise TwaddleParserException(
             "[Compiler.parse_function] Error parsing function, probably an invalid character or missing closing bracket"
         )
 
@@ -291,14 +291,16 @@ class Compiler:
 
         # first thing must always be the opening square bracket:
         if tokens[0].type is not TokenType.LEFT_SQUARE_BRACKET:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_regex] input does not begin with left angle bracket"
             )
         tokens.popleft()
 
         # next thing must always be the regex
         if tokens[0].type is not TokenType.REGEX:
-            raise RantParserException("[Compiler.parse_regex] expected function name")
+            raise TwaddleParserException(
+                "[Compiler.parse_regex] expected function name"
+            )
         tokens.popleft()
 
         while len(tokens) and tokens[0].type is not TokenType.REGEX:
@@ -310,7 +312,7 @@ class Compiler:
                     regex += get_text_for_object(token)
 
         if len(tokens) == 0:
-            raise RantParserException(
+            raise TwaddleParserException(
                 "[Compiler.parse_regex] reached end of input without finding end of regex"
             )
         tokens.popleft()
@@ -328,6 +330,6 @@ class Compiler:
                 case _:
                     continue
         # if we reach here, something went wrong
-        raise RantParserException(
+        raise TwaddleParserException(
             "[Compiler.parse_regex] Error parsing regex, probably an invalid character or missing closing bracket"
         )

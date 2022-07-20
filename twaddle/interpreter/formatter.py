@@ -1,8 +1,8 @@
 import re
 from typing import Type
 
+from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.parser.compiler_objects import IndefiniteArticleObject
-from twaddle.rant_exceptions import RantInterpreterException
 
 from .formatting_object import (
     FormattingObject,
@@ -57,7 +57,7 @@ class Formatter:
             item.previous = self._get_previous_object_()
             self.output_stack.append(item)
         else:
-            raise RantInterpreterException(
+            raise TwaddleInterpreterException(
                 f"[Formatter.append] tried to append unexpected type {type(item)}"
             )
 
@@ -85,7 +85,7 @@ class Formatter:
             case FormattingStrategy.TITLE:
                 self.sentence += self.apply_title_case(text)
             case _:
-                raise RantInterpreterException(
+                raise TwaddleInterpreterException(
                     f"[Formatter.append] no handling defined for {self.current_strategy}"
                 )
 

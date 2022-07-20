@@ -2,6 +2,7 @@ import os
 
 import pytest
 
+from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup import (
     LookupDictionary,
     LookupDictionaryFactory,
@@ -9,7 +10,6 @@ from twaddle.lookup.lookup import (
     LookupManager,
     LookupObject,
 )
-from twaddle.rant_exceptions import RantLookupException
 
 
 def relative_path_to_full_path(rel_path: str) -> str:
@@ -39,7 +39,7 @@ def test_dictionary():
     assert len(dictionary.entries) == 1
     assert dictionary._get("singular") == "hexagon"
     assert dictionary._get("plural") == "hexagons"
-    with pytest.raises(RantLookupException) as e_info:
+    with pytest.raises(TwaddleLookupException) as e_info:
         dictionary._get("invalid")
         assert (
             e_info.message

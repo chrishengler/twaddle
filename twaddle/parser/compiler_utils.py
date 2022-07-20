@@ -1,8 +1,8 @@
 from collections import deque
 
+from twaddle.exceptions import TwaddleParserException
 from twaddle.lexer.lexer_tokens import Token, TokenType
 from twaddle.parser.compiler_objects import TextObject
-from twaddle.rant_exceptions import RantParserException
 
 
 def to_plain_text_token(raw: Token) -> Token:
@@ -89,7 +89,7 @@ def get_text_for_object(raw: Token) -> str:
             return raw.value
         # unrecognised token type
         case _:
-            raise RantParserException(
+            raise TwaddleParserException(
                 f"[get_plain_text_for_object] unknown token type: {raw.type}"
             )
 
@@ -108,7 +108,7 @@ def merge_text_objects(raw: deque[TextObject]) -> TextObject:
         if isinstance(token, TextObject):
             value += token.text
         else:
-            raise RantParserException(
+            raise TwaddleParserException(
                 f"[ParserUtils::merge_text_objects] object of type {type(token)} when RantTextObject was expected"
             )
     return TextObject(value)

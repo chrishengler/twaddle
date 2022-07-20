@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from random import randrange, shuffle
 
-from twaddle.rant_exceptions import RantInterpreterException
+from twaddle.exceptions import TwaddleInterpreterException
 
 
 class Synchronizer(ABC):
@@ -75,7 +75,7 @@ class SynchronizerManager:
     @staticmethod
     def get_synchronizer(name: str) -> Synchronizer:
         if not SynchronizerManager.synchronizer_exists(name):
-            raise RantInterpreterException(
+            raise TwaddleInterpreterException(
                 f"[SynchronizerManager.get_synchronizer] tried to access non-existing synchronizer {name}"
             )
         return SynchronizerManager.synchronizers[name]

@@ -2,6 +2,7 @@ from functools import singledispatch
 from random import randint, randrange
 from re import Match, sub
 
+from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.interpreter.formatter import Formatter
 from twaddle.lookup.lookup import LookupDictionary, LookupManager
 from twaddle.parser.compiler import Compiler
@@ -15,7 +16,6 @@ from twaddle.parser.compiler_objects import (
     RootObject,
     TextObject,
 )
-from twaddle.rant_exceptions import RantInterpreterException
 
 from .block_attributes import BlockAttributeManager, BlockAttributes
 from .function_dict import function_definitions
@@ -69,7 +69,7 @@ def _(block: BlockObject):
             synchronizer = SynchronizerManager.get_synchronizer(attributes.synchronizer)
         else:
             if attributes.synchronizer_type is None:
-                raise RantInterpreterException(
+                raise TwaddleInterpreterException(
                     "[Interpreter.run](RantBlockObject) tried to define new synchronizer "
                     "without defining synchronizer type"
                 )
@@ -85,7 +85,7 @@ def _(block: BlockObject):
         else:
             choice = synchronizer.next()
             if choice >= len(block.choices):
-                raise RantInterpreterException(
+                raise TwaddleInterpreterException(
                     f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} -"
                     "when using synchronizers, make sure you have the same number of choices each time"
                 )
@@ -111,7 +111,7 @@ def _(func: FunctionObject):
     if func.func in function_definitions:
         formatter.append(function_definitions[func.func](evaluated_args))
     else:
-        raise RantInterpreterException(
+        raise TwaddleInterpreterException(
             f"[Interpreter::run] no function found named '{func.func}'"
         )
     return formatter

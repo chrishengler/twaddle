@@ -1,6 +1,6 @@
 import os
 
-from twaddle.rant.rant import Rant
+from runner import Runner
 
 
 def relative_path_to_full_path(rel_path: str) -> str:
@@ -9,7 +9,7 @@ def relative_path_to_full_path(rel_path: str) -> str:
 
 
 path = relative_path_to_full_path("../resources")
-r = Rant(path)
+r = Runner(path)
 
 
 def test_rant():

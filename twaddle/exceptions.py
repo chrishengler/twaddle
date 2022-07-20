@@ -1,11 +1,11 @@
-class RantException(Exception):
+class TwaddleException(Exception):
     """Base class for others"""
 
     def __init__(self, message: str):
         super().__init__(message)
 
 
-class RantLexerException(RantException):
+class TwaddleLexerException(TwaddleException):
     """Thrown when lexer gets confused"""
 
     def __init__(self, message: str = None):
@@ -14,7 +14,7 @@ class RantLexerException(RantException):
         super().__init__(self.message)
 
 
-class RantParserException(RantException):
+class TwaddleParserException(TwaddleException):
     """Thrown when parser gets confused"""
 
     def __init__(self, message: str = None):
@@ -23,7 +23,7 @@ class RantParserException(RantException):
         super().__init__(self.message)
 
 
-class RantInterpreterException(RantException):
+class TwaddleInterpreterException(TwaddleException):
     """Thrown when interpreter gets confused"""
 
     def __init__(self, message: str = None):
@@ -32,7 +32,7 @@ class RantInterpreterException(RantException):
         super().__init__(self.message)
 
 
-class RantLookupException(RantException):
+class TwaddleLookupException(TwaddleException):
     """Thrown when lookup fails"""
 
     def __init__(self, message: str = None):

@@ -1,7 +1,7 @@
 import pytest
 
 import twaddle.interpreter.interpreter as interpreter
-from twaddle.rant_exceptions import RantInterpreterException
+from twaddle.exceptions import TwaddleInterpreterException
 
 
 def get_interpreter_output(sentence):
@@ -26,7 +26,7 @@ def test_choice():
 
 
 def test_unknown_function_error():
-    with pytest.raises(RantInterpreterException) as e_info:
+    with pytest.raises(TwaddleInterpreterException) as e_info:
         get_interpreter_output("[funk]")
         assert e_info.message == "[Interpreter::run] no function found named 'funk'"
 

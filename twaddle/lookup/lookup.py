@@ -2,8 +2,8 @@ import os
 from collections import OrderedDict
 from random import choice
 
+from twaddle.exceptions import TwaddleLookupException
 from twaddle.parser.compiler_objects import LookupObject
-from twaddle.rant_exceptions import RantLookupException
 
 
 class LookupEntry:
@@ -35,7 +35,7 @@ class LookupDictionary:
 
     def add(self, forms: list[str], tags: set[str] = None):
         if len(forms) != len(self.forms):
-            raise RantLookupException(
+            raise TwaddleLookupException(
                 "[LookupDictionary.add] wrong number of forms provided"
             )
         lookup = LookupEntry(OrderedDict(zip(self.forms, forms)), tags)
@@ -48,7 +48,7 @@ class LookupDictionary:
         if form is None:
             form = self.forms[0]
         if form not in self.forms:
-            raise RantLookupException(
+            raise TwaddleLookupException(
                 f"[LookupDictionary.get] dictionary '{self.name}' has no form '{form}'"
             )
         return form
