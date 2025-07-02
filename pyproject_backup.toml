@@ -1,0 +1,39 @@
+[project]
+name = "twaddle"
+version = "0.8"
+description = "A partial implementation of Rant v3 in python"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {file = "LICENSE"}
+keywords = ["rant", "text", "language", "textgen"]
+authors = [
+  {name = "Chris Hengler"},
+  {email = "dr.c.hengler@gmail.com"}
+]
+maintainers = [
+  {name = "Chris Hengler"},
+  {email = "dr.c.hengler@gmail.com"}
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+
+dependencies = [
+  "pytest >= 7.0.0"
+]
+
+[project.urls]
+homepage = "https://example.com"
+documentation = "https://readthedocs.org"
+repository = "https://github.com"
+changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.pytest.ini_options]
+pythonpath = [
+  ".", "src",
+]
