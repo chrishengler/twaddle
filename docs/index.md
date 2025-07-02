@@ -1,5 +1,3 @@
-# PyRant Documentation
+# Twaddle Documentation
 
-Is not yet available :(
-
-(I'm working on it)
+Complete documentation is a pipe dream, but for now see the [basics](basics.md).

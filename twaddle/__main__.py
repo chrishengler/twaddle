@@ -1,6 +1,6 @@
 import sys
 
-from runner import Runner
+from runner import TwaddleRunner
 
 
 def main():
@@ -9,13 +9,16 @@ def main():
         return
 
     path = sys.argv[1]
-    rant = Runner(path)
+    twaddle = TwaddleRunner(path)
 
-    print("hello")
+    print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")
 
     while True:
-        sentence = input(">")
-        print(rant.run_sentence(sentence))
+        try:
+            sentence = input(">")
+            print(twaddle.run_sentence(sentence))
+        except EOFError:
+            quit()
 
 
 if __name__ == "__main__":

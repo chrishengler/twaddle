@@ -1,7 +1,7 @@
 # Basics
 
-## What is PyRant?
-PyRant implements a limited subset of [Rant v3](https://github.com/TheBerkin/rant3).
+## What is Twaddle?
+Twaddle implements a limited subset of [Rant v3](https://github.com/TheBerkin/rant3).
 
 Initial targeted features are:
 
@@ -11,19 +11,19 @@ Initial targeted features are:
 - regex application
 - indefinite article choice (for English)
 
-## How do I use PyRant
+## How do I use Twaddle?
 
-Full installation instructions will be provided at a later date, but if you've worked with python you should have no
+Full installation instructions will be provided at a later date, but if you've worked with Python you should have no
 trouble getting the module set up.
 
-To actually use it, create a Rant object, passing it the location of the folder containing the rant dictionary files you 
-wish to use. Then give your rant sentences to its `run_sentence` method. For an extremely simple example, see the 
-`__main__.py` file, which takes rant sentences as console input and prints the result:
+To actually use it, create a TwaddleRunner object, passing it the location of the folder containing the dictionary files you 
+wish to use. Then give your sentences to its `run_sentence` method. For an extremely simple example, see the 
+`__main__.py` file, which takes sentences as console input and prints the result:
 
 ```
 import sys
 
-from pyrant.rant.rant import Rant
+from runner import TwaddleRunner
 
 
 def main():
@@ -32,16 +32,19 @@ def main():
         return
 
     path = sys.argv[1]
-    rant = Rant(path)
+    twaddle = TwaddleRunner(path)
 
-    print("hello")
+    print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")
 
     while True:
-        sentence = input(">")
-        print(rant.run_sentence(sentence))
-
+        try:
+            sentence = input(">")
+            print(twaddle.run_sentence(sentence))
+        except EOFError:
+            quit()
 
 if __name__ == "__main__":
     main()
+
 ```
 
