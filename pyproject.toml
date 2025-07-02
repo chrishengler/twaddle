@@ -1,39 +1,18 @@
 [project]
 name = "twaddle"
-version = "0.8"
-description = "A partial implementation of Rant v3 in python"
+version = "0.8.0"
+description = "A partial reimplementation of Rant v3"
+authors = [
+    {name = "Chris Hengler",email = "chrysics@gmail.com"}
+]
+license = {text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.10"
-license = {file = "LICENSE"}
-keywords = ["rant", "text", "language", "textgen"]
-authors = [
-  {name = "Chris Hengler"},
-  {email = "dr.c.hengler@gmail.com"}
-]
-maintainers = [
-  {name = "Chris Hengler"},
-  {email = "dr.c.hengler@gmail.com"}
-]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python"
-]
-
 dependencies = [
-  "pytest >= 7.0.0"
+    "pytest (>=7.1.2,<7.2.0)"
 ]
 
-[project.urls]
-homepage = "https://example.com"
-documentation = "https://readthedocs.org"
-repository = "https://github.com"
-changelog = "https://github.com/me/spam/blob/master/CHANGELOG.md"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
-[tool.pytest.ini_options]
-pythonpath = [
-  ".", "src",
-]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
