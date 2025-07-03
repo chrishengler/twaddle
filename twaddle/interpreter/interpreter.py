@@ -32,7 +32,7 @@ def interpret_external(sentence: str) -> str:
     return interpret_internal(compiler.compile(sentence))
 
 
-def interpret_internal(parse_result: RootObject) -> Formatter:
+def interpret_internal(parse_result: RootObject) -> str:
     formatter = Formatter()
     for obj in parse_result:
         resulting_formatter = run(obj)

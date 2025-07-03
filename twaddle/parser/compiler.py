@@ -42,7 +42,7 @@ class CompilerContextStack:
         if self.current_context() is not context:
             raise TwaddleParserException(
                 f"[CompilerContextStack::remove_context] tried to remove {context.name} "
-                "but current context is {self.stack[-1].name}"
+                f"but current context is {self.stack[-1].name}"
             )
         self.stack.pop()
 

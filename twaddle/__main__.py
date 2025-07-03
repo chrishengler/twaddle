@@ -1,6 +1,6 @@
 import sys
 
-from runner import TwaddleRunner
+from twaddle.runner import TwaddleRunner
 
 
 def main():
