@@ -14,13 +14,13 @@ output like:
 `The women knew a blue helicopter`
 `The men flew a big motorbike`
 `The people heard a red van`
-`The babies knew a sad bike`
+`The babies knew an old bike`
 
 And so on. This example sentence uses some of the most fundamental features
 of Twaddle:
 
 - [Dictionary lookups](lookups.md)
-- Handling of English definite article (a/an)
+- [Handling of English indefinite articles (a/an)](indefinite_articles.md)
 
 
 Some more advanced features of Twaddle include:
