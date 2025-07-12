@@ -1,3 +1,5 @@
 # Twaddle Documentation
 
-Complete documentation is a pipe dream, but for now see the [basics](basics.md).
+Quick start for those with basic familiarity: see the [basics](basics.md).
+
+For a more thorough introduction, see [Introduction](introduction.md).
