@@ -1,0 +1,23 @@
+#name verb
+#forms inf ing ed s er pp noun
+
+#class add transitive
+> drink/drinking/drank/drinks/drinker/drunk/drinking
+> eat/eating/ate/eats/eater/eaten/eating
+> bite/biting/bit/bites/biter/bitten/biting
+> see/seeing/saw/sees/seer/seen/sight
+> hear/hearing/heard/hears/hearer/heard/hearing
+> know/knowing/knew/knows/knower/known/knowledge
+> kill/killing/killed/kills/killer/killed/killing
+> swim/swimming/swam/swims/swimmer/swum/swimming
+> fly/flying/flew/flies/flier/flown/flight
+> sit/sitting/sat/sits/sitter/sat/sitting
+> stand/standing/stood/stands/stander/stood/standing
+> give/giving/gave/gives/giver/given/giving
+> say/saying/said/says/sayer/said/saying
+> burn/burning/burnt/burns/burner/burnt/burning
+
+#class remove transitive
+> sleep/sleeping/slept/sleeps/sleeper/slept/sleep
+> die/dying/died/dies/dier/died/death
+> walk/walking/walked/walks/walker/walked/walking
