@@ -4,7 +4,7 @@ The English language definite article (a/an) varies depending on the initial
 sound of the following word. As it depends on sound rather than spelling, this
 is not trivial to implement with complete accuracy. 
 
-Twaddle does not aim to be perfet, but offers a 'good enough' attempt at 
+Twaddle does not claim to be perfect, but offers a 'good enough' attempt at 
 automatically determining the correct form based on an algorithm described 
 below.
 

@@ -25,8 +25,9 @@ of Twaddle:
 
 Some more advanced features of Twaddle include:
 
-- Branching templates
-- Capitalization schemes
-- Loops
+- [Branching templates](branching.md)
+- [Capitalization schemes](capitalization.md)
+- [Loops](loops.md)
+- [Regular expressions](regex.md)
 
 
