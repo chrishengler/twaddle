@@ -49,7 +49,7 @@ Similarly, Twaddle sentence features can be used within the replacement:
 will replace the characters 1, 2, and 4 with a randomly chosen plural noun, 
 giving results like:
 
-`air fresheners people 3 warehouses 4`
+`air fresheners people 3 warehouses 5`
 
 ## Regex flavour
 

@@ -96,6 +96,8 @@ by slashes. In this case, our forms defined in the header were `singular`
 and `plural`, so each definition consists of the singular form of the word
 (e.g. `paperweight`), then a slash, then the plural form (`paperweights`). 
 
+Any definitions which occur before the header are ignored.
+
 Words within a dictionary can be categorised by adding classes. A class 
 is added with the `#class add <name>` directive, and removed with the
 `#class remove <name>` directive. Any definitions between the two are 
@@ -104,3 +106,9 @@ times within a file (as with the retail class in this example) and their
 active regions may overlap in whole or in part. In the example above, `desk`
 does not belong to any class, `house` belongs to the `building` class, and
 `shop` belongs to both the `building` and the `retail` class. 
+
+## Comments
+
+Lines which do not match the expected format for header information or
+definitions are ignored. As such, comments can be added by simply including
+them as plain text, provided the first non-whitespace character is not `>`
