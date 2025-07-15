@@ -2,7 +2,7 @@ import os
 from collections import OrderedDict
 from random import choice
 
-from twaddle.exceptions import TwaddleLookupException
+from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.parser.compiler_objects import LookupObject
 
 
@@ -188,9 +188,12 @@ class LookupManager:
     def add_dictionaries_from_folder(path: str):
         for f in os.listdir(path):
             if f.endswith(".dic"):
+                dict_path = os.path.join(path, f)
                 new_dictionary = LookupManager.factory.read_from_file(
-                    os.path.join(path, f)
+                    dict_path
                 )
+                if new_dictionary is None:
+                    raise TwaddleDictionaryException(f"[LookupManager.add_dictionaries_from_folder] dictionary file {dict_path} could not be read. Are name and forms defined?")
                 LookupManager.dictionaries[new_dictionary.name] = new_dictionary
 
     @staticmethod

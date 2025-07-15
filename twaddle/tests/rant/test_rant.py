@@ -8,7 +8,7 @@ def relative_path_to_full_path(rel_path: str) -> str:
     return os.path.join(current_dir, rel_path)
 
 
-path = relative_path_to_full_path("../resources")
+path = relative_path_to_full_path("../resources/valid_dicts")
 r = TwaddleRunner(path)
 
 
