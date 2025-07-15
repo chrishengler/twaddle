@@ -1,5 +1,5 @@
 from twaddle.interpreter.interpreter import interpret_external as interpret
-from twaddle.lookup.lookup import LookupManager
+from twaddle.lookup.lookup_manager import LookupManager
 
 
 class TwaddleRunner:

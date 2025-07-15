@@ -3,11 +3,11 @@ import os
 import pytest
 
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
-from twaddle.lookup.lookup import (
+from twaddle.lookup.lookup_entry import LookupEntry
+from twaddle.lookup.lookup_dictionary_factory import LookupDictionaryFactory
+from twaddle.lookup.lookup_manager import LookupManager
+from twaddle.lookup.lookup_dictionary import (
     LookupDictionary,
-    LookupDictionaryFactory,
-    LookupEntry,
-    LookupManager,
     LookupObject,
 )
 
