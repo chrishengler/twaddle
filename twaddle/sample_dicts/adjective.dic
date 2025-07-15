@@ -1,0 +1,34 @@
+#name adj
+#forms base est ness
+
+> big/biggest/size
+> long/longest/length
+> small/smallest/smallness
+> tall/tallest/height
+> short/shortest/shortness
+> old/oldest/age
+> young/youngest/youth
+> clean/cleanest/cleanliness
+> dirty/dirtiest/dirtiness
+> rough/roughest/roughness
+> smooth/smoothest/smoothness
+> soft/softest/softness
+> hard/hardest/hardness
+> wet/wettest/wetness
+> dry/driest/dryness
+> happy/happiest/happiness
+> sad/saddest/sadness
+> heavy/heaviest/weight
+> light/lightest/lightness
+> dark/darkest/darkness
+
+#class add colour
+> red/reddest/redness
+> green/greenest/greenness
+> yellow/yellowest/yellowness
+> white/whitest/whitenes
+> black/blackest/blackness
+> blue/bluest/blueness
+> purple/purplest/purpleness
+> orange/orangest/orangeness
+#class remove colour

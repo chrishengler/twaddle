@@ -1,0 +1,59 @@
+#name noun
+#forms singular plural
+
+> paperweight/paperweights
+> air freshener/air fresheners
+> bird/birds
+> baseball/baseballs
+> desk/desks
+
+#class add building
+    > apartment/apartments
+    > bungalow/bungalows
+    > house/houses
+    > factory/factories
+    > flat/flats
+    > hotel/hotels
+    > garage/garages
+    > shed/sheds
+    > greenhouse/greenhouses
+    > mansion/mansions
+    > warehouse/warehouses
+    #class add retail
+        > shop/shops
+        > store/stores
+        > supermarket/supermarkets
+        > market/markets
+        > mall/malls
+    #class remove retail
+#class remove building
+
+#class add vehicle
+    > aeroplane/aeroplanes
+    > bicycle/bicycles/
+    > bike/bikes
+    > bus/buses
+    > car/cars
+    > cruise liner/cruise liners
+    > dinghy/dinghies
+    > fighter jet/fighter jets
+    > helicopter/helicopters
+    > hovercraft/hovercrafts
+    > motorbike/motorbikes
+    > tricycle/tricycles
+    > truck/trucks
+    > van/vans
+    #class add retail
+        > food truck/food trucks
+        > ice cream van/ice cream vans
+    #class remove retail
+#class remove vehicle
+
+#class add person
+    > adult/adults
+    > baby/babies
+    > child/children
+    > person/people
+    > man/men
+    > woman/women
+#class remove person
