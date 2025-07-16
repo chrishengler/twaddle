@@ -136,7 +136,7 @@ class Interpreter:
     @run.register(LookupObject)
     def _(self, lookup: LookupObject):
         formatter = Formatter()
-        dictionary: LookupDictionary = LookupManager[lookup.dictionary]
+        dictionary: LookupDictionary = self.lookup_manager[lookup.dictionary]
         formatter.append(dictionary.get(lookup))
         return formatter
 

@@ -1,4 +1,5 @@
 import sys
+import readline
 
 from twaddle.runner import TwaddleRunner
 
