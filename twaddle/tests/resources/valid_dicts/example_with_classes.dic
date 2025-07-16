@@ -9,6 +9,10 @@
 > dog/dogs
 #class remove animal
 
+#class add vehicle
+> ambulance/ambulances
+#class remove vehicle
+
 #class add building
   #class add small
 	> shed/sheds

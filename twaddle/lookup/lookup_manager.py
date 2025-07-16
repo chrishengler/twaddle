@@ -3,7 +3,7 @@ import os
 from twaddle.exceptions import TwaddleDictionaryException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary
-from twaddle.parser.compiler_objects import LookupObject
+from twaddle.compiler.compiler_objects import LookupObject
 
 
 class LookupManager:

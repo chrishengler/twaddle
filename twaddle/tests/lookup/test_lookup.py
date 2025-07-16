@@ -2,8 +2,7 @@ import os
 
 import pytest
 
-from twaddle.exceptions import (TwaddleDictionaryException,
-                                TwaddleLookupException)
+from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary, LookupObject
 from twaddle.lookup.lookup_entry import DictionaryEntry

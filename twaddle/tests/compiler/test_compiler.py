@@ -1,13 +1,17 @@
 import pytest
 
+from twaddle.compiler.compiler import Compiler, CompilerContext, CompilerContextStack
+from twaddle.compiler.compiler_objects import (
+    BlockObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    ObjectType,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
 from twaddle.exceptions import TwaddleParserException
-from twaddle.parser.compiler import (Compiler, CompilerContext,
-                                     CompilerContextStack)
-from twaddle.parser.compiler_objects import (BlockObject, FunctionObject,
-                                             IndefiniteArticleObject,
-                                             LookupObject, ObjectType,
-                                             RegexObject, RootObject,
-                                             TextObject)
 
 compiler = Compiler()
 
@@ -130,6 +134,22 @@ def test_parse_indefinite_article():
     assert isinstance(parser_output[2], IndefiniteArticleObject)
     assert isinstance(parser_output[3], TextObject)
     assert parser_output[3].text == " arrow"
+
+
+def test_parse_escaped_characters():
+    parser_output = get_compile_result(r"\<angles\>")
+    assert len(parser_output) == 3
+    for index in [0, 1, 2]:
+        assert isinstance(parser_output[index], TextObject)
+    assert parser_output[0].text == "<"
+    assert parser_output[1].text == "angles"
+    assert parser_output[2].text == ">"
+
+
+def test_parse_article_in_args():
+    parser_output = get_compile_result(r"[rep:2][sep:\a]{<noun>}")
+    separator_args = parser_output[1].args
+    assert isinstance(separator_args[0].contents[0], IndefiniteArticleObject)
 
 
 def test_parse_simple_regex():

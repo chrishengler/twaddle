@@ -5,10 +5,18 @@ from twaddle.exceptions import TwaddleParserException
 from twaddle.lexer.lexer import lex
 from twaddle.lexer.lexer_tokens import Token, TokenType
 
-from .compiler_objects import (BlockObject, DigitObject, FunctionObject,
-                               IndefiniteArticleObject, LookupObject, Object,
-                               RegexObject, RootObject, TextObject)
-from .compiler_utils import get_text_for_object, to_plain_text_object
+from .compiler_objects import (
+    BlockObject,
+    DigitObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    Object,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
+from .compiler_utils import check_for_escape, get_text_for_object, to_plain_text_object
 
 
 class CompilerContext(Enum):
@@ -115,6 +123,19 @@ class Compiler:
                 case TokenType.DIGIT:
                     result.append(DigitObject())
                     tokens.popleft()
+                case TokenType.DOUBLE_BACKSLASH:
+                    result.append(to_plain_text_object(token))
+                    tokens.popleft()
+                case TokenType.SINGLE_BACKSLASH:
+                    tokens.popleft()
+                    print(f"{check_for_escape(tokens[0])=}")
+                    if len(tokens) and (escaped := check_for_escape(tokens[0])):
+                        print(f"{str(escaped)=}")
+                        result.append(to_plain_text_object(escaped))
+                        tokens.popleft()
+                    else:
+                        print("no escaped i guess")
+                        result.append(to_plain_text_object(token))
                 # more special cases to handle here later, just convert to text for now
                 case _:
                     result.append(to_plain_text_object(token))

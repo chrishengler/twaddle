@@ -56,7 +56,7 @@ def _get_token_type(input_str: str) -> tuple[TokenType, int]:
                     case "A":
                         return TokenType.UPPER_INDEFINITE_ARTICLE, 2
                     case "\\":
-                        return TokenType.BACKSLASH, 2
+                        return TokenType.DOUBLE_BACKSLASH, 2
                     case "d":
                         return TokenType.DIGIT, 2
                     case "t":
@@ -66,7 +66,7 @@ def _get_token_type(input_str: str) -> tuple[TokenType, int]:
                         this isn't ideal but avoids having to define special
                         tokens which only have meaning in regices
                         """
-                        return TokenType.BACKSLASH, 1
+                        return TokenType.SINGLE_BACKSLASH, 1
         case '"':
             return TokenType.QUOTE, 1
         case "!":

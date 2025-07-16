@@ -1,5 +1,4 @@
-from twaddle.interpreter.block_attributes import (BlockAttributeManager,
-                                                  BlockAttributes)
+from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 
 
 def test_add_and_get_attributes():
@@ -11,4 +10,4 @@ def test_add_and_get_attributes():
     assert attributes.repetitions == 3
     assert attributes.separator == "and"
     assert new_attributes.repetitions == 1
-    assert new_attributes.separator == ""
+    assert new_attributes.separator is None

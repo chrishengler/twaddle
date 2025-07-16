@@ -1,11 +1,17 @@
 import re
-from typing import Type
+from functools import singledispatchmethod
+from typing import Self, Type
 
+from twaddle.compiler.compiler_objects import IndefiniteArticleObject
 from twaddle.exceptions import TwaddleInterpreterException
-from twaddle.parser.compiler_objects import IndefiniteArticleObject
 
-from .formatting_object import (FormattingObject, FormattingStrategy,
-                                IndefiniteArticle, PlainText, StrategyChange)
+from .formatting_object import (
+    FormattingObject,
+    FormattingStrategy,
+    IndefiniteArticle,
+    PlainText,
+    StrategyChange,
+)
 
 
 class Formatter:
@@ -24,37 +30,50 @@ class Formatter:
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
-    def append(
-        self,
-        item: str | FormattingStrategy | IndefiniteArticleObject | FormattingObject,
-    ):
-        if item is None:
-            return
-        elif isinstance(item, FormattingStrategy):
-            self.output_stack.append(StrategyChange(self._get_previous_object_(), item))
-            return
-        elif isinstance(item, str):
-            previous = self._get_previous_object_()
-            self.output_stack.append(PlainText(previous, item))
-            if self.indefinite_article_waiting:
-                self._replace_indefinite_articles(item)
-            return
-        elif isinstance(item, IndefiniteArticleObject):
-            self.add_indefinite_article(item.default_upper)
-        elif isinstance(item, IndefiniteArticle):
-            self.add_indefinite_article(item.default_upper)
-        elif isinstance(item, PlainText):
-            previous = self._get_previous_object_()
-            self.output_stack.append(PlainText(previous, item.text))
-            if self.indefinite_article_waiting:
-                self._replace_indefinite_articles(item.text)
-        elif isinstance(item, FormattingObject):
-            item.previous = self._get_previous_object_()
-            self.output_stack.append(item)
+    @singledispatchmethod
+    def append(self, arg) -> Self:
+        if arg is None:
+            formatter = Formatter()
+            return formatter
         else:
             raise TwaddleInterpreterException(
-                f"[Formatter.append] tried to append unexpected type {type(item)}"
+                f"[Formatter.append] tried to append unexpected type {type(arg)}"
             )
+
+    @append.register(str)
+    def _(self, item: str) -> Self:
+        previous = self._get_previous_object_()
+        self.output_stack.append(PlainText(previous, item))
+        if self.indefinite_article_waiting:
+            self._replace_indefinite_articles(item)
+        return
+
+    @append.register(FormattingStrategy)
+    def _(self, item: FormattingStrategy) -> Self:
+        self.output_stack.append(StrategyChange(self._get_previous_object_(), item))
+
+    @append.register(IndefiniteArticleObject)
+    def _(self, item: IndefiniteArticleObject) -> Self:
+        self.add_indefinite_article(item.default_upper)
+
+    @append.register(IndefiniteArticle)
+    def _(self, item: IndefiniteArticle) -> Self:
+        self.add_indefinite_article(item.default_upper)
+
+    @append.register(PlainText)
+    def _(self, item: PlainText) -> Self:
+        previous = self._get_previous_object_()
+        self.output_stack.append(PlainText(previous, item.text))
+        if self.indefinite_article_waiting:
+            self._replace_indefinite_articles(item.text)
+
+    @append.register(FormattingObject)
+    def _(self, item: FormattingObject) -> Self:
+        item.previous = self._get_previous_object_()
+        self.output_stack.append(item)
+
+    def append_formatter(self, formatter: Self):
+        self.output_stack += formatter.output_stack
 
     def _get_previous_object_(self) -> Type[FormattingObject] | None:
         if len(self.output_stack):

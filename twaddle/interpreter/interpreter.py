@@ -2,21 +2,25 @@ from functools import singledispatchmethod
 from random import randint, randrange
 from re import Match, sub
 
+from twaddle.compiler.compiler import Compiler
+from twaddle.compiler.compiler_objects import (
+    BlockObject,
+    DigitObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
 from twaddle.exceptions import TwaddleInterpreterException
-from twaddle.interpreter.block_attributes import (BlockAttributeManager,
-                                                  BlockAttributes)
+from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.function_dict import function_definitions
 from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.parser.compiler import Compiler
-from twaddle.parser.compiler_objects import (BlockObject, DigitObject,
-                                             FunctionObject,
-                                             IndefiniteArticleObject,
-                                             LookupObject, RegexObject,
-                                             RootObject, TextObject)
 
 
 class Interpreter:
@@ -90,16 +94,19 @@ class Interpreter:
                         f"[Interpreter.run](RantBlockObject) tried to get item no. {choice} of {len(block.choices)} -"
                         "when using synchronizers, make sure you have the same number of choices each time"
                     )
-            if first_repetition:
+            if first_repetition and attributes.first:
                 first_repetition = False
-                formatter.append(attributes.first)
+                formatter.append_formatter(self.run(attributes.first))
             elif attributes.repetitions == 1:
-                formatter.append(attributes.last)
+                if attributes.last:
+                    formatter.append_formatter(self.run(attributes.last))
+                elif attributes.separator:
+                    formatter.append_formatter(self.run(attributes.separator))
             attributes.repetitions = attributes.repetitions - 1
             partial_result = self.run(block.choices[choice])
             formatter += partial_result
-            if attributes.repetitions:
-                formatter.append(attributes.separator)
+            if attributes.repetitions > 1 and attributes.separator:
+                formatter.append_formatter(self.run(attributes.separator))
         return formatter
 
     @run.register(FunctionObject)
@@ -111,7 +118,7 @@ class Interpreter:
         if func.func in function_definitions:
             formatter.append(
                 function_definitions[func.func](
-                    evaluated_args, self.block_attribute_manager
+                    evaluated_args, self.block_attribute_manager, func.args
                 )
             )
         else:
@@ -151,7 +158,6 @@ class Interpreter:
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
         formatter = Formatter()
-        print("in regex run")
 
         def repl(matchobj: Match):
             RegexState.match = matchobj.group()
