@@ -11,8 +11,8 @@ from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.parser.compiler import Compiler
-from twaddle.parser.compiler_objects import (BlockObject, DigitObject,
+from twaddle.compiler.compiler import Compiler
+from twaddle.compiler.compiler_objects import (BlockObject, DigitObject,
                                              FunctionObject,
                                              IndefiniteArticleObject,
                                              LookupObject, RegexObject,

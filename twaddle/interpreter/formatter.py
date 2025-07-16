@@ -2,7 +2,7 @@ import re
 from typing import Type
 
 from twaddle.exceptions import TwaddleInterpreterException
-from twaddle.parser.compiler_objects import IndefiniteArticleObject
+from twaddle.compiler.compiler_objects import IndefiniteArticleObject
 
 from .formatting_object import (FormattingObject, FormattingStrategy,
                                 IndefiniteArticle, PlainText, StrategyChange)

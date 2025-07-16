@@ -2,7 +2,7 @@ from collections import deque
 
 from twaddle.exceptions import TwaddleParserException
 from twaddle.lexer.lexer_tokens import Token, TokenType
-from twaddle.parser.compiler_objects import TextObject
+from twaddle.compiler.compiler_objects import TextObject
 
 
 def to_plain_text_token(raw: Token) -> Token:

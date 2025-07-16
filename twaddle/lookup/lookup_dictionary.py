@@ -3,7 +3,7 @@ from random import choice
 
 from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup_entry import DictionaryEntry
-from twaddle.parser.compiler_objects import LookupObject
+from twaddle.compiler.compiler_objects import LookupObject
 
 
 class LookupDictionary:

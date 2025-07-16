@@ -1,9 +1,9 @@
 import pytest
 
 from twaddle.exceptions import TwaddleParserException
-from twaddle.parser.compiler import (Compiler, CompilerContext,
+from twaddle.compiler.compiler import (Compiler, CompilerContext,
                                      CompilerContextStack)
-from twaddle.parser.compiler_objects import (BlockObject, FunctionObject,
+from twaddle.compiler.compiler_objects import (BlockObject, FunctionObject,
                                              IndefiniteArticleObject,
                                              LookupObject, ObjectType,
                                              RegexObject, RootObject,

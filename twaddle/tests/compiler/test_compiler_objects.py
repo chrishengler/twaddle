@@ -1,4 +1,4 @@
-from twaddle.parser.compiler_objects import (BlockObject, FunctionObject,
+from twaddle.compiler.compiler_objects import (BlockObject, FunctionObject,
                                              LookupObject, ObjectType,
                                              TextObject)
 
