@@ -40,6 +40,7 @@ class TwaddleLookupException(TwaddleException):
             self.message = message
         super().__init__(self.message)
 
+
 class TwaddleDictionaryException(TwaddleException):
     """Thrown when dictionary file is invalid"""
 

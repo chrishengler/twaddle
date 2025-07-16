@@ -5,17 +5,9 @@ from twaddle.exceptions import TwaddleParserException
 from twaddle.lexer.lexer import lex
 from twaddle.lexer.lexer_tokens import Token, TokenType
 
-from .compiler_objects import (
-    BlockObject,
-    DigitObject,
-    FunctionObject,
-    IndefiniteArticleObject,
-    LookupObject,
-    Object,
-    RegexObject,
-    RootObject,
-    TextObject,
-)
+from .compiler_objects import (BlockObject, DigitObject, FunctionObject,
+                               IndefiniteArticleObject, LookupObject, Object,
+                               RegexObject, RootObject, TextObject)
 from .compiler_utils import get_text_for_object, to_plain_text_object
 
 

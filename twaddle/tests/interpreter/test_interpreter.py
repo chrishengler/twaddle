@@ -1,7 +1,7 @@
 import pytest
 
-from twaddle.interpreter.interpreter import Interpreter
 from twaddle.exceptions import TwaddleInterpreterException
+from twaddle.interpreter.interpreter import Interpreter
 from twaddle.lookup.lookup_manager import LookupManager
 
 

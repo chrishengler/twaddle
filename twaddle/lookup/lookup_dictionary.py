@@ -88,7 +88,3 @@ class LookupDictionary:
             lookup.positive_label,
             lookup.negative_labels,
         )
-
-
-
-

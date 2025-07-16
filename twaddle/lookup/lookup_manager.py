@@ -1,10 +1,9 @@
+import os
+
 from twaddle.exceptions import TwaddleDictionaryException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.parser.compiler_objects import LookupObject
-
-
-import os
 
 
 class LookupManager:
@@ -20,7 +19,10 @@ class LookupManager:
                 dict_path = os.path.join(path, f)
                 new_dictionary = DictionaryFileParser.read_from_file(dict_path)
                 if new_dictionary is None:
-                    raise TwaddleDictionaryException(f"[LookupManager.add_dictionaries_from_folder] dictionary file {dict_path} could not be read. Are name and forms defined?")
+                    raise TwaddleDictionaryException(
+                        f"[LookupManager.add_dictionaries_from_folder] dictionary file {dict_path} could not be read."
+                        "Are name and forms defined?"
+                    )
                 self.dictionaries[new_dictionary.name] = new_dictionary
 
     def clear_labels(self):

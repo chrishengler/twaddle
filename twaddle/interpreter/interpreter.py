@@ -3,26 +3,20 @@ from random import randint, randrange
 from re import Match, sub
 
 from twaddle.exceptions import TwaddleInterpreterException
+from twaddle.interpreter.block_attributes import (BlockAttributeManager,
+                                                  BlockAttributes)
 from twaddle.interpreter.formatter import Formatter
-from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.lookup.lookup_dictionary import LookupDictionary
-from twaddle.parser.compiler import Compiler
-from twaddle.parser.compiler_objects import (
-    BlockObject,
-    DigitObject,
-    FunctionObject,
-    IndefiniteArticleObject,
-    LookupObject,
-    RegexObject,
-    RootObject,
-    TextObject,
-)
-
-from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 from twaddle.interpreter.function_dict import function_definitions
 from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
-
+from twaddle.lookup.lookup_dictionary import LookupDictionary
+from twaddle.lookup.lookup_manager import LookupManager
+from twaddle.parser.compiler import Compiler
+from twaddle.parser.compiler_objects import (BlockObject, DigitObject,
+                                             FunctionObject,
+                                             IndefiniteArticleObject,
+                                             LookupObject, RegexObject,
+                                             RootObject, TextObject)
 
 
 class Interpreter:
@@ -39,7 +33,6 @@ class Interpreter:
         compiled_sentence = self.compiler.compile(sentence)
         return self.interpret_internal(compiled_sentence)
 
-
     def interpret_internal(self, parse_result: RootObject) -> str:
         formatter = Formatter()
         for obj in parse_result:
@@ -49,13 +42,11 @@ class Interpreter:
         result = formatter.resolve()
         return result
 
-
     # noinspection PyUnusedLocal
     @singledispatchmethod
     def run(self, arg) -> Formatter:
         formatter = Formatter()
         return formatter
-
 
     @run.register(RootObject)
     def _(self, root: RootObject):
@@ -66,7 +57,6 @@ class Interpreter:
                 formatter += item_result
         return formatter
 
-
     @run.register(BlockObject)
     def _(self, block: BlockObject):
         formatter = Formatter()
@@ -75,7 +65,9 @@ class Interpreter:
         synchronizer: Synchronizer | None = None
         if attributes.synchronizer is not None:
             if self.synchronizer_manager.synchronizer_exists(attributes.synchronizer):
-                synchronizer = self.synchronizer_manager.get_synchronizer(attributes.synchronizer)
+                synchronizer = self.synchronizer_manager.get_synchronizer(
+                    attributes.synchronizer
+                )
             else:
                 if attributes.synchronizer_type is None:
                     raise TwaddleInterpreterException(
@@ -110,7 +102,6 @@ class Interpreter:
                 formatter.append(attributes.separator)
         return formatter
 
-
     @run.register(FunctionObject)
     def _(self, func: FunctionObject):
         formatter = Formatter()
@@ -118,20 +109,22 @@ class Interpreter:
         for arg in func.args:
             evaluated_args.append(self.run(arg).resolve())
         if func.func in function_definitions:
-            formatter.append(function_definitions[func.func](evaluated_args, self.block_attribute_manager))
+            formatter.append(
+                function_definitions[func.func](
+                    evaluated_args, self.block_attribute_manager
+                )
+            )
         else:
             raise TwaddleInterpreterException(
                 f"[Interpreter::run] no function found named '{func.func}'"
             )
         return formatter
 
-
     @run.register(TextObject)
     def _(self, text: TextObject):
         formatter = Formatter()
         formatter.append(text.text)
         return formatter
-
 
     @run.register(LookupObject)
     def _(self, lookup: LookupObject):
@@ -140,14 +133,12 @@ class Interpreter:
         formatter.append(dictionary.get(lookup))
         return formatter
 
-
     # noinspection SpellCheckingInspection
     @run.register(IndefiniteArticleObject)
     def _(self, indef: IndefiniteArticleObject):
         formatter = Formatter()
         formatter.add_indefinite_article(indef.default_upper)
         return formatter
-
 
     # noinspection PyUnusedLocal
     @run.register(DigitObject)
@@ -156,12 +147,11 @@ class Interpreter:
         formatter.append(str(randint(0, 9)))
         return formatter
 
-
     @run.register(RegexObject)
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
         formatter = Formatter()
-        print('in regex run')
+        print("in regex run")
 
         def repl(matchobj: Match):
             RegexState.match = matchobj.group()

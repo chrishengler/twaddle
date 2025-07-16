@@ -66,10 +66,10 @@ class SynchronizerManager:
     def synchronizer_exists(self, name: str) -> bool:
         return name in self.synchronizers
 
-    def create_synchronizer(self, name: str, sync_type: str, length: int) -> Synchronizer:
-        self.synchronizers[name] = SynchronizerManager.sync_types[
-            sync_type
-        ](length)
+    def create_synchronizer(
+        self, name: str, sync_type: str, length: int
+    ) -> Synchronizer:
+        self.synchronizers[name] = SynchronizerManager.sync_types[sync_type](length)
         return self.synchronizers[name]
 
     def get_synchronizer(self, name: str) -> Synchronizer:
