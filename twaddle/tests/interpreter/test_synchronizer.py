@@ -1,13 +1,12 @@
-from twaddle.interpreter.synchronizer import (
-    CyclicDeckSynchronizer,
-    DeckSynchronizer,
-    LockedSynchronizer,
-    SynchronizerManager,
-)
+from twaddle.interpreter.synchronizer import (CyclicDeckSynchronizer,
+                                              DeckSynchronizer,
+                                              LockedSynchronizer,
+                                              SynchronizerManager)
 
 
 def test_synchronizer_manager():
-    locked = SynchronizerManager.create_synchronizer("x", "locked", 1)
+    sync_manager = SynchronizerManager()
+    locked = sync_manager.create_synchronizer("x", "locked", 1)
     assert isinstance(locked, LockedSynchronizer)
 
 

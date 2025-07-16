@@ -4,13 +4,8 @@ from typing import Type
 from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.parser.compiler_objects import IndefiniteArticleObject
 
-from .formatting_object import (
-    FormattingObject,
-    FormattingStrategy,
-    IndefiniteArticle,
-    PlainText,
-    StrategyChange,
-)
+from .formatting_object import (FormattingObject, FormattingStrategy,
+                                IndefiniteArticle, PlainText, StrategyChange)
 
 
 class Formatter:
@@ -123,9 +118,11 @@ class Formatter:
             return
         chosen_article = "an" if self._indefinite_article_use_an_(next_word) else "a"
         self.output_stack = [
-            item
-            if not isinstance(item, IndefiniteArticle)
-            else self._convert_article(item, chosen_article)
+            (
+                item
+                if not isinstance(item, IndefiniteArticle)
+                else self._convert_article(item, chosen_article)
+            )
             for item in self.output_stack
         ]
 

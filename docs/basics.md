@@ -13,17 +13,30 @@ Initial targeted features are:
 
 ## How do I use Twaddle?
 
-Full installation instructions will be provided at a later date, but if you've worked with Python you should have no
-trouble getting the module set up.
+Twaddle can be installed from pip with
 
-To actually use it, create a TwaddleRunner object, passing it the location of the folder containing the dictionary files you 
-wish to use. Then give your sentences to its `run_sentence` method. For an extremely simple example, see the 
-`__main__.py` file, which takes sentences as console input and prints the result:
+`pip install twaddle`
+
+If you prefer, you can download the git repo directly from 
+
+To play around with an interactive session, simply run:
+
+`python -m twaddle <path>`
+
+where `<path>` is replaced by the path containing the [dictionaries](dictionaries.md) you wish to load
+
+To use Twaddle within a project of your own, you will need to create a `TwaddleRunner` object (imported
+from `twaddle.runner`), passing it the location of the folder containing the dictionary files you wish to
+use. Then give your sentences to its `run_sentence` method. 
+
+For an extremely simple example, see the `__main__.py` file, which takes sentences as console input
+and prints the result:
 
 ```
+import readline  # noqa: F401
 import sys
 
-from runner import TwaddleRunner
+from twaddle.runner import TwaddleRunner
 
 
 def main():
@@ -43,8 +56,7 @@ def main():
         except EOFError:
             quit()
 
+
 if __name__ == "__main__":
     main()
-
 ```
-

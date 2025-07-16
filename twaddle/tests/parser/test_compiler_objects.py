@@ -1,10 +1,6 @@
-from twaddle.parser.compiler_objects import (
-    BlockObject,
-    FunctionObject,
-    LookupObject,
-    ObjectType,
-    TextObject,
-)
+from twaddle.parser.compiler_objects import (BlockObject, FunctionObject,
+                                             LookupObject, ObjectType,
+                                             TextObject)
 
 
 def test_rant_text_object():

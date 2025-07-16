@@ -1,3 +1,4 @@
+import readline  # noqa: F401
 import sys
 
 from twaddle.runner import TwaddleRunner

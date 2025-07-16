@@ -6,28 +6,28 @@ from .formatting_object import FormattingStrategy
 from .regex_state import RegexState
 
 
-def repeat(args: list[str]):
+def repeat(args: list[str], block_attribute_manager: BlockAttributeManager):
     repetitions = int(args[0])
-    BlockAttributeManager.current_attributes.repetitions = repetitions
+    block_attribute_manager.current_attributes.repetitions = repetitions
 
 
-def separator(args: list[str]):
-    BlockAttributeManager.current_attributes.separator = args[0]
+def separator(args: list[str], block_attribute_manager: BlockAttributeManager):
+    block_attribute_manager.current_attributes.separator = args[0]
 
 
-def first(args: list[str]):
-    BlockAttributeManager.current_attributes.first = args[0]
+def first(args: list[str], block_attribute_manager: BlockAttributeManager):
+    block_attribute_manager.current_attributes.first = args[0]
 
 
-def last(args: list[str]):
-    BlockAttributeManager.current_attributes.last = args[0]
+def last(args: list[str], block_attribute_manager: BlockAttributeManager):
+    block_attribute_manager.current_attributes.last = args[0]
 
 
-def sync(args: list[str]):
-    BlockAttributeManager.set_synchronizer(args)
+def sync(args: list[str], block_attribute_manager: BlockAttributeManager):
+    block_attribute_manager.set_synchronizer(args)
 
 
-def case(args: list[str]):
+def case(args: list[str], _block_attribute_manager):
     arg = args[0].strip().lower()
     match arg:
         case "none":
@@ -45,11 +45,11 @@ def case(args: list[str]):
 
 
 # noinspection PyUnusedLocal
-def match(args: list[str]):
+def match(args: list[str], _block_attribute_manager):
     return RegexState.match
 
 
-def rand(args: list[str]) -> str:
+def rand(args: list[str], _block_attribute_manager) -> str:
     minimum = int(args[0])
     maximum = int(args[1])
     return str(randint(minimum, maximum))

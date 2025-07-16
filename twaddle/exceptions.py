@@ -39,3 +39,12 @@ class TwaddleLookupException(TwaddleException):
         if message is not None:
             self.message = message
         super().__init__(self.message)
+
+
+class TwaddleDictionaryException(TwaddleException):
+    """Thrown when dictionary file is invalid"""
+
+    def __init__(self, message: str = None):
+        if message is not None:
+            self.message = message
+        super().__init__(self.message)
