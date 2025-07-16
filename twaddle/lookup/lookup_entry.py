@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
 
-class LookupEntry:
+class DictionaryEntry:
     def __init__(self, forms: OrderedDict[str, str], tags: set[str] = None):
         self.forms = forms
         self.tags = tags

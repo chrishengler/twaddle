@@ -1,10 +1,12 @@
 import pytest
 
-import twaddle.interpreter.interpreter as interpreter
+from twaddle.interpreter.interpreter import Interpreter
 from twaddle.exceptions import TwaddleInterpreterException
+from twaddle.lookup.lookup_manager import LookupManager
 
 
 def get_interpreter_output(sentence):
+    interpreter = Interpreter(LookupManager())
     return interpreter.interpret_external(sentence)
 
 

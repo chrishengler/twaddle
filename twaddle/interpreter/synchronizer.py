@@ -53,33 +53,31 @@ class CyclicDeckSynchronizer(Synchronizer):
 
 
 class SynchronizerManager:
+
     sync_types = {
         "locked": LockedSynchronizer,
         "deck": DeckSynchronizer,
         "cdeck": CyclicDeckSynchronizer,
     }
 
-    synchronizers = dict[str, Synchronizer]()
+    def __init__(self):
+        self.synchronizers = dict[str, Synchronizer]()
 
-    @staticmethod
-    def synchronizer_exists(name: str) -> bool:
-        return name in SynchronizerManager.synchronizers
+    def synchronizer_exists(self, name: str) -> bool:
+        return name in self.synchronizers
 
-    @staticmethod
-    def create_synchronizer(name: str, sync_type: str, length: int) -> Synchronizer:
-        SynchronizerManager.synchronizers[name] = SynchronizerManager.sync_types[
+    def create_synchronizer(self, name: str, sync_type: str, length: int) -> Synchronizer:
+        self.synchronizers[name] = SynchronizerManager.sync_types[
             sync_type
         ](length)
-        return SynchronizerManager.synchronizers[name]
+        return self.synchronizers[name]
 
-    @staticmethod
-    def get_synchronizer(name: str) -> Synchronizer:
-        if not SynchronizerManager.synchronizer_exists(name):
+    def get_synchronizer(self, name: str) -> Synchronizer:
+        if not self.synchronizer_exists(name):
             raise TwaddleInterpreterException(
                 f"[SynchronizerManager.get_synchronizer] tried to access non-existing synchronizer {name}"
             )
-        return SynchronizerManager.synchronizers[name]
+        return self.synchronizers[name]
 
-    @staticmethod
-    def clear():
-        SynchronizerManager.synchronizers.clear()
+    def clear(self):
+        self.synchronizers.clear()

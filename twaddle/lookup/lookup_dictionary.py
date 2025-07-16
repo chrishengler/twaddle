@@ -2,7 +2,7 @@ from collections import OrderedDict
 from random import choice
 
 from twaddle.exceptions import TwaddleLookupException
-from twaddle.lookup.lookup_entry import LookupEntry
+from twaddle.lookup.lookup_entry import DictionaryEntry
 from twaddle.parser.compiler_objects import LookupObject
 
 
@@ -10,19 +10,19 @@ class LookupDictionary:
     def __init__(self, name: str, forms: list[str]):
         self.name = name
         self.forms = forms
-        self.entries = list[LookupEntry]()
-        self.labels = dict[str, LookupEntry]()
+        self.entries = list[DictionaryEntry]()
+        self.labels = dict[str, DictionaryEntry]()
 
     def add(self, forms: list[str], tags: set[str] = None):
         if len(forms) != len(self.forms):
             raise TwaddleLookupException(
                 "[LookupDictionary.add] wrong number of forms provided"
             )
-        lookup = LookupEntry(OrderedDict(zip(self.forms, forms)), tags)
+        lookup = DictionaryEntry(OrderedDict(zip(self.forms, forms)), tags)
         self.entries.append(lookup)
 
     def clear_labels(self):
-        self.labels = dict[str, LookupEntry]()
+        self.labels = dict[str, DictionaryEntry]()
 
     def _get_form(self, form: str) -> str:
         if form is None:
@@ -38,8 +38,8 @@ class LookupDictionary:
         tags_positive: set[str] = None,
         tags_negative: set[str] = None,
         labels_negative: set[str] = None,
-    ) -> list[LookupEntry]:
-        valid_choices = list[LookupEntry]()
+    ) -> list[DictionaryEntry]:
+        valid_choices = list[DictionaryEntry]()
         for entry in self.entries:
             if entry.has_any_tag_of(tags_negative):
                 continue
@@ -51,8 +51,8 @@ class LookupDictionary:
         return valid_choices
 
     def _prune_valid_choices(
-        self, valid_choices: list[LookupEntry], labels_negative: set[str]
-    ) -> list[LookupEntry]:
+        self, valid_choices: list[DictionaryEntry], labels_negative: set[str]
+    ) -> list[DictionaryEntry]:
         if labels_negative:
             for label in labels_negative:
                 if label in self.labels and self.labels[label] in valid_choices:

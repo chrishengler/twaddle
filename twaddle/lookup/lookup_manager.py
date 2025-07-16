@@ -8,28 +8,25 @@ import os
 
 
 class LookupManager:
-    dictionaries = dict[str, LookupDictionary]()
+    def __init__(self):
+        self.dictionaries = dict[str, LookupDictionary]()
 
-    @staticmethod
-    def __class_getitem__(name: str) -> LookupDictionary:
-        return LookupManager.dictionaries[name]
+    def __getitem__(self, name: str) -> LookupDictionary:
+        return self.dictionaries[name]
 
-    @staticmethod
-    def add_dictionaries_from_folder(path: str):
+    def add_dictionaries_from_folder(self, path: str):
         for f in os.listdir(path):
             if f.endswith(".dic"):
                 dict_path = os.path.join(path, f)
                 new_dictionary = DictionaryFileParser.read_from_file(dict_path)
                 if new_dictionary is None:
                     raise TwaddleDictionaryException(f"[LookupManager.add_dictionaries_from_folder] dictionary file {dict_path} could not be read. Are name and forms defined?")
-                LookupManager.dictionaries[new_dictionary.name] = new_dictionary
+                self.dictionaries[new_dictionary.name] = new_dictionary
 
-    @staticmethod
-    def clear_labels():
-        for dictionary in LookupManager.dictionaries.values():
+    def clear_labels(self):
+        for dictionary in self.dictionaries.values():
             dictionary.clear_labels()
 
-    @staticmethod
-    def do_lookup(lookup: LookupObject):
-        dictionary: LookupDictionary = LookupManager[lookup.dictionary]
+    def do_lookup(self, lookup: LookupObject):
+        dictionary: LookupDictionary = self.dictionaries[lookup.dictionary]
         return dictionary.get(lookup)

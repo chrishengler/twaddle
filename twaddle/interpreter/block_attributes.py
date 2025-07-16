@@ -9,20 +9,18 @@ class BlockAttributes:
 
 
 class BlockAttributeManager:
-    current_attributes = BlockAttributes()
+    def __init__(self):
+        self.current_attributes = BlockAttributes()
 
-    @staticmethod
-    def get_attributes() -> BlockAttributes:
-        attributes = BlockAttributeManager.current_attributes
-        BlockAttributeManager.current_attributes = BlockAttributes()
+    def get_attributes(self) -> BlockAttributes:
+        attributes = self.current_attributes
+        self.current_attributes = BlockAttributes()
         return attributes
 
-    @staticmethod
-    def set_synchronizer(args: list[str]):
-        BlockAttributeManager.current_attributes.synchronizer = args[0]
+    def set_synchronizer(self, args: list[str]):
+        self.current_attributes.synchronizer = args[0]
         if len(args) > 1:
-            BlockAttributeManager.current_attributes.synchronizer_type = args[1]
+            self.current_attributes.synchronizer_type = args[1]
 
-    @staticmethod
-    def clear():
-        BlockAttributeManager.current_attributes = BlockAttributes()
+    def clear(self):
+        self.current_attributes = BlockAttributes()

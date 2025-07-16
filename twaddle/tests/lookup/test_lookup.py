@@ -3,7 +3,7 @@ import os
 import pytest
 
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
-from twaddle.lookup.lookup_entry import LookupEntry
+from twaddle.lookup.lookup_entry import DictionaryEntry
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_manager import LookupManager
 from twaddle.lookup.lookup_dictionary import (
@@ -19,7 +19,7 @@ def relative_path_to_full_path(rel_path: str) -> str:
 
 # noinspection SpellCheckingInspection
 def test_lookup_type():
-    lookup_thing = LookupEntry(
+    lookup_thing = DictionaryEntry(
         {
             "singular": "thing",
             "plural": "things",
@@ -120,41 +120,46 @@ def test_load_empty_file_raise_exception():
     factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/invalid_dicts/empty")
     with pytest.raises(TwaddleDictionaryException, match=r".*empty.dic could not be read.*"):
-        LookupManager.add_dictionaries_from_folder(path)
-        assert len(LookupManager.dictionaries) == 0
+        lookup_manager = LookupManager()
+        lookup_manager.add_dictionaries_from_folder(path)
+        assert len(lookup_manager.dictionaries) == 0
 
 
 def test_load_file_no_forms_raise_exception():
     factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/invalid_dicts/no_forms")
     with pytest.raises(TwaddleDictionaryException, match=r".*no_forms.dic could not be read.*"):
-        LookupManager.add_dictionaries_from_folder(path)
-        assert len(LookupManager.dictionaries) == 0
+        lookup_manager = LookupManager()
+        lookup_manager.add_dictionaries_from_folder(path)
+        assert len(lookup_manager.dictionaries) == 0
 
 
 def test_load_file_no_header_raise_exception():
     factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/invalid_dicts/no_header")
     with pytest.raises(TwaddleDictionaryException, match=r".*content_no_header.dic could not be read.*"):
-        LookupManager.add_dictionaries_from_folder(path)
-        assert len(LookupManager.dictionaries) == 0
+        lookup_manager = LookupManager()
+        lookup_manager.add_dictionaries_from_folder(path)
+        assert len(lookup_manager.dictionaries) == 0
 
 
 def test_dictionary_manager():
     path = relative_path_to_full_path("../resources/valid_dicts")
-    LookupManager.add_dictionaries_from_folder(path)
-    assert len(LookupManager.dictionaries) == 2
-    noun_dictionary: LookupDictionary = LookupManager["noun"]
-    adj_dictionary: LookupDictionary = LookupManager["adj"]
+    lookup_manager = LookupManager()
+    lookup_manager.add_dictionaries_from_folder(path)
+    assert len(lookup_manager.dictionaries) == 2
+    noun_dictionary: LookupDictionary = lookup_manager["noun"]
+    adj_dictionary: LookupDictionary = lookup_manager["adj"]
     assert noun_dictionary._get("plural", {"shape"}) == "hexagons"
     assert adj_dictionary._get() == "happy"
 
 
 def test_lookup_from_object():
     path = relative_path_to_full_path("../resources/valid_dicts")
-    LookupManager.add_dictionaries_from_folder(path)
+    lookup_manager = LookupManager()
+    lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("adj")
-    assert LookupManager.do_lookup(lookup) == "happy"
+    assert lookup_manager.do_lookup(lookup) == "happy"
 
 
 if __name__ == "__main__":
