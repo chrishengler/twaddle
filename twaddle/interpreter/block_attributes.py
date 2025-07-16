@@ -1,9 +1,12 @@
+from twaddle.compiler.compiler_objects import RootObject
+
+
 class BlockAttributes:
     def __init__(self):
         self.repetitions: int = 1
-        self.separator: str = ""
-        self.first: str = ""
-        self.last: str = ""
+        self.separator: RootObject | None = None
+        self.first: RootObject | None = None 
+        self.last: RootObject | None = None
         self.synchronizer: str | None = None
         self.synchronizer_type: str | None = None
 

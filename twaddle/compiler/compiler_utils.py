@@ -21,7 +21,7 @@ def to_plain_text_token(raw: Token) -> Token:
             return Token(TokenType.PLAIN_TEXT, "-")
         case TokenType.DOUBLE_COLON:
             return Token(TokenType.PLAIN_TEXT, "::")
-        case TokenType.BACKSLASH:
+        case TokenType.DOUBLE_BACKSLASH:
             return Token(TokenType.PLAIN_TEXT, "/")
         case TokenType.DOT:
             return Token(TokenType.PLAIN_TEXT, ".")
@@ -71,7 +71,9 @@ def get_text_for_object(raw: Token) -> str:
             return r"\a"
         case TokenType.UPPER_INDEFINITE_ARTICLE:
             return r"\A"
-        case TokenType.BACKSLASH:
+        case TokenType.DOUBLE_BACKSLASH:
+            return "\\"
+        case TokenType.SINGLE_BACKSLASH:
             return "\\"
         case TokenType.FORWARD_SLASH:
             return "/"
@@ -112,3 +114,17 @@ def merge_text_objects(raw: deque[TextObject]) -> TextObject:
                 f"[ParserUtils::merge_text_objects] object of type {type(token)} when RantTextObject was expected"
             )
     return TextObject(value)
+
+
+def check_for_escape(next_token: Token) -> str | None:
+    escapable_symbols = [TokenType.LEFT_ANGLE_BRACKET, 
+                         TokenType.RIGHT_ANGLE_BRACKET, 
+                         TokenType.LEFT_CURLY_BRACKET,
+                         TokenType.RIGHT_CURLY_BRACKET,
+                         TokenType.LEFT_SQUARE_BRACKET,
+                         TokenType.RIGHT_SQUARE_BRACKET,
+                         TokenType.PIPE,
+                         ]
+    if next_token.type in escapable_symbols:
+        return next_token
+    return None

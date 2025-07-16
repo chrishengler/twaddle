@@ -49,6 +49,11 @@ def test_repeat_with_separator():
     assert result == "axaxa"
 
 
+def test_article_in_separator():
+    result = get_interpreter_output(r"[rep:2][sep: \a ]{egg}")
+    assert result == "egg an egg"
+
+
 # noinspection SpellCheckingInspection
 def test_repeat_with_first_and_last():
     result = get_interpreter_output("[rep:5][first:a][last:z]{x}")

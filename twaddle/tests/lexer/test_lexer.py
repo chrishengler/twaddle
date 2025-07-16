@@ -128,7 +128,7 @@ def test_slash():
     test_string = r"\\"
     result = lexer.lex(test_string)
 
-    expected_result = Token(TokenType.BACKSLASH)
+    expected_result = Token(TokenType.DOUBLE_BACKSLASH)
 
     assert len(result) == 1
     assert result[0] == expected_result
@@ -214,6 +214,47 @@ def test_long_string():
     for actual, expected in zip(result, expected_result):
         assert actual == expected
 
+
+def test_escaped_characters():
+    test_string = r"\<\>\{\}\[\]\|"
+
+    expected_result = [
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.LEFT_ANGLE_BRACKET),
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.RIGHT_ANGLE_BRACKET),
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.LEFT_CURLY_BRACKET),
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.RIGHT_CURLY_BRACKET),
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.LEFT_SQUARE_BRACKET),
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.RIGHT_SQUARE_BRACKET),
+        Token(TokenType.SINGLE_BACKSLASH),
+        Token(TokenType.PIPE)
+    ]
+    result = lexer.lex(test_string)
+    assert len(result) == 14
+    for actual, expected in zip(result, expected_result):
+        assert actual == expected
+
+
+def test_article_in_separator():
+    test_string = r"[sep:\a]"
+    result = lexer.lex(test_string)
+
+    expected_result = [
+        Token(TokenType.LEFT_SQUARE_BRACKET),
+        Token(TokenType.PLAIN_TEXT, "sep"),
+        Token(TokenType.COLON),
+        Token(TokenType.LOWER_INDEFINITE_ARTICLE),
+        Token(TokenType.RIGHT_SQUARE_BRACKET)
+    ]
+
+    for actual, expected in zip(result, expected_result):
+        print(f"{str(actual)=}, {str(expected)=}")
+        assert actual == expected
 
 def test_realistic_sentence():
     test_string = r"I work as \a <noun-job>"

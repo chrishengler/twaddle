@@ -1,34 +1,35 @@
 from random import randint
 
+from twaddle.compiler.compiler_objects import RootObject
 from twaddle.interpreter.block_attributes import BlockAttributeManager
 
 from .formatting_object import FormattingStrategy
 from .regex_state import RegexState
 
 
-def repeat(args: list[str], block_attribute_manager: BlockAttributeManager):
-    repetitions = int(args[0])
+def repeat(evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args: list[RootObject]):
+    repetitions = int(evaluated_args[0])
     block_attribute_manager.current_attributes.repetitions = repetitions
 
 
-def separator(args: list[str], block_attribute_manager: BlockAttributeManager):
-    block_attribute_manager.current_attributes.separator = args[0]
+def separator(_evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, raw_args: list[RootObject]):
+    block_attribute_manager.current_attributes.separator = raw_args[0]
 
 
-def first(args: list[str], block_attribute_manager: BlockAttributeManager):
-    block_attribute_manager.current_attributes.first = args[0]
+def first(_evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, raw_args: list[RootObject]):
+    block_attribute_manager.current_attributes.first = raw_args[0]
 
 
-def last(args: list[str], block_attribute_manager: BlockAttributeManager):
-    block_attribute_manager.current_attributes.last = args[0]
+def last(_evaluated_args, block_attribute_manager: BlockAttributeManager, raw_args: list[RootObject]):
+    block_attribute_manager.current_attributes.last = raw_args[0]
 
 
-def sync(args: list[str], block_attribute_manager: BlockAttributeManager):
-    block_attribute_manager.set_synchronizer(args)
+def sync(evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args):
+    block_attribute_manager.set_synchronizer(evaluated_args)
 
 
-def case(args: list[str], _block_attribute_manager):
-    arg = args[0].strip().lower()
+def case(evaluated_args: list[str], _block_attribute_manager, _raw_args):
+    arg = evaluated_args[0].strip().lower()
     match arg:
         case "none":
             return FormattingStrategy.NONE
@@ -45,11 +46,11 @@ def case(args: list[str], _block_attribute_manager):
 
 
 # noinspection PyUnusedLocal
-def match(args: list[str], _block_attribute_manager):
+def match(evaluated_args: list[str], _block_attribute_manager, _raw_args):
     return RegexState.match
 
 
-def rand(args: list[str], _block_attribute_manager) -> str:
-    minimum = int(args[0])
-    maximum = int(args[1])
+def rand(evaluated_args: list[str], _block_attribute_manager, _raw_args) -> str:
+    minimum = int(evaluated_args[0])
+    maximum = int(evaluated_args[1])
     return str(randint(minimum, maximum))
