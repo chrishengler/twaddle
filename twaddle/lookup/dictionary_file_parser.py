@@ -1,23 +1,21 @@
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 
 
-class LookupDictionaryFactory:
-    def __init__(self):
-        pass
-
+class DictionaryFileParser:
     @staticmethod
-    def get_forms(forms_line: str) -> list[str]:
+    def read_forms(forms_line: str) -> list[str]:
         return forms_line.split()[1:]
 
     @staticmethod
-    def get_name(name_line: str) -> str:
+    def read_name(name_line: str) -> str:
         return name_line.split()[1]
 
     @staticmethod
-    def get_entry(entry_line: str) -> list[str]:
+    def read_entry(entry_line: str) -> list[str]:
         return entry_line.split("/")
 
-    def read_from_file(self, path: str) -> LookupDictionary:
+    @staticmethod
+    def read_from_file(path: str) -> LookupDictionary:
         with open(path, encoding="utf-8") as input_file:
             name = str()
             forms = list[str]()
@@ -26,31 +24,32 @@ class LookupDictionaryFactory:
             for line in input_file:
                 if dictionary is None:
                     if not name:
-                        name = self._try_name(line)
+                        name = DictionaryFileParser._try_read_name(line)
                     if not forms:
-                        forms = self._try_forms(line)
+                        forms = DictionaryFileParser._try_read_forms(line)
                     if name and forms:
                         dictionary = LookupDictionary(name, forms)
                 else:
-                    self._read_line(line, name, forms, classes, dictionary)
+                    DictionaryFileParser._read_line(line, forms, classes, dictionary)
             return dictionary
 
-    def _try_name(self, line: str) -> str:
+    @staticmethod
+    def _try_read_name(line: str) -> str:
         name = None
         if line.startswith("#name"):
-            name = self.get_name(line)
+            name = DictionaryFileParser.read_name(line)
         return name
 
-    def _try_forms(self, line: str) -> list[str]:
+    @staticmethod
+    def _try_read_forms(line: str) -> list[str]:
         forms = None
         if line.startswith("#forms") or line.startswith("#subs"):
-            forms = self.get_forms(line)
+            forms = DictionaryFileParser.read_forms(line)
         return forms
 
+    @staticmethod
     def _read_line(
-        self,
         line: str,
-        name: str,
         forms: list[str],
         classes: list[str],
         dictionary: LookupDictionary,
@@ -62,6 +61,6 @@ class LookupDictionaryFactory:
             classes.remove(line.split()[-1])
         elif line.startswith("> "):
             line = line[2:]
-            entry = self.get_entry(line)
+            entry = DictionaryFileParser.read_entry(line)
             if len(entry) == len(forms):
                 dictionary.add(entry, set.copy(classes))

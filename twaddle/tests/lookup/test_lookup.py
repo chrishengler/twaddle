@@ -4,7 +4,7 @@ import pytest
 
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.lookup.lookup_entry import LookupEntry
-from twaddle.lookup.lookup_dictionary_factory import LookupDictionaryFactory
+from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_manager import LookupManager
 from twaddle.lookup.lookup_dictionary import (
     LookupDictionary,
@@ -85,17 +85,17 @@ def test_labels_negative():
 
 
 def test_dictionary_attributes_from_lines():
-    factory = LookupDictionaryFactory()
-    name = factory.get_name("#name noun")
+    factory = DictionaryFileParser()
+    name = factory.read_name("#name noun")
     assert name == "noun"
-    forms = factory.get_forms("#subs singular plural")
+    forms = factory.read_forms("#subs singular plural")
     assert forms == ["singular", "plural"]
-    forms = factory.get_forms("#forms singular plural")
+    forms = factory.read_forms("#forms singular plural")
     assert forms == ["singular", "plural"]
 
 
 def test_dictionary_read_from_file_simple():
-    factory = LookupDictionaryFactory()
+    factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/valid_dicts/example.dic")
     dictionary = factory.read_from_file(path)
     assert dictionary.name == "adj"
@@ -106,7 +106,7 @@ def test_dictionary_read_from_file_simple():
 
 
 def test_dictionary_read_from_file_with_classes():
-    factory = LookupDictionaryFactory()
+    factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/valid_dicts/example_with_classes.dic")
     dictionary = factory.read_from_file(path)
     assert dictionary.name == "noun"
@@ -117,7 +117,7 @@ def test_dictionary_read_from_file_with_classes():
 
 
 def test_load_empty_file_raise_exception():
-    factory = LookupDictionaryFactory()
+    factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/invalid_dicts/empty")
     with pytest.raises(TwaddleDictionaryException, match=r".*empty.dic could not be read.*"):
         LookupManager.add_dictionaries_from_folder(path)
@@ -125,7 +125,7 @@ def test_load_empty_file_raise_exception():
 
 
 def test_load_file_no_forms_raise_exception():
-    factory = LookupDictionaryFactory()
+    factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/invalid_dicts/no_forms")
     with pytest.raises(TwaddleDictionaryException, match=r".*no_forms.dic could not be read.*"):
         LookupManager.add_dictionaries_from_folder(path)
@@ -133,7 +133,7 @@ def test_load_file_no_forms_raise_exception():
 
 
 def test_load_file_no_header_raise_exception():
-    factory = LookupDictionaryFactory()
+    factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/invalid_dicts/no_header")
     with pytest.raises(TwaddleDictionaryException, match=r".*content_no_header.dic could not be read.*"):
         LookupManager.add_dictionaries_from_folder(path)
