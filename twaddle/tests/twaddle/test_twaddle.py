@@ -39,17 +39,28 @@ def test_lookups_with_labels():
 def test_repetition():
     assert r.run_sentence("[rep:3]{<noun-shape>}") == "hexagonhexagonhexagon"
 
+
 def test_repetition_with_separator():
     assert r.run_sentence("[rep:3][sep: ]{hey}") == "hey hey hey"
 
+
 def test_repetition_with_first():
-    assert r.run_sentence("[rep:3][sep:! ][first:give me ]{more}!") == "give me more! more! more!"
+    assert (
+        r.run_sentence("[rep:3][sep:! ][first:give me ]{more}!")
+        == "give me more! more! more!"
+    )
+
 
 def test_repetition_with_last():
     assert r.run_sentence("[rep:3][sep:, ][last:, and ]{no}") == "no, no, and no"
 
+
 def test_repetition_with_article_in_args():
-    assert r.run_sentence(r"[rep:3][sep:, \a ][first:\a ][last:, and \a ]{<noun-vehicle>}") == "an ambulance, an ambulance, and an ambulance"
+    assert (
+        r.run_sentence(r"[rep:3][sep:, \a ][first:\a ][last:, and \a ]{<noun-vehicle>}")
+        == "an ambulance, an ambulance, and an ambulance"
+    )
+
 
 def test_indefinite_article():
     assert r.run_sentence("\\a bow and \\A arrow") == "a bow and An arrow"
@@ -59,6 +70,7 @@ def test_indefinite_article():
 
 def test_escaped_characters():
     assert r.run_sentence("\<hey\>\{\}") == "<hey>{}"
+
 
 # noinspection SpellCheckingInspection,PyPep8
 def test_regex():

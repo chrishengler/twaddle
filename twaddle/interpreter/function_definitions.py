@@ -7,24 +7,42 @@ from .formatting_object import FormattingStrategy
 from .regex_state import RegexState
 
 
-def repeat(evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args: list[RootObject]):
+def repeat(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
     repetitions = int(evaluated_args[0])
     block_attribute_manager.current_attributes.repetitions = repetitions
 
 
-def separator(_evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, raw_args: list[RootObject]):
+def separator(
+    _evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    raw_args: list[RootObject],
+):
     block_attribute_manager.current_attributes.separator = raw_args[0]
 
 
-def first(_evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, raw_args: list[RootObject]):
+def first(
+    _evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    raw_args: list[RootObject],
+):
     block_attribute_manager.current_attributes.first = raw_args[0]
 
 
-def last(_evaluated_args, block_attribute_manager: BlockAttributeManager, raw_args: list[RootObject]):
+def last(
+    _evaluated_args,
+    block_attribute_manager: BlockAttributeManager,
+    raw_args: list[RootObject],
+):
     block_attribute_manager.current_attributes.last = raw_args[0]
 
 
-def sync(evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args):
+def sync(
+    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+):
     block_attribute_manager.set_synchronizer(evaluated_args)
 
 

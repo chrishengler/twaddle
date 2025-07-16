@@ -1,5 +1,13 @@
-from .function_definitions import (case, first, last, match, rand, repeat,
-                                   separator, sync)
+from .function_definitions import (
+    case,
+    first,
+    last,
+    match,
+    rand,
+    repeat,
+    separator,
+    sync,
+)
 
 function_definitions = {
     "rep": repeat,

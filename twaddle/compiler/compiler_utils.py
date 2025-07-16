@@ -1,8 +1,8 @@
 from collections import deque
 
+from twaddle.compiler.compiler_objects import TextObject
 from twaddle.exceptions import TwaddleParserException
 from twaddle.lexer.lexer_tokens import Token, TokenType
-from twaddle.compiler.compiler_objects import TextObject
 
 
 def to_plain_text_token(raw: Token) -> Token:
@@ -117,14 +117,15 @@ def merge_text_objects(raw: deque[TextObject]) -> TextObject:
 
 
 def check_for_escape(next_token: Token) -> str | None:
-    escapable_symbols = [TokenType.LEFT_ANGLE_BRACKET, 
-                         TokenType.RIGHT_ANGLE_BRACKET, 
-                         TokenType.LEFT_CURLY_BRACKET,
-                         TokenType.RIGHT_CURLY_BRACKET,
-                         TokenType.LEFT_SQUARE_BRACKET,
-                         TokenType.RIGHT_SQUARE_BRACKET,
-                         TokenType.PIPE,
-                         ]
+    escapable_symbols = [
+        TokenType.LEFT_ANGLE_BRACKET,
+        TokenType.RIGHT_ANGLE_BRACKET,
+        TokenType.LEFT_CURLY_BRACKET,
+        TokenType.RIGHT_CURLY_BRACKET,
+        TokenType.LEFT_SQUARE_BRACKET,
+        TokenType.RIGHT_SQUARE_BRACKET,
+        TokenType.PIPE,
+    ]
     if next_token.type in escapable_symbols:
         return next_token
     return None

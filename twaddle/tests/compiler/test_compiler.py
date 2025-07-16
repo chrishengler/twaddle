@@ -1,13 +1,17 @@
 import pytest
 
+from twaddle.compiler.compiler import Compiler, CompilerContext, CompilerContextStack
+from twaddle.compiler.compiler_objects import (
+    BlockObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    ObjectType,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
 from twaddle.exceptions import TwaddleParserException
-from twaddle.compiler.compiler import (Compiler, CompilerContext,
-                                     CompilerContextStack)
-from twaddle.compiler.compiler_objects import (BlockObject, FunctionObject,
-                                             IndefiniteArticleObject,
-                                             LookupObject, ObjectType,
-                                             RegexObject, RootObject,
-                                             TextObject)
 
 compiler = Compiler()
 

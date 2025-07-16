@@ -2,21 +2,25 @@ from functools import singledispatchmethod
 from random import randint, randrange
 from re import Match, sub
 
+from twaddle.compiler.compiler import Compiler
+from twaddle.compiler.compiler_objects import (
+    BlockObject,
+    DigitObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
 from twaddle.exceptions import TwaddleInterpreterException
-from twaddle.interpreter.block_attributes import (BlockAttributeManager,
-                                                  BlockAttributes)
+from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.function_dict import function_definitions
 from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.compiler.compiler import Compiler
-from twaddle.compiler.compiler_objects import (BlockObject, DigitObject,
-                                             FunctionObject,
-                                             IndefiniteArticleObject,
-                                             LookupObject, RegexObject,
-                                             RootObject, TextObject)
 
 
 class Interpreter:

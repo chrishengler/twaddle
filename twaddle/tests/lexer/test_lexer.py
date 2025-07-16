@@ -232,7 +232,7 @@ def test_escaped_characters():
         Token(TokenType.SINGLE_BACKSLASH),
         Token(TokenType.RIGHT_SQUARE_BRACKET),
         Token(TokenType.SINGLE_BACKSLASH),
-        Token(TokenType.PIPE)
+        Token(TokenType.PIPE),
     ]
     result = lexer.lex(test_string)
     assert len(result) == 14
@@ -249,12 +249,13 @@ def test_article_in_separator():
         Token(TokenType.PLAIN_TEXT, "sep"),
         Token(TokenType.COLON),
         Token(TokenType.LOWER_INDEFINITE_ARTICLE),
-        Token(TokenType.RIGHT_SQUARE_BRACKET)
+        Token(TokenType.RIGHT_SQUARE_BRACKET),
     ]
 
     for actual, expected in zip(result, expected_result):
         print(f"{str(actual)=}, {str(expected)=}")
         assert actual == expected
+
 
 def test_realistic_sentence():
     test_string = r"I work as \a <noun-job>"

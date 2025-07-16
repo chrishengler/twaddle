@@ -5,7 +5,7 @@ class BlockAttributes:
     def __init__(self):
         self.repetitions: int = 1
         self.separator: RootObject | None = None
-        self.first: RootObject | None = None 
+        self.first: RootObject | None = None
         self.last: RootObject | None = None
         self.synchronizer: str | None = None
         self.synchronizer_type: str | None = None

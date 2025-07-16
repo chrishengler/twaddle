@@ -1,7 +1,9 @@
-from twaddle.interpreter.synchronizer import (CyclicDeckSynchronizer,
-                                              DeckSynchronizer,
-                                              LockedSynchronizer,
-                                              SynchronizerManager)
+from twaddle.interpreter.synchronizer import (
+    CyclicDeckSynchronizer,
+    DeckSynchronizer,
+    LockedSynchronizer,
+    SynchronizerManager,
+)
 
 
 def test_synchronizer_manager():

@@ -1,12 +1,17 @@
-from functools import singledispatchmethod
 import re
+from functools import singledispatchmethod
 from typing import Self, Type
 
-from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.compiler.compiler_objects import IndefiniteArticleObject
+from twaddle.exceptions import TwaddleInterpreterException
 
-from .formatting_object import (FormattingObject, FormattingStrategy,
-                                IndefiniteArticle, PlainText, StrategyChange)
+from .formatting_object import (
+    FormattingObject,
+    FormattingStrategy,
+    IndefiniteArticle,
+    PlainText,
+    StrategyChange,
+)
 
 
 class Formatter:
@@ -57,10 +62,10 @@ class Formatter:
 
     @append.register(PlainText)
     def _(self, item: PlainText) -> Self:
-            previous = self._get_previous_object_()
-            self.output_stack.append(PlainText(previous, item.text))
-            if self.indefinite_article_waiting:
-                self._replace_indefinite_articles(item.text)
+        previous = self._get_previous_object_()
+        self.output_stack.append(PlainText(previous, item.text))
+        if self.indefinite_article_waiting:
+            self._replace_indefinite_articles(item.text)
 
     @append.register(FormattingObject)
     def _(self, item: FormattingObject) -> Self:
