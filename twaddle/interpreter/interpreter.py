@@ -66,6 +66,10 @@ class Interpreter:
         formatter = Formatter()
         attributes: BlockAttributes = self.block_attribute_manager.get_attributes()
         first_repetition = True
+        if attributes.repetitions < 2:
+            attributes.separator = None
+            attributes.first = None
+            attributes.last = None
         synchronizer: Synchronizer | None = None
         if attributes.synchronizer is not None:
             if self.synchronizer_manager.synchronizer_exists(attributes.synchronizer):
@@ -96,23 +100,19 @@ class Interpreter:
                     )
             if first_repetition and attributes.first:
                 first_repetition = False
-                if not attributes.hidden:
-                    formatter.append_formatter(self.run(attributes.first))
+                formatter.append_formatter(self.run(attributes.first))
             elif attributes.repetitions == 1:
-                if attributes.last and not attributes.hidden:
+                if attributes.last:
                     formatter.append_formatter(self.run(attributes.last))
-                elif attributes.separator and not attributes.hidden:
+                elif attributes.separator:
                     formatter.append_formatter(self.run(attributes.separator))
             attributes.repetitions = attributes.repetitions - 1
             partial_result = self.run(block.choices[choice])
-            if not attributes.hidden:
-                formatter += partial_result
-            if (
-                attributes.repetitions > 1
-                and attributes.separator
-                and not attributes.hidden
-            ):
+            formatter += partial_result
+            if attributes.repetitions > 1 and attributes.separator:
                 formatter.append_formatter(self.run(attributes.separator))
+            if attributes.hidden:
+                return Formatter()
         return formatter
 
     @run.register(FunctionObject)

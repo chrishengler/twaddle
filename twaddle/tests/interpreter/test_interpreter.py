@@ -147,5 +147,20 @@ def test_indefinite_article_in_regex():
     assert result == "x'm xn xlxphxnt"
 
 
+def test_gap_between_hide_function_and_block():
+    result = get_interpreter_output("[hide]something {and something else}")
+    assert result == "something "
+
+
+def test_gap_between_rep_function_and_block():
+    result = get_interpreter_output("[rep:2]something {repeating }")
+    assert result == "something repeating repeating "
+
+
+def test_separator_without_repetitions():
+    result = get_interpreter_output("[sep:x]{hey}")
+    assert result == "hey"
+
+
 if __name__ == "__main__":
     test_case()
