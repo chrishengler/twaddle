@@ -135,11 +135,31 @@ def test_simple_regex():
     assert result == "aa"
 
 
+def test_hidden():
+    result = get_interpreter_output("[hide]{a secret}message")
+    assert result == "message"
+
+
 def test_indefinite_article_in_regex():
     result = get_interpreter_output("[//[aeiou]//:i'm \\a cat;x]")
     assert result == "x'm x cxt"
     result = get_interpreter_output("[//[aeiou]//:i'm \\a elephant;x]")
     assert result == "x'm xn xlxphxnt"
+
+
+def test_gap_between_hide_function_and_block():
+    result = get_interpreter_output("[hide]something {and something else}")
+    assert result == "something "
+
+
+def test_gap_between_rep_function_and_block():
+    result = get_interpreter_output("[rep:2]something {repeating }")
+    assert result == "something repeating repeating "
+
+
+def test_separator_without_repetitions():
+    result = get_interpreter_output("[sep:x]{hey}")
+    assert result == "hey"
 
 
 if __name__ == "__main__":

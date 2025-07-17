@@ -15,6 +15,8 @@ will produce:
 All normal Twaddle features, such as [Lookups](lookups.md) or 
 [branching](branching.md) can be used within a loop.
 
+Does nothing if `x` is 1 or less. 
+
 ## Advanced loops
 
 A number of other functions exist to extend the loop functionality, these are

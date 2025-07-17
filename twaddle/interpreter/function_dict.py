@@ -1,6 +1,7 @@
 from .function_definitions import (
     case,
     first,
+    hide,
     last,
     match,
     rand,
@@ -19,4 +20,5 @@ function_definitions = {
     "sync": sync,
     "case": case,
     "match": match,
+    "hide": hide,
 }

@@ -17,6 +17,16 @@ by a semicolon. So this:
 
 calls the `rand` function with two arguments: `0`, and `10`. 
 
+### Block functions
+
+Some functions take effect wherever they are encountered in the Twaddle sentence,
+others are "block functions". Block functions apply their effect to the next
+block encountered within the sentence. 
+
+See [block functions](block_functions.md) for a fuller description.
+
+Block functions are marked in the list below.
+
 ## Available functions
 
 ### Rand
@@ -33,8 +43,8 @@ The limits are inclusive.
 
 ### Repeat
 
-The repeat function, `rep`, repeats a block. See [loops](loops.md) for a
-full description.
+The repeat function, `rep`, is a [block function](block_functions.md).  
+It repeats the block.  See [loops](loops.md) for a full description.
 
 It requires one argument:
 
@@ -44,7 +54,8 @@ It requires one argument:
 
 ### Separator
 
-The separator function, `sep`, defines a separator between repetitions of a 
+The separator function, `sep`, is a [block function](block_functions.md).
+It defines a separator between repetitions of a 
 block. See [loops](loops.md) for a full description.
 
 It requires one argument:
@@ -55,7 +66,8 @@ It requires one argument:
 
 ### First
 
-The first function, `first`, defines text to be inserted before the first
+The first function, `first`, is a [block function](block_functions.md).
+It defines text to be inserted before the first
 repetition of a block. See [loops](loops.md) for a full description.
 
 It requires one argument:
@@ -66,8 +78,9 @@ It requires one argument:
 
 ### Last
 
-The last function, `last`, defines text to be inserted before the last
-repetition of a block. See [loops](loops.md) for a full description.
+The last function, `last`, is a [block function](block_functions.md).
+It defines text to be inserted before the last repetition of a block. 
+See [loops](loops.md) for a full description.
 
 It requires one argument:
 
@@ -77,8 +90,9 @@ It requires one argument:
 
 ### Synchronizer
 
-The synchronizer function, `sync`, defines a [synchronizer](synchronizers.md). 
-On first use it requries two arguments:
+The synchronizer function, `sync`, is a [block function](block_functions.md).
+It defines a [synchronizer](synchronizers.md).  On first use it requires 
+two arguments:
 
 `[sync:<name>;<type>]`
 
@@ -98,13 +112,45 @@ a priority.
 
 ### Case
 
-The case function, `case`, sets a 
+By default the output of Twaddle retains capitalization from the input and
+in the case of [lookups](lookups.md) from dictionary entries. The case 
+function, `case`, changes this. It sets a 
 [capitalization strategy](capitalization.md). It requires one argument:
 
 `[case:<strategy>]`
 
-`strategy` is the capitalization strategy to use
+`strategy` is the capitalization strategy to use. 
+
+The capitalization strategy affects the entire sentence from the point
+it is applied, it is not restricted by e.g. [blocks](blocks.md). To 
+cancel the effect of a capitalization strategy, apply `[case:none]`.
+
+### Regular Expressions
+
+Regular expressions can be used to match and replace patterns within text.
+The pattern takes the place of the function name, and is demarcated by a
+double slash `//` at each end. Two arguments are accepted:
+
+`[//<regex>//:<text>;<replacement>]`
+
+`regex` is the regex to be run,
+
+`text` is the text over which the regex should run
+
+`replacement` is the text which should be used as a replacement for each regex match
+
+See the [regex documentation page](regex.md) for more details.
 
 ### Match
 
-The match function is special, and does not follow the same syntax. 
+The match function can only be used within the replacement text argument
+a [regex](regex.md). It inserts the text matching the regex. It takes no arguments.
+
+`[match]`
+
+See the [regex documentation page](regex.md) for more details.
+
+### Hide
+
+The `hide` function is a [block function](block_functions.md). 
+It allows for a block to be processed but excluded from the output.

@@ -9,6 +9,7 @@ class BlockAttributes:
         self.last: RootObject | None = None
         self.synchronizer: str | None = None
         self.synchronizer_type: str | None = None
+        self.hidden: bool = False
 
 
 class BlockAttributeManager:

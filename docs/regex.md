@@ -9,11 +9,10 @@ advice may still apply regarding sanity.
 
 Improved syntax may be available in a later version.
 
-You can use regular expressions to manipulate Twaddle output. The syntax is 
-somewhat similar to Twaddle [functions](functions.md), in that the regex is
-defined within square brackets. The regex itself (demarcated with a double 
-slash `//` marking its beginning and end) takes the place of the function 
-name. 
+You can use regular expressions (regex) to manipulate Twaddle output. The syntax is 
+similar to other Twaddle [functions](functions.md), but the regex itself 
+(demarcated with a double slash `//` marking its beginning and end) takes 
+the place of the function name. 
 
 Two arguments are accepted: the text to run the regex on, and the text to be
 used in place of any matches:
@@ -50,6 +49,15 @@ will replace the characters 1, 2, and 4 with a randomly chosen plural noun,
 giving results like:
 
 `air fresheners people 3 warehouses 5`
+
+Additionally, the `match` [function](functions.md) can be used within the
+replacement text to insert the sequence which was matched, for example:
+
+`[//[aeiou]+//:double vowel sequences;[match][match]]`
+
+produces:
+
+`dououblee vooweel seequeuencees`
 
 ## Regex flavour
 

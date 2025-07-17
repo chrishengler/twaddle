@@ -1,6 +1,6 @@
 [project]
 name = "twaddle"
-version = "0.9.1"
+version = "0.10.0"
 description = "A partial reimplementation of Rant v3"
 authors = [
     {name = "Chris Hengler",email = "chrysics@gmail.com"}

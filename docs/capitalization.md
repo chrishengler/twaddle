@@ -7,15 +7,20 @@ a variety of strategies. This is applied with the case function:
 
 The available strategies are:
 
-`none`: does nothing, capitalization is retained from the input sentence
+`none`: capitalization is retained from the input sentence/dictionary entries
 
 `upper`: puts all letters in upper case
 
 `lower`: puts all letters in lower case
 
-`sentence`: capitalizes letters beginning a sentence (see below for details), everything else in lower case
+`sentence`: capitalizes letters beginning a sentence (see below for details), 
+everything else in lower case
 
 `title`: capitalizes letters beginning a word, everything else in lower case
+
+The capitalization strategy affects the entire sentence from the point
+it is applied, it is not restricted by e.g. [blocks](blocks.md). To 
+cancel the effect of a capitalization strategy, apply `[case:none]`.
 
 ## Sentence case
 
