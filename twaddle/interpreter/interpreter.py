@@ -96,16 +96,22 @@ class Interpreter:
                     )
             if first_repetition and attributes.first:
                 first_repetition = False
-                formatter.append_formatter(self.run(attributes.first))
+                if not attributes.hidden:
+                    formatter.append_formatter(self.run(attributes.first))
             elif attributes.repetitions == 1:
-                if attributes.last:
+                if attributes.last and not attributes.hidden:
                     formatter.append_formatter(self.run(attributes.last))
-                elif attributes.separator:
+                elif attributes.separator and not attributes.hidden:
                     formatter.append_formatter(self.run(attributes.separator))
             attributes.repetitions = attributes.repetitions - 1
             partial_result = self.run(block.choices[choice])
-            formatter += partial_result
-            if attributes.repetitions > 1 and attributes.separator:
+            if not attributes.hidden:
+                formatter += partial_result
+            if (
+                attributes.repetitions > 1
+                and attributes.separator
+                and not attributes.hidden
+            ):
                 formatter.append_formatter(self.run(attributes.separator))
         return formatter
 

@@ -86,6 +86,16 @@ def test_regex():
     )
 
 
+def test_assign_tags_in_hidden_block():
+    assert (
+        r.run_sentence(
+            r"[hide]{<noun-shape::=a><noun-animal::=b><noun-vehicle::=c>}"
+            "<noun::=b> <noun::=a> <noun::=c>"
+        )
+        == "dog hexagon ambulance"
+    )
+
+
 # noinspection SpellCheckingInspection,PyPep8
 def test_complex_sentence():
     assert r.run_sentence("[rep:2]{[//[aeiou]//:<noun-shape>;o]}") == "hoxogonhoxogon"

@@ -135,6 +135,11 @@ def test_simple_regex():
     assert result == "aa"
 
 
+def test_hidden():
+    result = get_interpreter_output("[hide]{a secret}message")
+    assert result == "message"
+
+
 def test_indefinite_article_in_regex():
     result = get_interpreter_output("[//[aeiou]//:i'm \\a cat;x]")
     assert result == "x'm x cxt"

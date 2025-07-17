@@ -72,3 +72,9 @@ def rand(evaluated_args: list[str], _block_attribute_manager, _raw_args) -> str:
     minimum = int(evaluated_args[0])
     maximum = int(evaluated_args[1])
     return str(randint(minimum, maximum))
+
+
+def hide(
+    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+) -> str:
+    block_attribute_manager.current_attributes.hidden = True
