@@ -13,17 +13,42 @@ Initial targeted features are:
 
 ## How do I use Twaddle?
 
+### Installation
+
 Twaddle can be installed from pip with
 
 `pip install twaddle`
 
-If you prefer, you can download the git repo directly from 
+If you have git installed on your command line, you can download the git repo directly with the command 
+
+`git clone https://github.com/chrishengler/twaddle.git`
+
+### Interactive Use
 
 To play around with an interactive session, simply run:
 
 `python -m twaddle <path>`
 
-where `<path>` is replaced by the path containing the [dictionaries](dictionaries.md) you wish to load
+where `<path>` is replaced by the path containing the [dictionaries](dictionaries.md) 
+you wish to load.  If you have downloaded the git repo, it contains some sample dictionaries 
+in the folder `twaddle/sample_dicts`.
+
+A wider variety of dictionaries can be obtained from the official Twaddle dictionary repository:
+
+`git clone https://github.com/chrishengler/twaddle-dict.git`
+
+### Using in a Project
+
+#### Dictionaries
+
+Projects using Twaddle require a set of dictionary files. It is anticipated that these will be 
+written to suit the needs of each project, but an official dictionary is available containing a 
+number of dictionary files which can be used as a starting point. The repository is provided
+under the MIT license at 
+
+https://github.com/chrishengler/twaddle-dict
+
+#### Running Twaddle
 
 To use Twaddle within a project of your own, you will need to create a `TwaddleRunner` object (imported
 from `twaddle.runner`), passing it the location of the folder containing the dictionary files you wish to
