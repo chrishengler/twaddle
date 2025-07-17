@@ -112,12 +112,18 @@ a priority.
 
 ### Case
 
-The case function, `case`, sets a 
+By default the output of Twaddle retains capitalization from the input and
+in the case of [lookups](lookups.md) from dictionary entries. The case 
+function, `case`, changes this. It sets a 
 [capitalization strategy](capitalization.md). It requires one argument:
 
 `[case:<strategy>]`
 
-`strategy` is the capitalization strategy to use
+`strategy` is the capitalization strategy to use. 
+
+The capitalization strategy affects the entire sentence from the point
+it is applied, it is not restricted by e.g. [blocks](blocks.md). To 
+cancel the effect of a capitalization strategy, apply `[case:none]`.
 
 ### Regular Expressions
 

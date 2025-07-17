@@ -28,7 +28,9 @@ be chosen. The paths are separated by a pipe character `|`:
 prints either `I like cats` or `I like dogs`. By default the path is chosen
 at random for each block encountered, but [synchronizers](synchronizers.md) 
 can be used to enforce relationships between the selection across multiple 
-sets of paths.
+sets of paths. The branches are fully-functional Twaddle sentences, and all
+normal Twaddle features (lookups, queries, loops, labels, etc) can be used 
+within them.
 
 See the [branching](branching.md) documentation for a fuller description.
 
