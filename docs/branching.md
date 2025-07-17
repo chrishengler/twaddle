@@ -1,7 +1,7 @@
 # Branching templates
 
-A Twaddle sentence can have multiple paths. Curly braces (`{}`) open and close
-the selection of multiple paths, and a pipe character (`|`) is used to
+A Twaddle [block](blocks.md) can have multiple paths.
+A pipe character (`|`) is used to
 separate the paths. So the input:
 
 `I like {cats|dogs}`
@@ -18,8 +18,8 @@ Each path has an equal probability of being chosen.
 
 ## Within Branches
 
-There are no special restrictions on the content of branches.  They can
-contain [Lookups](lookups.md):
+As with blocks, there are no special restrictions on the content of 
+branches. They can contain [Lookups](lookups.md):
 
 `I like {<adj> <noun.plural>|<verb.ing>}`
 
