@@ -1,7 +1,7 @@
 [project]
 name = "twaddle"
-version = "0.10.0"
-description = "A partial reimplementation of Rant v3"
+version = "1.0.0"
+description = "Text generation and templating"
 authors = [
     {name = "Chris Hengler",email = "chrysics@gmail.com"}
 ]
@@ -11,6 +11,10 @@ requires-python = ">=3.11"
 dependencies = [
     "pytest (>=7.2.0)"
 ]
+    
+[project.urls]
+documentation = "https://chrishengler.github.io/twaddle/"
+repository = "https://github.com/chrishengler/twaddle"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

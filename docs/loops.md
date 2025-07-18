@@ -17,6 +17,22 @@ All normal Twaddle features, such as [Lookups](lookups.md) or
 
 Does nothing if `x` is 1 or less. 
 
+## Lookups and branching within loops
+
+Lookups and branching can be used within loops. The lookups and
+branching path will be chosen anew in each iteration of the loop:
+
+`[rep:3][sep:, ]{<noun>|<adv> <verb.ing>}`
+
+may give:
+
+`possibly hammering, falconer, quietly organizing`
+
+If the loop should return the same branch each iteration, this can
+be achieved by using a [locked synchronizer](synchronizers.md).
+Similarly, if the lookup result should remain the same across 
+iterations, this can be achieved by applying a [label](lookups.md#labels)
+
 ## Advanced loops
 
 A number of other functions exist to extend the loop functionality, these are
@@ -54,5 +70,3 @@ the loop:
 producing:
 
 `go! go! don't go!`
-
-## 
