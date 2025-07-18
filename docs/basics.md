@@ -25,9 +25,9 @@ To play around with an interactive session, simply run:
 
 where `<path>` is replaced by the path containing the [dictionaries](dictionaries.md) you wish to load
 
-To use Twaddle within a project of your own, you will need to create a `TwaddleRunner` object (imported
-from `twaddle.runner`), passing it the location of the folder containing the dictionary files you wish to
-use. Then give your sentences to its `run_sentence` method. 
+To use Twaddle within a project of your own, you will need to [create a `TwaddleRunner` object](runner.md) 
+(imported from `twaddle.runner`), passing it the location of the folder containing the dictionary files 
+you wish to use. Then give your [Twaddle sentences](sentences.md) to its `run_sentence` method. 
 
 For an extremely simple example, see the `__main__.py` file, which takes sentences as console input
 and prints the result:
