@@ -10,5 +10,5 @@ It is imported from `twaddle.runner` and accepts two arguments on instantiation:
 to be loaded.
 
 `persistent` is an optional bool argument. It defaults to `False` if not specified. If 
-`persistent` is set to `True`, the TwaddleRunner will operate in persistent mode.
+`persistent` is set to `True`, the TwaddleRunner will operate in [persistent mode](persistent.md).
 

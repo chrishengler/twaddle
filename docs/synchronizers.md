@@ -23,6 +23,18 @@ synchronizer is applied to should have the same number of branches available.
 Where this is not the case the sentence will still run, but the synchronizer 
 may not behave as expected.
 
+## Lifespan
+
+In [persistent mode](persistent.md), synchronizers exist from their first
+definition until they are cleared. Clearing may occur by including 
+[the `clear` function](functions.md#clear) in a Twaddle sentence or by the
+`clear` method on the TwaddleRunner.
+
+In non-persistent mode, synchronizers exist from their first definition 
+until the end of the sentence, or until the `clear` function is used within
+the sentence. 
+
+
 ## Synchronizer types
 
 Synchronizers deal with each set of branches based on the order in which they

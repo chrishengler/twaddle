@@ -92,6 +92,17 @@ The Label section of a Lookup begins with a double colon
 followed by either `=` (a Positive Label) or `!=` (a Negative Label), then the
 tag name. 
 
+### Lifespan
+
+In [persistent mode](persistent.md), labels exist from their first
+definition (as a positive label) until they are cleared. Clearing
+may occur by including [the `clear` function](functions.md#clear)
+in a Twaddle sentence or by the `clear` method on the TwaddleRunner.
+
+In non-persistent mode, labels exist from their first definition 
+(as a positive label) until the end of the sentence, or until the
+`clear` function is used within the sentence. 
+
 ### Positive Label
 
 Applying positive Label to a Lookup on our noun dictionary will look like this:
@@ -128,6 +139,13 @@ but never
 Negative labels will only take effect if the label has already been defined
 earlier in the sentence. They work on a "best-effort" basis: if there are no 
 valid results for the Lookup respecting the Negative Label, it will be ignored.
+
+### Definition
+
+A label can only be defined as a positive label. A negative label where that
+label name has not yet been defined is ignored. In some cases it may be desirable
+to avoid matching a word earlier than the sentence
+
 
 ## Combining Forms, Classes, and Labels
 
