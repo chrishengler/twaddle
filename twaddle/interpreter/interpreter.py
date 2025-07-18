@@ -127,6 +127,9 @@ class Interpreter:
         evaluated_args = list()
         for arg in func.args:
             evaluated_args.append(self.run(arg).resolve())
+        if func.func == "clear":  # special case
+            self.clear()
+            return formatter
         if func.func in function_definitions:
             formatter.append(
                 function_definitions[func.func](

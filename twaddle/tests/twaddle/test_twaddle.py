@@ -65,6 +65,25 @@ def test_clearing_lookup_labels():
     assert len(set(results)) > 1
 
 
+def test_clearing_lookup_labels_in_sentence():
+    assert (
+        persistent_runner.run_sentence(
+            "big <noun-building-large::=a>, small <noun-building::!=a>"
+        )
+        == "big factory, small shed"
+    )
+    results = []
+    for _ in range(0, 10):
+        results.append(persistent_runner.run_sentence("[clear]<noun::=a>"))
+    assert len(set(results)) > 1
+    results = []
+    for _ in range(0, 10):
+        results.append(
+            persistent_runner.run_sentence(r"<noun-shape::=a>[clear]<noun::=a>")
+        )
+    assert len(set(results)) > 1
+
+
 # noinspection SpellCheckingInspection
 def test_repetition():
     assert (

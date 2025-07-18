@@ -204,5 +204,16 @@ def test_persistent_mode_does_not_retain_case():
     assert persistent_interpreter.interpret_external(next_sentence) == next_sentence
 
 
+def test_clear_function_in_sentence():
+    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
+    sentence = r"[sync:a;locked]{a|b|c|d}"
+    results = [persistent_interpreter.interpret_external(sentence)]
+    for _ in range(0, 10):
+        sentence = r"[clear][sync:a;locked]{a|b|c|d}"
+        results.append(persistent_interpreter.interpret_external(sentence))
+    print(f"{results=}")
+    assert len(set(results)) > 1
+
+
 if __name__ == "__main__":
     test_case()

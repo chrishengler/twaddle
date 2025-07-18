@@ -12,3 +12,7 @@ persistent mode:
 
 In this case, all defined Lookup labels and synchronizers are retained and may
 be re-used in subsequent sentences.
+
+The labels and synchronizers may be cleared in Python code by calling the
+TwaddleRunner's `clear()` method. They may also be cleared in an interactive
+session with [the `clear` function](functions.md#clear).
