@@ -154,3 +154,24 @@ See the [regex documentation page](regex.md) for more details.
 
 The `hide` function is a [block function](block_functions.md). 
 It allows for a block to be processed but excluded from the output.
+
+### Clear
+
+The `clear` function clears any defined [labels](lookups.md#labels) and 
+[synchronizers](synchronizers.md). It takes no arguments:
+
+`[clear]`
+
+This function is primarily useful in [persistent mode](persistent.md), 
+although it can also be used within a Twaddle sentence if desired. When
+used within a sentence, any labels and synchronizers defined before the 
+`clear` function is inserted will be reset from the point in the sentence
+where the `clear` function is used. For example:
+
+`<noun::=a> <noun::=a> [clear]<noun::=a> <noun::=a>`
+
+May produce sentences like
+
+`raisin raisin shirt shirt`
+`jug jug llama llama`
+`robin robin market market`

@@ -24,16 +24,16 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 
 class Interpreter:
-    def __init__(self, lookup_manager: LookupManager):
+    def __init__(self, lookup_manager: LookupManager, persistent: bool = False):
+        self.persistent = persistent
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
         self.compiler = Compiler()
 
     def interpret_external(self, sentence: str) -> str:
-        self.synchronizer_manager.clear()
-        self.block_attribute_manager.clear()
-        self.lookup_manager.clear_labels()
+        if not self.persistent:
+            self.clear()
         compiled_sentence = self.compiler.compile(sentence)
         return self.interpret_internal(compiled_sentence)
 
@@ -45,6 +45,11 @@ class Interpreter:
                 formatter += resulting_formatter
         result = formatter.resolve()
         return result
+
+    def clear(self):
+        self.synchronizer_manager.clear()
+        self.block_attribute_manager.clear()
+        self.lookup_manager.clear_labels()
 
     # noinspection PyUnusedLocal
     @singledispatchmethod
@@ -121,6 +126,9 @@ class Interpreter:
         evaluated_args = list()
         for arg in func.args:
             evaluated_args.append(self.run(arg).resolve())
+        if func.func == "clear":  # special case
+            self.clear()
+            return formatter
         if func.func in function_definitions:
             formatter.append(
                 function_definitions[func.func](

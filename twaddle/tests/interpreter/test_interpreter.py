@@ -5,7 +5,7 @@ from twaddle.interpreter.interpreter import Interpreter
 from twaddle.lookup.lookup_manager import LookupManager
 
 
-def get_interpreter_output(sentence):
+def get_interpreter_output(sentence: str) -> str:
     interpreter = Interpreter(LookupManager())
     return interpreter.interpret_external(sentence)
 
@@ -160,6 +160,58 @@ def test_gap_between_rep_function_and_block():
 def test_separator_without_repetitions():
     result = get_interpreter_output("[sep:x]{hey}")
     assert result == "hey"
+
+
+def test_persistent_mode_locked_synchronizer():
+    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
+    sentence = r"[sync:a;locked]{a|b} [sync:b;locked]{a|b}"
+    first_run = persistent_interpreter.interpret_external(sentence)
+    second_run = persistent_interpreter.interpret_external(sentence)
+    assert first_run == second_run
+
+
+def test_persistent_mode_deck_synchronizer():
+    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
+    sentence = r"[sync:a;deck]{a|b|c|d}"
+    first_run = persistent_interpreter.interpret_external(sentence)
+    second_run = persistent_interpreter.interpret_external(sentence)
+    third_run = persistent_interpreter.interpret_external(sentence)
+    fourth_run = persistent_interpreter.interpret_external(sentence)
+
+    expected_outputs = ["a", "b", "c", "d"]
+    actual_outputs = [first_run, second_run, third_run, fourth_run]
+
+    assert set(expected_outputs) == set(actual_outputs)
+
+
+def test_persistent_mode_clear_synchronizers():
+    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
+    sentence = r"[sync:a;locked]{a|b|c|d}"
+    results = [persistent_interpreter.interpret_external(sentence)]
+    for i in range(0, 10):
+        persistent_interpreter.clear()
+        results.append(
+            persistent_interpreter.interpret_external(sentence) for _ in range(0, 10)
+        )
+    assert len(set(results)) > 1
+
+
+def test_persistent_mode_does_not_retain_case():
+    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
+    sentence = r"[case:title]hey there"
+    assert persistent_interpreter.interpret_external(sentence) == "Hey There"
+    next_sentence = "no more title case"
+    assert persistent_interpreter.interpret_external(next_sentence) == next_sentence
+
+
+def test_clear_function_in_sentence():
+    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
+    sentence = r"[sync:a;locked]{a|b|c|d}"
+    results = [persistent_interpreter.interpret_external(sentence)]
+    for _ in range(0, 10):
+        sentence = r"[clear][sync:a;locked]{a|b|c|d}"
+        results.append(persistent_interpreter.interpret_external(sentence))
+    assert len(set(results)) > 1
 
 
 if __name__ == "__main__":
