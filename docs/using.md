@@ -1,19 +1,6 @@
-# Basics
+# Using Twaddle
 
-## What is Twaddle?
-Twaddle implements a limited subset of [Rant v3](https://github.com/TheBerkin/rant3).
-
-Initial targeted features are:
-
-- dictionaries
-- case functions
-- blocks (including synchronizers, repeat count, and separators)
-- regex application
-- indefinite article choice (for English)
-
-## How do I use Twaddle?
-
-### Installation
+## Installation
 
 Twaddle can be installed from pip with
 
@@ -23,7 +10,7 @@ If you have git installed on your command line, you can download the git repo di
 
 `git clone https://github.com/chrishengler/twaddle.git`
 
-### Interactive Use
+## Interactive Use
 
 To play around with an interactive session, simply run:
 
@@ -37,9 +24,9 @@ A wider variety of dictionaries can be obtained from the official Twaddle dictio
 
 `git clone https://github.com/chrishengler/twaddle-dict.git`
 
-### Using in a Project
+## Using in a Project
 
-#### Dictionaries
+### Dictionaries
 
 Projects using Twaddle require a set of dictionary files. It is anticipated that these will be 
 written to suit the needs of each project, but an official dictionary is available containing a 
@@ -48,7 +35,7 @@ under the MIT license at
 
 https://github.com/chrishengler/twaddle-dict
 
-#### Running Twaddle
+### Running Twaddle
 
 To use Twaddle within a project of your own, you will need to [create a `TwaddleRunner` object](runner.md) 
 (imported from `twaddle.runner`), passing it the location of the folder containing the dictionary files 
