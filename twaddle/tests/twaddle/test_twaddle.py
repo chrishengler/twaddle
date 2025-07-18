@@ -10,7 +10,6 @@ def relative_path_to_full_path(rel_path: str) -> str:
 
 path = relative_path_to_full_path("../resources/valid_dicts")
 standard_runner = TwaddleRunner(path)
-persistent_runner = TwaddleRunner(path, persistent=True)
 
 
 def test_rant():
@@ -41,6 +40,7 @@ def test_lookups_with_labels():
 
 
 def test_persistent_lookups_with_labels():
+    persistent_runner = TwaddleRunner(path, persistent=True)
     assert (
         persistent_runner.run_sentence(
             "big <noun-building-large::=a>, small <noun-building::!=a>"
@@ -52,6 +52,7 @@ def test_persistent_lookups_with_labels():
 
 
 def test_clearing_lookup_labels():
+    persistent_runner = TwaddleRunner(path, persistent=True)
     assert (
         persistent_runner.run_sentence(
             "big <noun-building-large::=a>, small <noun-building::!=a>"
@@ -66,6 +67,7 @@ def test_clearing_lookup_labels():
 
 
 def test_clearing_lookup_labels_in_sentence():
+    persistent_runner = TwaddleRunner(path, persistent=True)
     assert (
         persistent_runner.run_sentence(
             "big <noun-building-large::=a>, small <noun-building::!=a>"
