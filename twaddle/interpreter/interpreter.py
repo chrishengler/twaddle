@@ -25,7 +25,6 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 class Interpreter:
     def __init__(self, lookup_manager: LookupManager, persistent: bool = False):
-        print(f"{persistent=}")
         self.persistent = persistent
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()

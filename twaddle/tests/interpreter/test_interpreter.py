@@ -211,7 +211,6 @@ def test_clear_function_in_sentence():
     for _ in range(0, 10):
         sentence = r"[clear][sync:a;locked]{a|b|c|d}"
         results.append(persistent_interpreter.interpret_external(sentence))
-    print(f"{results=}")
     assert len(set(results)) > 1
 
 
