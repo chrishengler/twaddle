@@ -1,12 +1,14 @@
 from collections import OrderedDict
 from random import choice
 
+from twaddle.compiler.compiler_objects import IndefiniteArticleObject, LookupObject
 from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup_entry import DictionaryEntry
-from twaddle.compiler.compiler_objects import LookupObject
 
 
 class LookupDictionary:
+    special_tokens = {"{a}": IndefiniteArticleObject()}
+
     def __init__(self, name: str, forms: list[str]):
         self.name = name
         self.forms = forms
@@ -80,11 +82,14 @@ class LookupDictionary:
             self.labels[label_positive] = chosen_entry
         return chosen_entry[form]
 
-    def get(self, lookup: LookupObject) -> str:
-        return self._get(
+    def get(self, lookup: LookupObject) -> str | IndefiniteArticleObject:
+        result = self._get(
             lookup.form,
             lookup.positive_tags,
             lookup.negative_tags,
             lookup.positive_label,
             lookup.negative_labels,
         )
+        if result in self.special_tokens:
+            return self.special_tokens[result]
+        return result
