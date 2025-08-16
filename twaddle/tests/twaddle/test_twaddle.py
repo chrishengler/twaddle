@@ -195,5 +195,14 @@ def test_indefinite_article_at_block_end():
     assert standard_runner.run_sentence("{\\a} cat and {\\a} egg") == "a cat and an egg"
 
 
+def test_indefinite_article_from_lookup():
+    assert (
+        standard_runner.run_sentence(
+            "[case:sentence]<article.indefinite> cat and <article.indefinite> aardvark"
+        )
+        == "A cat and an aardvark"
+    )
+
+
 if __name__ == "__main__":
     test_regex()
