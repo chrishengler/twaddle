@@ -1,7 +1,9 @@
 import os
+from pathlib import Path
 
 import pytest
 
+from twaddle.compiler.compiler_objects import IndefiniteArticleObject
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary, LookupObject
@@ -11,7 +13,7 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 def relative_path_to_full_path(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(current_dir, rel_path)
+    return Path(os.path.join(current_dir, rel_path))
 
 
 # noinspection SpellCheckingInspection
@@ -94,7 +96,7 @@ def test_dictionary_attributes_from_lines():
 def test_dictionary_read_from_file_simple():
     factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/valid_dicts/example.dic")
-    dictionary = factory.read_from_file(path)
+    dictionary = factory.read_from_path(path)
     assert dictionary.name == "adj"
     assert dictionary.forms == ["adj", "ness"]
     assert dictionary._get("adj") == "happy"
@@ -107,7 +109,7 @@ def test_dictionary_read_from_file_with_classes():
     path = relative_path_to_full_path(
         "../resources/valid_dicts/example_with_classes.dic"
     )
-    dictionary = factory.read_from_file(path)
+    dictionary = factory.read_from_path(path)
     assert dictionary.name == "noun"
     assert dictionary.forms == ["singular", "plural"]
     assert dictionary._get("singular", {"shape"}) == "hexagon"
@@ -149,7 +151,7 @@ def test_dictionary_manager():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    assert len(lookup_manager.dictionaries) == 2
+    assert len(lookup_manager.dictionaries) == 3
     noun_dictionary: LookupDictionary = lookup_manager["noun"]
     adj_dictionary: LookupDictionary = lookup_manager["adj"]
     assert noun_dictionary._get("plural", {"shape"}) == "hexagons"
@@ -162,6 +164,15 @@ def test_lookup_from_object():
     lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("adj")
     assert lookup_manager.do_lookup(lookup) == "happy"
+
+
+def test_lookup_indefinite_article():
+    path = relative_path_to_full_path("../resources/valid_dicts")
+    lookup_manager = LookupManager()
+    lookup_manager.add_dictionaries_from_folder(path)
+    lookup = LookupObject("article", form="indefinite")
+    result = lookup_manager.do_lookup(lookup)
+    assert isinstance(result, IndefiniteArticleObject)
 
 
 if __name__ == "__main__":
