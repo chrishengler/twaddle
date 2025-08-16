@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 
@@ -11,7 +12,7 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 def relative_path_to_full_path(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(current_dir, rel_path)
+    return Path(os.path.join(current_dir, rel_path))
 
 
 # noinspection SpellCheckingInspection
@@ -94,7 +95,7 @@ def test_dictionary_attributes_from_lines():
 def test_dictionary_read_from_file_simple():
     factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/valid_dicts/example.dic")
-    dictionary = factory.read_from_file(path)
+    dictionary = factory.read_from_path(path)
     assert dictionary.name == "adj"
     assert dictionary.forms == ["adj", "ness"]
     assert dictionary._get("adj") == "happy"
@@ -107,7 +108,7 @@ def test_dictionary_read_from_file_with_classes():
     path = relative_path_to_full_path(
         "../resources/valid_dicts/example_with_classes.dic"
     )
-    dictionary = factory.read_from_file(path)
+    dictionary = factory.read_from_path(path)
     assert dictionary.name == "noun"
     assert dictionary.forms == ["singular", "plural"]
     assert dictionary._get("singular", {"shape"}) == "hexagon"

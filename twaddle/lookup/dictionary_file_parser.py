@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 
 
@@ -15,8 +17,8 @@ class DictionaryFileParser:
         return entry_line.split("/")
 
     @staticmethod
-    def read_from_file(path: str) -> LookupDictionary:
-        with open(path, encoding="utf-8") as input_file:
+    def read_from_path(path: Path) -> LookupDictionary:
+        with path.open("r", encoding="utf-8") as input_file:
             name = str()
             forms = list[str]()
             dictionary = None

@@ -1,9 +1,9 @@
-import os
+from pathlib import Path
 
+from twaddle.compiler.compiler_objects import LookupObject
 from twaddle.exceptions import TwaddleDictionaryException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary
-from twaddle.compiler.compiler_objects import LookupObject
 
 
 class LookupManager:
@@ -13,14 +13,18 @@ class LookupManager:
     def __getitem__(self, name: str) -> LookupDictionary:
         return self.dictionaries[name]
 
-    def add_dictionaries_from_folder(self, path: str):
-        for f in os.listdir(path):
-            if f.endswith(".dic"):
-                dict_path = os.path.join(path, f)
-                new_dictionary = DictionaryFileParser.read_from_file(dict_path)
+    def add_dictionaries_from_folder(self, folder: str | Path):
+        if isinstance(folder, (str, Path)):
+            folder = Path(folder)
+
+        for entry in folder.iterdir():
+            print(f"{type(entry)=}")
+            print(f"{entry.name=}")
+            if entry.name.endswith(".dic") and entry.is_file():
+                new_dictionary = DictionaryFileParser.read_from_path(entry)
                 if new_dictionary is None:
                     raise TwaddleDictionaryException(
-                        f"[LookupManager.add_dictionaries_from_folder] dictionary file {dict_path} could not be read."
+                        f"[LookupManager.add_dictionaries_from_folder] dictionary file {entry} could not be read."
                         "Are name and forms defined?"
                     )
                 self.dictionaries[new_dictionary.name] = new_dictionary
