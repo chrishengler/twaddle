@@ -136,6 +136,56 @@ def test_escaped_characters():
     assert standard_runner.run_sentence("\<hey\>\{\}") == "<hey>{}"
 
 
+def test_label_only_persistence():
+    label_only_runner = TwaddleRunner(path, persistent_labels=True)
+
+    assert (
+        label_only_runner.run_sentence(
+            "big <noun-building-large::=a>, small <noun-building::!=a>"
+        )
+        == "big factory, small shed"
+    )
+    assert label_only_runner.run_sentence("<noun::=a>") == "factory"
+
+    sync_sentence = "[sync:test;locked]{a|b|c}"
+    sync_results = [label_only_runner.run_sentence(sync_sentence)]
+    for _ in range(0, 10):
+        sync_results.append(label_only_runner.run_sentence(sync_sentence))
+    assert len(set(sync_results)) > 1
+
+
+def test_synchronizer_only_persistence():
+    sync_only_runner = TwaddleRunner(path, persistent_synchronizers=True)
+
+    first = sync_only_runner.run_sentence("[sync:test;locked]{a|b|c}")
+    second = sync_only_runner.run_sentence("[sync:test;locked]{a|b|c}")
+    assert first == second
+
+    sync_only_runner.run_sentence(
+        "big <noun-building-large::=a>, small <noun-building::!=a>"
+    )
+    results = [sync_only_runner.run_sentence("<noun::=a>")]
+    for _ in range(0, 10):
+        results.append(sync_only_runner.run_sentence("<noun::=a>"))
+    assert len(set(results)) > 1
+
+
+def test_persistence_overrides():
+    runner = TwaddleRunner(
+        path, persistent=True, persistent_labels=False, persistent_synchronizers=False
+    )
+
+    assert (
+        runner.run_sentence("big <noun-building-large::=a>, small <noun-building::!=a>")
+        == "big factory, small shed"
+    )
+    assert runner.run_sentence("<noun::=a>") == "factory"
+
+    first = runner.run_sentence("[sync:test;locked]{a|b|c}")
+    second = runner.run_sentence("[sync:test;locked]{a|b|c}")
+    assert first == second
+
+
 # noinspection SpellCheckingInspection,PyPep8
 def test_regex():
     assert standard_runner.run_sentence("[//a//i:a;\\a <noun-shape>]") == "a hexagon"

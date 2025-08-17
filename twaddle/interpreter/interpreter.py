@@ -24,16 +24,21 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 
 class Interpreter:
-    def __init__(self, lookup_manager: LookupManager, persistent: bool = False):
-        self.persistent = persistent
+    def __init__(
+        self,
+        lookup_manager: LookupManager,
+        persistent_labels: bool = False,
+        persistent_synchronizers: bool = False,
+    ):
+        self.persistent_labels = persistent_labels
+        self.persistent_synchronizers = persistent_synchronizers
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
         self.compiler = Compiler()
 
     def interpret_external(self, sentence: str) -> str:
-        if not self.persistent:
-            self.clear()
+        self.clear()
         compiled_sentence = self.compiler.compile(sentence)
         return self.interpret_internal(compiled_sentence)
 
@@ -47,9 +52,16 @@ class Interpreter:
         return result
 
     def clear(self):
+        if not self.persistent_labels:
+            self.lookup_manager.clear_labels()
+        if not self.persistent_synchronizers:
+            self.synchronizer_manager.clear()
+        self.block_attribute_manager.clear()
+
+    def force_clear(self):
+        self.lookup_manager.clear_labels()
         self.synchronizer_manager.clear()
         self.block_attribute_manager.clear()
-        self.lookup_manager.clear_labels()
 
     # noinspection PyUnusedLocal
     @singledispatchmethod
@@ -127,7 +139,7 @@ class Interpreter:
         for arg in func.args:
             evaluated_args.append(self.run(arg).resolve())
         if func.func == "clear":  # special case
-            self.clear()
+            self.force_clear()
             return formatter
         if func.func in function_definitions:
             formatter.append(
