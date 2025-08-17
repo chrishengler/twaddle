@@ -18,8 +18,6 @@ class LookupManager:
             folder = Path(folder)
 
         for entry in folder.iterdir():
-            print(f"{type(entry)=}")
-            print(f"{entry.name=}")
             if entry.name.endswith(".dic") and entry.is_file():
                 new_dictionary = DictionaryFileParser.read_from_path(entry)
                 if new_dictionary is None:
