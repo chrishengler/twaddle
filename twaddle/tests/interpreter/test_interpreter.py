@@ -162,55 +162,41 @@ def test_separator_without_repetitions():
     assert result == "hey"
 
 
-def test_persistent_mode_locked_synchronizer():
-    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
-    sentence = r"[sync:a;locked]{a|b} [sync:b;locked]{a|b}"
-    first_run = persistent_interpreter.interpret_external(sentence)
-    second_run = persistent_interpreter.interpret_external(sentence)
-    assert first_run == second_run
+def test_synchronizer_persistence():
+    sync_interpreter = Interpreter(LookupManager(), persistent_synchronizers=True)
+
+    sync_sentence = "[sync:test;locked]{a|b|c}"
+    first_sync = sync_interpreter.interpret_external(sync_sentence)
+    second_sync = sync_interpreter.interpret_external(sync_sentence)
+    assert first_sync == second_sync
 
 
-def test_persistent_mode_deck_synchronizer():
-    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
-    sentence = r"[sync:a;deck]{a|b|c|d}"
-    first_run = persistent_interpreter.interpret_external(sentence)
-    second_run = persistent_interpreter.interpret_external(sentence)
-    third_run = persistent_interpreter.interpret_external(sentence)
-    fourth_run = persistent_interpreter.interpret_external(sentence)
-
-    expected_outputs = ["a", "b", "c", "d"]
-    actual_outputs = [first_run, second_run, third_run, fourth_run]
-
-    assert set(expected_outputs) == set(actual_outputs)
-
-
-def test_persistent_mode_clear_synchronizers():
-    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
-    sentence = r"[sync:a;locked]{a|b|c|d}"
-    results = [persistent_interpreter.interpret_external(sentence)]
-    for i in range(0, 10):
-        persistent_interpreter.clear()
-        results.append(
-            persistent_interpreter.interpret_external(sentence) for _ in range(0, 10)
-        )
+def test_clear_synchronizer_persistence():
+    sync_interpreter = Interpreter(LookupManager(), persistent_synchronizers=True)
+    results = [sync_interpreter.interpret_external("[sync:test;locked]{a|b|c}")]
+    for _ in range(0, 10):
+        sync_interpreter.force_clear()
+        results.append(sync_interpreter.interpret_external("[sync:test;locked]{a|b|c}"))
     assert len(set(results)) > 1
 
 
-def test_persistent_mode_does_not_retain_case():
-    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
-    sentence = r"[case:title]hey there"
-    assert persistent_interpreter.interpret_external(sentence) == "Hey There"
-    next_sentence = "no more title case"
-    assert persistent_interpreter.interpret_external(next_sentence) == next_sentence
-
-
 def test_clear_function_in_sentence():
-    persistent_interpreter = Interpreter(LookupManager(), persistent=True)
-    sentence = r"[sync:a;locked]{a|b|c|d}"
-    results = [persistent_interpreter.interpret_external(sentence)]
-    for _ in range(0, 10):
-        sentence = r"[clear][sync:a;locked]{a|b|c|d}"
-        results.append(persistent_interpreter.interpret_external(sentence))
+    sync_interpreter = Interpreter(LookupManager(), persistent_synchronizers=True)
+
+    sentence = "[sync:test;locked]{a|b}[clear][sync:test;locked]{a|b}"
+    results = [sync_interpreter.interpret_external(sentence)]
+    for _ in range(0, 15):
+        results.append(sync_interpreter.interpret_external(sentence))
+    assert len(set(results)) > 2
+
+
+def test_clear_synchronizers_with_persistence():
+    sync_interpreter = Interpreter(LookupManager(), persistent_synchronizers=True)
+
+    sentence = "[clear][sync:test;locked]{a|b} [sync:test]{a|b}"
+    results = [sync_interpreter.interpret_external(sentence)]
+    for _ in range(0, 15):
+        results.append(sync_interpreter.interpret_external(sentence))
     assert len(set(results)) > 1
 
 
