@@ -16,3 +16,20 @@ be re-used in subsequent sentences.
 The labels and synchronizers may be cleared in Python code by calling the
 TwaddleRunner's `clear()` method. They may also be cleared in an interactive
 session with [the `clear` function](functions.md#clear).
+
+## Partially persistent modes
+
+In some cases it may be desirable to retain labels for use across multiple 
+sentences but not synchronizers, or vice versa. Label-only and synchronizer-only
+persistent modes are also available with the `persistent_labels` and
+`persistent_synchronizers` options on the TwaddleRunner. Setting the generic 
+`persistent` option to `True` forces persistence for both labels and synchronizers
+regardless of these parameters.
+
+### Label-only
+
+`runner = TwaddleRunner(<path_to_dictionaries>, persistent_labels=True)`
+
+### Synchronizer-only
+
+`runner = TwaddleRunner(<path_to_dictionaries>, persistent_synchronizers=True)`
