@@ -30,6 +30,10 @@ For the sentence case strategy, the beginning of a sentence is defined as
 either the first character output by the Twaddle sentence, or any character
 which, ignoring whitespace, is immediately preceded by `.`, `!`, or `?`.
 
+The English first person pronoun `I` will also be placed in upper case 
+whenever it appears as a complete word while the sentence case strategy
+is activated.
+
 ## Persistent mode
 
 Even in persistent mode, capitalization strategies affect only the sentence

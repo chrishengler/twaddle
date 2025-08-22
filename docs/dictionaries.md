@@ -107,6 +107,13 @@ active regions may overlap in whole or in part. In the example above, `desk`
 does not belong to any class, `house` belongs to the `building` class, and
 `shop` belongs to both the `building` and the `retail` class. 
 
+## Special tokens
+
+The special token `{a}` can be added as any form of a dictionary entry. If 
+this entry is used in the appropriate form, it will be replaced by the
+indefinite article (`a`/`an`). The special token cannot be used within
+a larger entry, only as a complete form. 
+
 ## Comments
 
 Lines which do not match the expected format for header information or
