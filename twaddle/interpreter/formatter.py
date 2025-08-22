@@ -198,6 +198,9 @@ class Formatter:
         if not self.sentence or self.sentence.rstrip()[-1] in ".!?":
             sentence_start = True
         for char in text:
+            if not char.isalpha() and len(result) > 0:
+                if result[-2:] == " i":
+                    result = result[:-2] + " I"
             if sentence_start:
                 result += char.upper()
             else:

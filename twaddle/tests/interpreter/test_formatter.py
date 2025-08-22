@@ -32,6 +32,12 @@ def test_sentence():
     assert formatter.resolve() == "Hey there! This is. A test"
 
 
+def test_sentence_with_i():
+    formatter.set_strategy(FormattingStrategy.SENTENCE)
+    formatter.append("will this work how I expect?")
+    assert formatter.resolve() == "Will this work how I expect?"
+
+
 def test_title():
     formatter.set_strategy(FormattingStrategy.TITLE)
     formatter.append("hey there! this text's a test")
