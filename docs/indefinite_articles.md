@@ -43,3 +43,9 @@ or if the word begins with any of the following strings:
 then `\a` resolves to `an` despite not being followed by a (written) consonant.
 
 The algorithm is not case-sensitive.
+
+## Dictionary token
+
+The special token `{a}` can be added as any form of a dictionary entry. If 
+this entry is used in the appropriate form, it will be replaced by the
+indefinite article (`a`/`an`) as described above.
