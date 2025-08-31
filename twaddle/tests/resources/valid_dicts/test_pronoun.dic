@@ -1,0 +1,6 @@
+#name pronoun
+#forms upper lower
+
+#class add firstp
+    > I/i
+#class remove firstp

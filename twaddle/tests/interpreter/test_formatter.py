@@ -40,8 +40,8 @@ def test_sentence_with_i():
 
 def test_i_edge_cases():
     formatter.set_strategy(FormattingStrategy.SENTENCE)
-    formatter.append("ii i5 i! i i.")
-    assert formatter.resolve() == "Ii i5 I! I I."
+    formatter.append("ii i5 i! i i I i.")
+    assert formatter.resolve() == "Ii i5 I! I I I I."
 
 
 def test_title():

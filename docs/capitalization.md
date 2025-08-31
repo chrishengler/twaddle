@@ -30,9 +30,15 @@ For the sentence case strategy, the beginning of a sentence is defined as
 either the first character output by the Twaddle sentence, or any character
 which, ignoring whitespace, is immediately preceded by `.`, `!`, or `?`.
 
-The English first person pronoun `I` will also be placed in upper case 
-whenever it appears as a complete word while the sentence case strategy
-is activated.
+The English first person pronoun `I` is a special case. It will be output
+in upper case whenever it appears as a complete word from raw user-input while
+the sentence case strategy is activated. 
+
+#### `i` as dictionary entry
+
+If the letter `i` in lower case appears as a dictionary entry, it is assumed
+that there is a particular purpose for the lower case representation,
+which will be retained when printing it as a lookup result in sentence case. 
 
 ## Persistent mode
 

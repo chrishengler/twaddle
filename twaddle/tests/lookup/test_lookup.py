@@ -151,7 +151,7 @@ def test_dictionary_manager():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    assert len(lookup_manager.dictionaries) == 3
+    assert len(lookup_manager.dictionaries) == 4
     noun_dictionary: LookupDictionary = lookup_manager["noun"]
     adj_dictionary: LookupDictionary = lookup_manager["adj"]
     assert noun_dictionary._get("plural", {"shape"}) == "hexagons"

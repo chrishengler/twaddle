@@ -132,6 +132,15 @@ def test_indefinite_article():
     )
 
 
+def test_sentence_case_with_first_person_pronoun():
+    assert (
+        standard_runner.run_sentence(
+            "[case:sentence]i don't know if <pronoun> care, <pronoun.lower> guess i do"
+        )
+        == "I don't know if I care, i guess I do"
+    )
+
+
 def test_escaped_characters():
     assert standard_runner.run_sentence("\<hey\>\{\}") == "<hey>{}"
 
