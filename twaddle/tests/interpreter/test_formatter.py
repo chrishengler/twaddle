@@ -38,6 +38,12 @@ def test_sentence_with_i():
     assert formatter.resolve() == "Will this work how I expect?"
 
 
+def test_i_edge_cases():
+    formatter.set_strategy(FormattingStrategy.SENTENCE)
+    formatter.append("ii i5 i! i i.")
+    assert formatter.resolve() == "Ii i5 I! I I."
+
+
 def test_title():
     formatter.set_strategy(FormattingStrategy.TITLE)
     formatter.append("hey there! this text's a test")
