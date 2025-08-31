@@ -193,6 +193,11 @@ class Formatter:
         return next_word[0].lower() in ["a", "e", "i", "o", "u"]
 
     def apply_sentence_case(self, text: str) -> str:
+        # 1st person pronoun is a special case, slightly awkward to
+        # handle especially if result of lookup. short circuit and
+        # skip rest of evaluation if "I" is the total text content
+        if text == "I":
+            return text
         result = str()
         sentence_start = False
         if not self.sentence or self.sentence.rstrip()[-1] in ".!?":
