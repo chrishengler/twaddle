@@ -38,7 +38,7 @@ Some more advanced features of Twaddle include:
 
 Below is a quick guide as a memory aid for those already familiar with 
 how Twaddle works.  For full installation and usage documentation, see 
-[using Twaddle](twaddle.md).
+[using Twaddle](using.md).
 
 ### Quick guide
 

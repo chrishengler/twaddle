@@ -134,7 +134,7 @@ or
 
 but never
 
-`I asked for a warehouse, not a bird`
+`I asked for a warehouse, not a warehouse`
 
 Negative labels will only take effect if the label has already been defined
 earlier in the sentence. They work on a "best-effort" basis: if there are no 
