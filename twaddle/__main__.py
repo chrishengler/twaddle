@@ -1,6 +1,7 @@
 import readline  # noqa: F401
 import sys
 
+from twaddle.exceptions import TwaddleException
 from twaddle.runner import TwaddleRunner
 
 
@@ -18,6 +19,9 @@ def main():
         try:
             sentence = input(">")
             print(twaddle.run_sentence(sentence))
+        except TwaddleException as te:
+            print(f"Twaddle encountered an error:\n{te.message}")
+            twaddle.clear()
         except EOFError:
             quit()
 

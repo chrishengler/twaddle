@@ -11,7 +11,11 @@ class LookupManager:
         self.dictionaries = dict[str, LookupDictionary]()
 
     def __getitem__(self, name: str) -> LookupDictionary:
-        return self.dictionaries[name]
+        if dictionary := self.dictionaries.get(name):
+            return dictionary
+        raise TwaddleDictionaryException(
+            f"[LookupManager.__getitem__] No dictionary loaded named {name}"
+        )
 
     def add_dictionaries_from_folder(self, folder: str | Path):
         if isinstance(folder, (str, Path)):
