@@ -52,10 +52,12 @@ class Compiler:
         self.context = CompilerContextStack()
 
     def compile(self, sentence: str) -> RootObject:
+        self.context = CompilerContextStack()
         result = self.parse_root(lex(sentence))
         if self.context.current_context() is not CompilerContext.ROOT:
+            unexpected_context = self.context.current_context()
             raise TwaddleParserException(
-                f"[RantCompiler::compile] reached end while still in {self.context.current_context().name} context"
+                f"[RantCompiler::compile] reached end while still in {unexpected_context.name} context"
             )
         return result
 
