@@ -76,16 +76,7 @@ class LookupDictionary:
             self.labels[lookup.positive_label] = chosen_entry
         return chosen_entry[lookup.form]
 
-    def _validate_strict_mode(self, lookup: LookupObject) -> bool:
-        if not lookup.strict_mode:
-            return True
-        if lookup.negative_labels:
-            for label in lookup.negative_labels:
-                if label not in self.labels:
-                    raise TwaddleLookupException(
-                        "[LookupDictionary._validate_strict_mode] Requested antimatch of label "
-                        f"'{label}', not defined for dictionary '{self.name}'"
-                    )
+    def _strict_class_validation(self, lookup: LookupObject):
         all_tags = list()
         if lookup.positive_tags:
             for tag in lookup.positive_tags:
@@ -96,10 +87,24 @@ class LookupDictionary:
         for tag in all_tags:
             if tag not in self.tags:
                 raise TwaddleLookupException(
-                    f"[LookupDictionary._validate_strict_mode] Invalid class '{tag}' requested "
+                    f"[LookupDictionary._strict_class_validation] Invalid class '{tag}' requested "
                     f"for dictionary '{self.name}' in strict mode"
                 )
-        return True
+
+    def _strict_label_validation(self, lookup: LookupObject):
+        if lookup.negative_labels:
+            for label in lookup.negative_labels:
+                if label not in self.labels:
+                    raise TwaddleLookupException(
+                        "[LookupDictionary._strict_label_validation] Requested antimatch of label "
+                        f"'{label}', not defined for dictionary '{self.name}'"
+                    )
+
+    def _validate_strict_mode(self, lookup: LookupObject):
+        if not lookup.strict_mode:
+            return
+        self._strict_class_validation(lookup)
+        self._strict_label_validation(lookup)
 
     def get(self, lookup: LookupObject) -> str | IndefiniteArticleObject:
         self._validate_strict_mode(lookup)

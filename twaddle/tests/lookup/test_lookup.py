@@ -238,7 +238,7 @@ def test_strict_lookup_invalid_tags():
             lookup_manager.do_lookup(lookup)
         assert (
             e_info.value.message
-            == "[LookupDictionary._validate_strict_mode] Invalid class 'invalid'"
+            == "[LookupDictionary._strict_class_validation] Invalid class 'invalid'"
             " requested for dictionary 'noun' in strict mode"
         )
 
@@ -254,7 +254,7 @@ def test_lookup_antimatch_undefined_label():
         lookup_manager.do_lookup(strict_lookup)
     assert (
         e_info.value.message
-        == "[LookupDictionary._validate_strict_mode] Requested antimatch of label "
+        == "[LookupDictionary._strict_label_validation] Requested antimatch of label "
         "'undefined', not defined for dictionary 'noun'"
     )
 
