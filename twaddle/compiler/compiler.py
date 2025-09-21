@@ -48,8 +48,9 @@ class CompilerContextStack:
 
 
 class Compiler:
-    def __init__(self):
+    def __init__(self, strict_mode: bool = False):
         self.context = CompilerContextStack()
+        self.strict_mode = strict_mode
 
     def compile(self, sentence: str) -> RootObject:
         self.context = CompilerContextStack()
@@ -179,6 +180,7 @@ class Compiler:
                         negative_tags,
                         positive_label,
                         negative_labels,
+                        strict_mode=self.strict_mode,
                     )
                 case TokenType.DOT:
                     if tokens[0].type is not TokenType.PLAIN_TEXT:

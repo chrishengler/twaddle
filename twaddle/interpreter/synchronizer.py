@@ -5,6 +5,9 @@ from twaddle.exceptions import TwaddleInterpreterException
 
 
 class Synchronizer(ABC):
+    def __init__(self, num_choices: int):
+        self.num_choices = num_choices
+
     @abstractmethod
     def next(self) -> int:
         pass
@@ -12,6 +15,7 @@ class Synchronizer(ABC):
 
 class LockedSynchronizer(Synchronizer):
     def __init__(self, num_choices: int):
+        super().__init__(num_choices)
         self.pick = randrange(0, num_choices)
 
     def next(self) -> int:
@@ -20,6 +24,7 @@ class LockedSynchronizer(Synchronizer):
 
 class DeckSynchronizer(Synchronizer):
     def __init__(self, num_choices: int):
+        super().__init__(num_choices)
         self.num_choices = num_choices
         self.deck = list()
         self.shuffle_deck()
@@ -36,6 +41,7 @@ class DeckSynchronizer(Synchronizer):
 
 class CyclicDeckSynchronizer(Synchronizer):
     def __init__(self, num_choices: int):
+        super().__init__(num_choices)
         self.num_choices = num_choices
         self.deck = list()
         self.shuffle_deck()

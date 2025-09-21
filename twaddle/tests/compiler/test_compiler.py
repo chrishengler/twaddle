@@ -13,11 +13,16 @@ from twaddle.compiler.compiler_objects import (
 )
 from twaddle.exceptions import TwaddleParserException
 
-compiler = Compiler()
+standard_compiler = Compiler()
+strict_compiler = Compiler(strict_mode=True)
 
 
-def get_compile_result(sentence: str) -> RootObject:
-    return compiler.compile(sentence).contents
+def get_standard_compile_result(sentence: str) -> RootObject:
+    return standard_compiler.compile(sentence).contents
+
+
+def get_strict_compile_result(sentence: str) -> RootObject:
+    return strict_compiler.compile(sentence).contents
 
 
 def test_compiler_context_stack():
@@ -30,21 +35,21 @@ def test_compiler_context_stack():
     assert stack.current_context() == CompilerContext.FUNCTION
     with pytest.raises(TwaddleParserException) as e_info:
         stack.remove_context(CompilerContext.BLOCK)
-        assert (
-            e_info.message
-            == "[CompilerContextStack::remove_context] tried to remove BLOCK but current context is FUNCTION"
-        )
+    assert (
+        e_info.value.message
+        == "[CompilerContextStack::remove_context] tried to remove BLOCK but current context is FUNCTION"
+    )
 
 
 def test_parse_text():
-    result = get_compile_result("hello")
+    result = get_standard_compile_result("hello")
     assert len(result) == 1
     assert result[0].type == ObjectType.TEXT
     assert result[0].text == "hello"
 
 
 def test_parse_simple_lookup():
-    result = get_compile_result("<whatever>")
+    result = get_standard_compile_result("<whatever>")
     assert len(result) == 1
     lookup: LookupObject = result[0]
     assert lookup.type == ObjectType.LOOKUP
@@ -52,19 +57,21 @@ def test_parse_simple_lookup():
 
 
 def test_parse_complex_lookups():
-    result = get_compile_result("<dictionary.form-category>")
+    result = get_standard_compile_result("<dictionary.form-category>")
     assert len(result) == 1
     lookup: LookupObject = result[0]
     assert lookup.type == ObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
     assert lookup.positive_tags == {"category"}
-    result = get_compile_result("<dictionary.form-!category::=a>")
+    result = get_standard_compile_result("<dictionary.form-!category::=a>")
     lookup = result[0]
     assert len(lookup.positive_tags) == 0
     assert lookup.negative_tags == {"category"}
     assert lookup.positive_label == "a"
-    result = get_compile_result("<dictionary-category1-category2-!category3::!=b>")
+    result = get_standard_compile_result(
+        "<dictionary-category1-category2-!category3::!=b>"
+    )
     lookup = result[0]
     assert lookup.positive_tags == {"category1", "category2"}
     assert lookup.negative_tags == {"category3"}
@@ -73,7 +80,7 @@ def test_parse_complex_lookups():
 
 
 def test_parse_function():
-    lex_result = get_compile_result("[function:arg1;arg2]")
+    lex_result = get_standard_compile_result("[function:arg1;arg2]")
     assert len(lex_result) == 1
     assert isinstance(lex_result[0], FunctionObject)
     func: FunctionObject = lex_result[0]
@@ -84,7 +91,7 @@ def test_parse_function():
 
 
 def test_parse_choice():
-    parser_output = get_compile_result("{this|that}")
+    parser_output = get_standard_compile_result("{this|that}")
     assert len(parser_output) == 1
     assert isinstance(parser_output[0], BlockObject)
     choice_result: BlockObject = parser_output[0]
@@ -97,7 +104,7 @@ def test_parse_choice():
 
 
 def test_nested_block():
-    parser_output = get_compile_result("{{a|b}|{c|d}}")
+    parser_output = get_standard_compile_result("{{a|b}|{c|d}}")
     assert len(parser_output) == 1
     outer_block = parser_output[0]
     assert isinstance(outer_block, BlockObject)
@@ -112,7 +119,7 @@ def test_nested_block():
 
 
 def test_parse_choice_with_lookups():
-    parser_output = get_compile_result("{this|<something.form-category>}")
+    parser_output = get_standard_compile_result("{this|<something.form-category>}")
     assert len(parser_output) == 1
     assert isinstance(parser_output[0], BlockObject)
     block: BlockObject = parser_output[0]
@@ -126,7 +133,7 @@ def test_parse_choice_with_lookups():
 
 
 def test_parse_indefinite_article():
-    parser_output = get_compile_result("\\a bow and \\a arrow")
+    parser_output = get_standard_compile_result("\\a bow and \\a arrow")
     assert len(parser_output) == 4
     assert isinstance(parser_output[0], IndefiniteArticleObject)
     assert isinstance(parser_output[1], TextObject)
@@ -137,7 +144,7 @@ def test_parse_indefinite_article():
 
 
 def test_parse_escaped_characters():
-    parser_output = get_compile_result(r"\<angles\>")
+    parser_output = get_standard_compile_result(r"\<angles\>")
     assert len(parser_output) == 3
     for index in [0, 1, 2]:
         assert isinstance(parser_output[index], TextObject)
@@ -147,13 +154,13 @@ def test_parse_escaped_characters():
 
 
 def test_parse_article_in_args():
-    parser_output = get_compile_result(r"[rep:2][sep:\a]{<noun>}")
+    parser_output = get_standard_compile_result(r"[rep:2][sep:\a]{<noun>}")
     separator_args = parser_output[1].args
     assert isinstance(separator_args[0].contents[0], IndefiniteArticleObject)
 
 
 def test_parse_simple_regex():
-    parser_output = get_compile_result("[//a//i:a bat;i]")
+    parser_output = get_standard_compile_result("[//a//i:a bat;i]")
     assert len(parser_output) == 1
     rro: RegexObject = parser_output[0]
     assert rro.regex == "a"
@@ -163,10 +170,19 @@ def test_parse_simple_regex():
 
 # noinspection SpellCheckingInspection,PyPep8
 def test_parse_complex_regex():
-    parser_output = get_compile_result("[//^\w\w[aeiou]?//i:whatever;something]")
+    parser_output = get_standard_compile_result(
+        "[//^\w\w[aeiou]?//i:whatever;something]"
+    )
     assert len(parser_output) == 1
     rro: RegexObject = parser_output[0]
     assert rro.regex == "^\w\w[aeiou]?"
+
+
+def test_strict_mode():
+    result = get_strict_compile_result("<dict-tag.form>")
+    assert len(result) == 1
+    lookup: LookupObject = result[0]
+    assert lookup.strict_mode
 
 
 if __name__ == "__main__":

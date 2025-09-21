@@ -1,6 +1,7 @@
 from functools import singledispatchmethod
 from random import randint, randrange
 from re import Match, sub
+from typing import Optional
 
 from twaddle.compiler.compiler import Compiler
 from twaddle.compiler.compiler_objects import (
@@ -29,13 +30,15 @@ class Interpreter:
         lookup_manager: LookupManager,
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
+        strict_mode: bool = False,
     ):
         self.persistent_labels = persistent_labels
         self.persistent_synchronizers = persistent_synchronizers
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
-        self.compiler = Compiler()
+        self.compiler = Compiler(strict_mode=strict_mode)
+        self.strict_mode = strict_mode
 
     def interpret_external(self, sentence: str) -> str:
         self.clear()
@@ -63,6 +66,32 @@ class Interpreter:
         self.synchronizer_manager.clear()
         self.block_attribute_manager.clear()
 
+    def _get_synchronizer_for_block(
+        self, attributes: BlockAttributes, num_choices: int
+    ) -> Optional[Synchronizer]:
+        if attributes.synchronizer is None:
+            return None
+        if self.synchronizer_manager.synchronizer_exists(attributes.synchronizer):
+            synchronizer = self.synchronizer_manager.get_synchronizer(
+                attributes.synchronizer
+            )
+            if self.strict_mode and synchronizer.num_choices != num_choices:
+                raise TwaddleInterpreterException(
+                    f"[Interpreter._get_synchronizer_for_block] Invalid number of choices ({num_choices}) "
+                    f"for synchronizer '{attributes.synchronizer}', initialised with {synchronizer.num_choices}"
+                )
+            return synchronizer
+        if attributes.synchronizer_type is None:
+            raise TwaddleInterpreterException(
+                "[Interpreter.run](RantBlockObject) tried to define new synchronizer "
+                "without defining synchronizer type"
+            )
+        return self.synchronizer_manager.create_synchronizer(
+            attributes.synchronizer,
+            attributes.synchronizer_type,
+            num_choices,
+        )
+
     # noinspection PyUnusedLocal
     @singledispatchmethod
     def run(self, arg) -> Formatter:
@@ -87,23 +116,7 @@ class Interpreter:
             attributes.separator = None
             attributes.first = None
             attributes.last = None
-        synchronizer: Synchronizer | None = None
-        if attributes.synchronizer is not None:
-            if self.synchronizer_manager.synchronizer_exists(attributes.synchronizer):
-                synchronizer = self.synchronizer_manager.get_synchronizer(
-                    attributes.synchronizer
-                )
-            else:
-                if attributes.synchronizer_type is None:
-                    raise TwaddleInterpreterException(
-                        "[Interpreter.run](RantBlockObject) tried to define new synchronizer "
-                        "without defining synchronizer type"
-                    )
-                synchronizer = self.synchronizer_manager.create_synchronizer(
-                    attributes.synchronizer,
-                    attributes.synchronizer_type,
-                    len(block.choices),
-                )
+        synchronizer = self._get_synchronizer_for_block(attributes, len(block.choices))
 
         while attributes.repetitions:
             if synchronizer is None:

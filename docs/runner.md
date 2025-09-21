@@ -2,7 +2,7 @@
 
 The TwaddleRunner class is the intended interface by which users interact with Twaddle.
 
-It is imported from `twaddle.runner` and accepts two arguments on instantiation:
+It is imported from `twaddle.runner` and accepts three arguments on instantiation:
 
 `runner = TwaddleRunner(<path>, <persistent>)`
 
@@ -11,4 +11,7 @@ to be loaded.
 
 `persistent` is an optional bool argument. It defaults to `False` if not specified. If 
 `persistent` is set to `True`, the TwaddleRunner will operate in [persistent mode](persistent.md).
+
+`strict_mode` is an optional bool argument. It defaults to `False` if not specified. If 
+`strict_mode` is set to `True`, the TwaddleRunner will operate in [strict mode](strict.md).
 
