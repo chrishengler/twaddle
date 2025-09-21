@@ -259,5 +259,36 @@ def test_lookup_antimatch_undefined_label():
     )
 
 
+def test_standard_compiler_prints_something_when_antimatch_exhausts_all_options():
+    path = relative_path_to_full_path("../resources/valid_dicts")
+    lookup_manager = LookupManager()
+    lookup_manager.add_dictionaries_from_folder(path)
+    lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
+    assert lookup_manager.do_lookup(lookup) == "hexagon"
+    lookup = LookupObject("noun", positive_tags={"shape"}, negative_labels={"a"})
+    # result is random and arbitrary, simply ensure no exception is raised
+    # and that _something_ is returned
+    value = lookup_manager.do_lookup(lookup)
+    assert value is not None
+
+
+def test_strict_compiler_raises_when_antimatch_exhausts_all_options():
+    path = relative_path_to_full_path("../resources/valid_dicts")
+    lookup_manager = LookupManager()
+    lookup_manager.add_dictionaries_from_folder(path)
+    lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
+    assert lookup_manager.do_lookup(lookup) == "hexagon"
+    strict_lookup = LookupObject(
+        "noun", positive_tags={"shape"}, negative_labels={"a"}, strict_mode=True
+    )
+    with pytest.raises(TwaddleLookupException) as e_info:
+        lookup_manager.do_lookup(strict_lookup)
+    assert (
+        e_info.value.message
+        == "[LookupDictionary._valid_choices_for_strictness_level] no valid choices for"
+        " strict mode lookup in dictionary 'noun'"
+    )
+
+
 if __name__ == "__main__":
     test_lookup_from_object()

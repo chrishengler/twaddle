@@ -40,6 +40,20 @@ class LookupDictionary:
             )
         return form
 
+    def _valid_choices_for_strictness_level(
+        self,
+        valid_choices: list[DictionaryEntry],
+        lookup: LookupObject,
+    ) -> list[DictionaryEntry]:
+        if not valid_choices:
+            if lookup.strict_mode:
+                raise TwaddleLookupException(
+                    "[LookupDictionary._valid_choices_for_strictness_level] "
+                    f"no valid choices for strict mode lookup in dictionary '{self.name}'"
+                )
+            valid_choices = list.copy(self.entries)
+        return valid_choices
+
     def _get_valid_choices(
         self,
         lookup: LookupObject,
@@ -50,9 +64,9 @@ class LookupDictionary:
                 continue
             if not lookup.positive_tags or entry.has_all_tags(lookup.positive_tags):
                 valid_choices.append(entry)
-        if not valid_choices and not lookup.strict_mode:
-            valid_choices = list.copy(self.entries)
+        valid_choices = self._valid_choices_for_strictness_level(valid_choices, lookup)
         valid_choices = self._prune_valid_choices(valid_choices, lookup.negative_labels)
+        valid_choices = self._valid_choices_for_strictness_level(valid_choices, lookup)
         return valid_choices
 
     def _prune_valid_choices(
