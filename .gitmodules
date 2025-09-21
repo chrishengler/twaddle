@@ -1,0 +1,3 @@
+[submodule "twaddle/default_dictionary"]
+	path = twaddle/default_dictionary
+	url = git@github.com:chrishengler/twaddle-dict.git
