@@ -1,23 +1,34 @@
 # Strict mode
 
 In some cases it may not be possible to fulfil all conditions requested
-within a Twaddle sentence. Consider, for example, the sentence:
+within a Twaddle sentence. Consider, for example, the [lookup](lookups.md):
 
-`<noun-shape::=a> <noun-shape::=b::!=a> <noun-shape::!=a::!=b>`
+`<noun-undefined>`
 
-This output requests three entries from the `noun` dictionary,
-each with the `shape` class, and each different from any previously
-selected. If the loaded `noun` dictionary only has two entries with
-the shape class, this cannot be fulfilled.
+If the `noun` dictionary does not contain a class `undefined`, 
+this request cannot be fulfilled. 
 
-Twaddle generally behaves pragmatically and makes a best effort to print
-_something_. For example, if a [lookup](lookups.md) specifies classes which
-don't exist (or combinations of classes with no matching entries), the 
-classes are ignored and a word is chosen from the entire dictionary. If
-[negative labels](lookups.md#negative-label) are applied which haven't yet
-been defined or which rule out all valid entries, again a word is chosen from
-the entire dictionary. 
+Twaddle generally behaves pragmatically makes a best effort to print
+_something_. In the example above, it will choose a random entry from the
+`noun` dictionary.
 
-A TwaddleRunner in strict mode does not make these pragmatic attempts to 
+A TwaddleRunner in strict mode does not make a pragmatic attempt to 
 print _something_, but instead raises an exception (derived from the
 `TwaddleException` class) when encountering unfulfillable requirements.
+
+## Strict mode exception scenarios
+
+Strict mode raises exceptions in the following scenarios, which would 
+produce no error with strict mode disabled:
+
+- Requesting or excluding a [class](lookups.md#specifying-class) 
+  which does not exist in the dictionary.
+- Requesting or excluding combinations of classes for which there
+  are no matching entries in the dictionary.
+- Applying a [negative label](lookups.md#negative-label) where that
+  label has not yet been defined (if you feel a need to do this, 
+  the [`hide` function](functions.md#hide) should serve your purpose).
+- Applying one or more negative labels which rule out all entries
+  matching the lookup's other criteria.
+- Using a synchronizer on a choice block with a different number of 
+  entries than the block for which it was initially defined
