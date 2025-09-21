@@ -41,22 +41,24 @@ To use Twaddle within a project of your own, you will need to [create a `Twaddle
 (imported from `twaddle.runner`), passing it the location of the folder containing the dictionary files 
 you wish to use. Then give your [Twaddle sentences](sentences.md) to its `run_sentence` method. 
 
-For an extremely simple example, see the `__main__.py` file, which takes sentences as console input
-and prints the result:
+For an extremely simple example, see the `__main__.py` file. It loads dictionaries from a path provided
+as an argument, or loads the default dictionary if no argument is provided, then takes twaddle sentences as
+console input and prints the result:
 
 ```
+from importlib.resources import files
 import readline  # noqa: F401
 import sys
 
+from twaddle.exceptions import TwaddleException
 from twaddle.runner import TwaddleRunner
 
 
 def main():
     if len(sys.argv) < 2:
-        print("argument required: path to directory containing dictionary files")
-        return
-
-    path = sys.argv[1]
+        path = files("twaddle.default_dictionary")
+    else:
+        path = sys.argv[1]
     twaddle = TwaddleRunner(path)
 
     print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")
@@ -65,10 +67,14 @@ def main():
         try:
             sentence = input(">")
             print(twaddle.run_sentence(sentence))
+        except TwaddleException as te:
+            print(f"Twaddle encountered an error:\n{te.message}")
+            twaddle.clear()
         except EOFError:
             quit()
 
 
 if __name__ == "__main__":
     main()
+
 ```

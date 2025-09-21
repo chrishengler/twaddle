@@ -1,5 +1,6 @@
 import readline  # noqa: F401
 import sys
+from importlib.resources import files
 
 from twaddle.exceptions import TwaddleException
 from twaddle.runner import TwaddleRunner
@@ -7,10 +8,9 @@ from twaddle.runner import TwaddleRunner
 
 def main():
     if len(sys.argv) < 2:
-        print("argument required: path to directory containing dictionary files")
-        return
-
-    path = sys.argv[1]
+        path = files("twaddle.default_dictionary")
+    else:
+        path = sys.argv[1]
     twaddle = TwaddleRunner(path)
 
     print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")

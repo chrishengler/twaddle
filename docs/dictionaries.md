@@ -1,15 +1,34 @@
 # Dictionaries
 
-Twaddle has no in-built vocabulary. Its vocabulary is read from
+Twaddle's vocabulary is read from
 dictionary files within a folder specified when creating the
 TwaddleRunner. Each user can provide a vocabulary appropriate for
 their purposes by adding dictionary files to a folder of their choice.
 
+## Default dictionary
+
+If you want to just get started experimenting without writing your own 
+dictionary files, there is an 
+[official Twaddle dictionary](https://github.com/chrishengler/twaddle-dict).
+It can be accessed via Github and is distributed with the Twaddle
+package. If you have installed the Twaddle package, the dictinary can be 
+accessed via `importlib.resources.files`:
+
+```python
+from importlib.resources import files
+from twaddle.runner import TwaddleRunner
+
+path = files("twaddle.default_dictionary")
+twaddle_runner = TwaddleRunner(path)
+```
+
+## Dictionary format
+
 The format of these dictionary files must follow the 
-[dictionary spec](dictionary_spec.md). Some sample dictionaries are provided
-in the `twaddle/sample_dicts` folder. These are intended purely as examples
-to show how a dictionary file looks and allow users to experiment writing 
-Twaddle sentences before writing their own dictionaries. 
+[dictionary spec](dictionary_spec.md). In addition to the official 
+dictionary, some small sample dictionaries are provided
+in the `twaddle/sample_dicts` folder. These are intended purely as 
+lightweight examples to show how dictionary files are constructed. 
 
 Let's look at an example, an abridged version of `noun.dic`:
 
@@ -37,7 +56,7 @@ Let's look at an example, an abridged version of `noun.dic`:
 
 It consists of a header section and a number of definitions. 
 
-## Header
+### Header
 
 ````
 #name noun
@@ -52,7 +71,7 @@ The second line defines the forms offered by the dictionary (`singular` and
 `plural`). The first form is the default form which will be used whenever no
 form is explicitly requested.
 
-## Definitions
+### Definitions
 
 Following the header, we define our vocabulary 
 
@@ -107,14 +126,14 @@ active regions may overlap in whole or in part. In the example above, `desk`
 does not belong to any class, `house` belongs to the `building` class, and
 `shop` belongs to both the `building` and the `retail` class. 
 
-## Special tokens
+### Special tokens
 
 The special token `{a}` can be added as any form of a dictionary entry. If 
 this entry is used in the appropriate form, it will be replaced by the
 indefinite article (`a`/`an`). The special token cannot be used within
 a larger entry, only as a complete form. 
 
-## Comments
+### Comments
 
 Lines which do not match the expected format for header information or
 definitions are ignored. As such, comments can be added by simply including
