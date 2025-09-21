@@ -29,13 +29,14 @@ class Interpreter:
         lookup_manager: LookupManager,
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
+        strict_mode: bool = False,
     ):
         self.persistent_labels = persistent_labels
         self.persistent_synchronizers = persistent_synchronizers
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
-        self.compiler = Compiler()
+        self.compiler = Compiler(strict_mode=strict_mode)
 
     def interpret_external(self, sentence: str) -> str:
         self.clear()

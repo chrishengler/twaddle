@@ -1,5 +1,8 @@
 import os
 
+import pytest
+
+from twaddle.exceptions import TwaddleLookupException
 from twaddle.runner import TwaddleRunner
 
 
@@ -10,6 +13,7 @@ def relative_path_to_full_path(rel_path: str) -> str:
 
 path = relative_path_to_full_path("../resources/valid_dicts")
 standard_runner = TwaddleRunner(path)
+strict_runner = TwaddleRunner(path, strict_mode=True)
 
 
 def test_rant():
@@ -260,6 +264,15 @@ def test_indefinite_article_from_lookup():
             "[case:sentence]<article.indefinite> cat and <article.indefinite> aardvark"
         )
         == "A cat and an aardvark"
+    )
+
+
+def test_strict_mode_error_invalid_class():
+    with pytest.raises(TwaddleLookupException) as e_info:
+        strict_runner.run_sentence("<noun-notarealclass>")
+    assert (
+        e_info.value.message
+        == "[LookupDictionary._get] Invalid class 'notarealclass' requested for dictionary 'noun' in strict mode"
     )
 
 

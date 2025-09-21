@@ -9,6 +9,7 @@ class TwaddleRunner:
         persistent: bool = False,
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
+        strict_mode: bool = False,
     ):
         self.lookup_manager = LookupManager()
         self.lookup_manager.add_dictionaries_from_folder(path)
@@ -18,6 +19,7 @@ class TwaddleRunner:
             self.lookup_manager,
             persistent_labels=persistent_labels,
             persistent_synchronizers=persistent_synchronizers,
+            strict_mode=strict_mode,
         )
         pass
 

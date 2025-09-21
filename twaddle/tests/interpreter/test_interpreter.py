@@ -30,7 +30,7 @@ def test_choice():
 def test_unknown_function_error():
     with pytest.raises(TwaddleInterpreterException) as e_info:
         get_interpreter_output("[funk]")
-        assert e_info.message == "[Interpreter::run] no function found named 'funk'"
+    assert e_info.value.message == "[Interpreter::run] no function found named 'funk'"
 
 
 def test_repeat():
