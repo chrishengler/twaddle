@@ -86,20 +86,19 @@ class LookupDictionary:
                         "[LookupDictionary._validate_strict_mode] Requested antimatch of label "
                         f"'{label}', not defined for dictionary '{self.name}'"
                     )
-        if lookup.positive_tags or lookup.negative_tags:
-            all_tags = list()
-            if lookup.positive_tags:
-                for tag in lookup.positive_tags:
-                    all_tags.append(tag)
-            if lookup.negative_tags:
-                for tag in lookup.negative_tags:
-                    all_tags.append(tag)
-            for tag in all_tags:
-                if tag not in self.tags:
-                    raise TwaddleLookupException(
-                        f"[LookupDictionary._validate_strict_mode] Invalid class '{tag}' requested "
-                        f"for dictionary '{self.name}' in strict mode"
-                    )
+        all_tags = list()
+        if lookup.positive_tags:
+            for tag in lookup.positive_tags:
+                all_tags.append(tag)
+        if lookup.negative_tags:
+            for tag in lookup.negative_tags:
+                all_tags.append(tag)
+        for tag in all_tags:
+            if tag not in self.tags:
+                raise TwaddleLookupException(
+                    f"[LookupDictionary._validate_strict_mode] Invalid class '{tag}' requested "
+                    f"for dictionary '{self.name}' in strict mode"
+                )
         return True
 
     def get(self, lookup: LookupObject) -> str | IndefiniteArticleObject:

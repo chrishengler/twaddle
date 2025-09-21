@@ -238,7 +238,7 @@ def test_strict_lookup_invalid_tags():
             lookup_manager.do_lookup(lookup)
         assert (
             e_info.value.message
-            == "[LookupDictionary._validate_strict_mode] Invalid class 'invalid' "
+            == "[LookupDictionary._validate_strict_mode] Invalid class 'invalid'"
             " requested for dictionary 'noun' in strict mode"
         )
 
