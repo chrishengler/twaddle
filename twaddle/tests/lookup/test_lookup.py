@@ -236,9 +236,26 @@ def test_strict_lookup_invalid_tags():
     ]:
         with pytest.raises(TwaddleLookupException) as e_info:
             lookup_manager.do_lookup(lookup)
+        assert (
+            e_info.value.message
+            == "[LookupDictionary._validate_strict_mode] Invalid class 'invalid' "
+            " requested for dictionary 'noun' in strict mode"
+        )
+
+
+def test_lookup_antimatch_undefined_label():
+    path = relative_path_to_full_path("../resources/valid_dicts")
+    lookup_manager = LookupManager()
+    lookup_manager.add_dictionaries_from_folder(path)
+    strict_lookup = LookupObject(
+        "noun", negative_labels={"undefined"}, strict_mode=True
+    )
+    with pytest.raises(TwaddleLookupException) as e_info:
+        lookup_manager.do_lookup(strict_lookup)
     assert (
         e_info.value.message
-        == "[LookupDictionary._get] Invalid class 'invalid' requested for dictionary 'noun' in strict mode"
+        == "[LookupDictionary._validate_strict_mode] Requested antimatch of label "
+        "'undefined', not defined for dictionary 'noun'"
     )
 
 

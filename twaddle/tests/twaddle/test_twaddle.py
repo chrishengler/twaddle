@@ -272,7 +272,18 @@ def test_strict_mode_error_invalid_class():
         strict_runner.run_sentence("<noun-notarealclass>")
     assert (
         e_info.value.message
-        == "[LookupDictionary._get] Invalid class 'notarealclass' requested for dictionary 'noun' in strict mode"
+        == "[LookupDictionary._validate_strict_mode] Invalid class 'notarealclass' requested "
+        "for dictionary 'noun' in strict mode"
+    )
+
+
+def test_strict_mode_undefined_label():
+    with pytest.raises(TwaddleLookupException) as e_info:
+        strict_runner.run_sentence("<noun::!=undefined>")
+    assert (
+        e_info.value.message
+        == "[LookupDictionary._validate_strict_mode] Requested antimatch of label "
+        "'undefined', not defined for dictionary 'noun'"
     )
 
 
