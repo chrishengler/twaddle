@@ -87,6 +87,8 @@ def get_text_for_object(raw: Token) -> str:
             return "."
         case TokenType.EQUALS:
             return "="
+        case TokenType.SPACE:
+            return " "
         case TokenType.PLAIN_TEXT:
             return raw.value
         # unrecognised token type

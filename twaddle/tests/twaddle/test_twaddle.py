@@ -287,5 +287,9 @@ def test_strict_mode_undefined_label():
     )
 
 
+def test_reverse_with_lookups():
+    assert strict_runner.run_sentence("[reverse]{<noun-vehicle>}") == "ecnalubma"
+
+
 if __name__ == "__main__":
     test_regex()

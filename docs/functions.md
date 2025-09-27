@@ -41,6 +41,16 @@ The `rand` function generates a random integer. It requires two arguments:
 
 The limits are inclusive. 
 
+### Reverse
+
+The `reverse` function is a [block function](block_functions.md). 
+It prints the following block in reverse:
+
+`[reverse]{oh no, \a <noun>!}`
+
+It takes no arguments.
+
+
 ### Repeat
 
 The repeat function, `rep`, is a [block function](block_functions.md).  
