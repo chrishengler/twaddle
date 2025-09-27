@@ -6,19 +6,21 @@ from .function_definitions import (
     match,
     rand,
     repeat,
+    reverse,
     separator,
     sync,
 )
 
 function_definitions = {
-    "rep": repeat,
-    "sep": separator,
-    "rand": rand,
+    "case": case,
     "first": first,
+    "hide": hide,
     "last": last,
+    "match": match,
+    "rand": rand,
+    "rep": repeat,
+    "reverse": reverse,
+    "sep": separator,
     "x": sync,
     "sync": sync,
-    "case": case,
-    "match": match,
-    "hide": hide,
 }

@@ -2,10 +2,10 @@
 
 Block functions are a subset of Twaddle [functions](functions.md).
 Rather than taking effect wherever they are encountered in the Twaddle
-sentence, they set parameters for the next [block](blocks.md). This will
-typically be placed immediately after the function definition. This is not
-required to be the case, and the effect will still apply to the next block
-even when they are separated. 
+sentence, they set parameters for the next [block](blocks.md). While a user
+would typically place the function(s) immediately before opening the block,
+this is not required to be the case, and the effect will still apply to the
+next block even when they are separated. 
 
 For example:
 

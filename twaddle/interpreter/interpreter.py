@@ -141,8 +141,12 @@ class Interpreter:
             formatter += partial_result
             if attributes.repetitions > 1 and attributes.separator:
                 formatter.append_formatter(self.run(attributes.separator))
-            if attributes.hidden:
-                return Formatter()
+        if attributes.hidden:
+            return Formatter()
+        if attributes.reverse:
+            block_result = formatter.resolve()
+            formatter = Formatter()
+            formatter.append("".join(reversed(block_result)))
         return formatter
 
     @run.register(FunctionObject)

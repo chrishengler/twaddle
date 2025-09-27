@@ -4,8 +4,7 @@ from typing import Self, Type
 
 from twaddle.compiler.compiler_objects import IndefiniteArticleObject
 from twaddle.exceptions import TwaddleInterpreterException
-
-from .formatting_object import (
+from twaddle.interpreter.formatting_object import (
     FormattingObject,
     FormattingStrategy,
     IndefiniteArticle,
