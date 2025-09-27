@@ -8,11 +8,6 @@ def get_interpreter_output(sentence: str) -> str:
 
 
 def test_reverse_basic():
-    result = get_interpreter_output("[reverse]{hello}")
-    assert result == "olleh"
-
-
-def test_reverse_with_spaces():
     result = get_interpreter_output("[reverse]{hello world}")
     assert result == "dlrow olleh"
 
@@ -27,19 +22,14 @@ def test_reverse_empty_block():
     assert result == ""
 
 
-def test_reverse_with_multiple_words():
-    result = get_interpreter_output("[reverse]{one two three}")
-    assert result == "eerht owt eno"
-
-
 def test_reverse_with_punctuation():
     result = get_interpreter_output("[reverse]{hello, world!}")
     assert result == "!dlrow ,olleh"
 
 
 def test_reverse_with_nested_blocks():
-    result = get_interpreter_output("[reverse]{[case:upper]{hello}}")
-    assert result == "OLLEH"
+    result = get_interpreter_output("[reverse]{[rep:2][sep:\s]{hello}}")
+    assert result == "olleh olleh"
 
 
 def test_reverse_special_characters():

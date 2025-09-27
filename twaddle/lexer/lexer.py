@@ -61,6 +61,8 @@ def _get_token_type(input_str: str) -> tuple[TokenType, int]:
                         return TokenType.DIGIT, 2
                     case "t":
                         return TokenType.TAB, 2
+                    case "s":
+                        return TokenType.SPACE, 2
                     case _:
                         """
                         this isn't ideal but avoids having to define special

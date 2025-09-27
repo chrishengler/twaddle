@@ -10,6 +10,7 @@ class BlockAttributes:
         self.synchronizer: str | None = None
         self.synchronizer_type: str | None = None
         self.hidden: bool = False
+        self.reverse: bool = False
 
 
 class BlockAttributeManager:

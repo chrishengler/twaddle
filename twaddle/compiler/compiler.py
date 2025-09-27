@@ -131,13 +131,10 @@ class Compiler:
                     tokens.popleft()
                 case TokenType.SINGLE_BACKSLASH:
                     tokens.popleft()
-                    print(f"{check_for_escape(tokens[0])=}")
                     if len(tokens) and (escaped := check_for_escape(tokens[0])):
-                        print(f"{str(escaped)=}")
                         result.append(to_plain_text_object(escaped))
                         tokens.popleft()
                     else:
-                        print("no escaped i guess")
                         result.append(to_plain_text_object(token))
                 # more special cases to handle here later, just convert to text for now
                 case _:

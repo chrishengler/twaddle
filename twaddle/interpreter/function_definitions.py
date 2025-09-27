@@ -2,9 +2,8 @@ from random import randint
 
 from twaddle.compiler.compiler_objects import RootObject
 from twaddle.interpreter.block_attributes import BlockAttributeManager
-
-from .formatting_object import FormattingStrategy
-from .regex_state import RegexState
+from twaddle.interpreter.formatting_object import FormattingStrategy
+from twaddle.interpreter.regex_state import RegexState
 
 
 def repeat(
@@ -72,6 +71,10 @@ def rand(evaluated_args: list[str], _block_attribute_manager, _raw_args) -> str:
     minimum = int(evaluated_args[0])
     maximum = int(evaluated_args[1])
     return str(randint(minimum, maximum))
+
+
+def reverse(_evaluated_args: list[str], block_attribute_manager, _raw_args):
+    block_attribute_manager.current_attributes.reverse = True
 
 
 def hide(

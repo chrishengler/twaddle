@@ -114,6 +114,16 @@ def test_new_line():
     assert result[0] == expected_result
 
 
+def test_escaped_space():
+    test_string = chr(92) + "s"
+    result = lexer.lex(test_string)
+
+    expected_result = Token(TokenType.SPACE)
+
+    assert len(result) == 1
+    assert result[0] == expected_result
+
+
 def test_indefinite_article():
     test_string = r"\a"
     result = lexer.lex(test_string)

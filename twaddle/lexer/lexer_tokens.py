@@ -27,6 +27,7 @@ class TokenType(Enum):
     DOT = auto()
     EQUALS = auto()
     PLAIN_TEXT = auto()
+    SPACE = auto()
 
 
 class Token:
