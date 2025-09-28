@@ -1,8 +1,10 @@
 # Twaddle Introduction
 
 Twaddle is a python package for templated text generation.  It originated
-as a reimplementation of a subset of [Rant v3](https://github.com/TheBerkin/rant3),
-some minor adaptations have since been made. 
+as a reimplementation of a subset of [Rant v3](https://github.com/TheBerkin/rant3).
+A number of new features have since been added, though it remains 
+backwards compatible with the targeted Rant subset.
+
 
 ## OK, so what does that mean?
 
@@ -29,10 +31,11 @@ Some more advanced features of Twaddle include:
 
 - [Capitalization schemes](capitalization.md)
 - [Branching templates](branching.md)
-- [Synchronizers](synchronizers.md)
 - [Functions](functions.md)
 - [Loops](loops.md)
+- [Patterns](patterns.md)
 - [Regular expressions](regex.md)
+- [Synchronizers](synchronizers.md)
 
 ## How do I get started?
 
