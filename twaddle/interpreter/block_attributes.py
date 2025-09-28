@@ -1,3 +1,5 @@
+from typing import Optional
+
 from twaddle.compiler.compiler_objects import RootObject
 
 
@@ -11,10 +13,12 @@ class BlockAttributes:
         self.synchronizer_type: str | None = None
         self.hidden: bool = False
         self.reverse: bool = False
+        self.save_as: Optional[str] = None
 
 
 class BlockAttributeManager:
     def __init__(self):
+        self.saved_blocks = dict()
         self.current_attributes = BlockAttributes()
 
     def get_attributes(self) -> BlockAttributes:
@@ -26,6 +30,9 @@ class BlockAttributeManager:
         self.current_attributes.synchronizer = args[0]
         if len(args) > 1:
             self.current_attributes.synchronizer_type = args[1]
+
+    def save_block(self, name: str):
+        self.current_attributes.save_as = name
 
     def clear(self):
         self.current_attributes = BlockAttributes()

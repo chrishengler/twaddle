@@ -165,16 +165,37 @@ See the [regex documentation page](regex.md) for more details.
 The `hide` function is a [block function](block_functions.md). 
 It allows for a block to be processed but excluded from the output.
 
+### Save
+
+The `save` function is a [block function](block_functions.md). 
+It saves the next block as a [pattern](patterns.md) which can be 
+reused. It takes one mandatory argument:
+
+`[save:<name>]{<pattern>}`
+
+`name` is the name with which to save the pattern. If a pattern is
+already saved with that name, it is overwritten. 
+
+### Load
+
+The `load` function loads a saved pattern. It takes one mandatory argument:
+
+`[load:<name>]`
+
+`name` is the name of the pattern to load. If no pattern has been saved
+with that name, a `TwaddleInterpreterException` is raised.
+
 ### Clear
 
-The `clear` function clears any defined [labels](lookups.md#labels) and 
-[synchronizers](synchronizers.md). It takes no arguments:
+The `clear` function clears any defined [labels](lookups.md#labels),
+[synchronizers](synchronizers.md), and [patterns](patterns.md). 
+It takes no arguments:
 
 `[clear]`
 
 This function is primarily useful in [persistent mode](persistent.md), 
 although it can also be used within a Twaddle sentence if desired. When
-used within a sentence, any labels and synchronizers defined before the 
+used within a sentence, any persistent items defined before the 
 `clear` function is inserted will be reset from the point in the sentence
 where the `clear` function is used. For example:
 

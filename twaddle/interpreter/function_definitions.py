@@ -1,6 +1,6 @@
 from random import randint
 
-from twaddle.compiler.compiler_objects import RootObject
+from twaddle.compiler.compiler_objects import BlockObject, RootObject
 from twaddle.interpreter.block_attributes import BlockAttributeManager
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.regex_state import RegexState
@@ -37,6 +37,18 @@ def last(
     raw_args: list[RootObject],
 ):
     block_attribute_manager.current_attributes.last = raw_args[0]
+
+
+def load(
+    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+) -> BlockObject:
+    return block_attribute_manager.load_block(evaluated_args[0])
+
+
+def save(
+    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+):
+    block_attribute_manager.save_block(evaluated_args[0])
 
 
 def sync(
