@@ -32,10 +32,12 @@ class Interpreter:
         lookup_manager: LookupManager,
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
+        persistent_patterns: bool = False,
         strict_mode: bool = False,
     ):
         self.persistent_labels = persistent_labels
         self.persistent_synchronizers = persistent_synchronizers
+        self.persistent_patterns = persistent_patterns
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
@@ -62,11 +64,14 @@ class Interpreter:
             self.lookup_manager.clear_labels()
         if not self.persistent_synchronizers:
             self.synchronizer_manager.clear()
+        if not self.persistent_patterns:
+            self.saved_patterns.clear()
         self.block_attribute_manager.clear()
 
     def force_clear(self):
         self.lookup_manager.clear_labels()
         self.synchronizer_manager.clear()
+        self.saved_patterns.clear()
         self.block_attribute_manager.clear()
 
     def _get_synchronizer_for_block(

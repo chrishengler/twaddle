@@ -199,6 +199,15 @@ def test_persistence_overrides():
     assert first == second
 
 
+def test_patter_persistence():
+    pattern_persistent_runner = TwaddleRunner(path, persistent_patterns=True)
+
+    first = pattern_persistent_runner.run_sentence("[save:a]{<noun-vehicle>}")
+    second = pattern_persistent_runner.run_sentence("[load:a]")
+
+    assert first == second
+
+
 # noinspection SpellCheckingInspection,PyPep8
 def test_regex():
     assert standard_runner.run_sentence("[//a//i:a;\\a <noun-shape>]") == "a hexagon"
@@ -289,6 +298,29 @@ def test_strict_mode_undefined_label():
 
 def test_reverse_with_lookups():
     assert strict_runner.run_sentence("[reverse]{<noun-vehicle>}") == "ecnalubma"
+
+
+def test_save_load_block_with_lookups():
+    assert (
+        standard_runner.run_sentence("[save:a]{<noun-vehicle>} [load:a]")
+        == "ambulance ambulance"
+    )
+
+
+def test_save_load_block_with_reverse():
+    assert (
+        standard_runner.run_sentence("[save:a]{<noun-vehicle>} [reverse]{[load:a]}")
+        == "ambulance ecnalubma"
+    )
+
+
+def test_save_load_with_case():
+    assert (
+        standard_runner.run_sentence(
+            "[save:a]{<noun-vehicle>} [case:upper][reverse]{[load:a]}"
+        )
+        == "ambulance ECNALUBMA"
+    )
 
 
 if __name__ == "__main__":
