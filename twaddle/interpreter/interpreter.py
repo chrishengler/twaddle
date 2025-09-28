@@ -25,6 +25,8 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 
 class Interpreter:
+    SPECIAL_FUNCTIONS = ["clear", "save", "load"]
+
     def __init__(
         self,
         lookup_manager: LookupManager,
@@ -38,6 +40,7 @@ class Interpreter:
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
         self.compiler = Compiler(strict_mode=strict_mode)
+        self.saved_patterns = dict()
         self.strict_mode = strict_mode
 
     def interpret_external(self, sentence: str) -> str:
@@ -112,6 +115,8 @@ class Interpreter:
         formatter = Formatter()
         attributes: BlockAttributes = self.block_attribute_manager.get_attributes()
         first_repetition = True
+        if name := attributes.save_as:
+            self.saved_patterns[name] = block
         if attributes.repetitions < 2:
             attributes.separator = None
             attributes.first = None
@@ -149,15 +154,49 @@ class Interpreter:
             formatter.append("".join(reversed(block_result)))
         return formatter
 
+    def _handle_special_functions(
+        self, func: FunctionObject, evaluated_args: list[str]
+    ):
+        match func.func:
+            case "clear":
+                self.force_clear()
+                return Formatter()
+            case "load":
+                if not len(evaluated_args):
+                    raise TwaddleInterpreterException(
+                        "[Interpreter._handle_special_functions] Tried "
+                        "to load pattern without specifying name"
+                    )
+                if not (block := self.saved_patterns.get(evaluated_args[0])):
+                    raise TwaddleInterpreterException(
+                        "[Interpreter._handle_special_functions#load] Tried "
+                        f"to load unknown pattern '{evaluated_args[0]}'"
+                    )
+                return self.run(block)
+            case "save":
+                if not len(evaluated_args):
+                    raise TwaddleInterpreterException(
+                        "[Interpreter._handle_special_functions] Tried "
+                        "to save pattern without specifying name"
+                    )
+                self.block_attribute_manager.save_block(evaluated_args[0])
+            case _:
+                raise TwaddleInterpreterException(
+                    f"[Interpreter] function '{func.func}' "
+                    "marked special but no special handling defined"
+                )
+
+    def _save_pattern(self, block: BlockObject, name: str):
+        self.saved_patterns[name] = block
+
     @run.register(FunctionObject)
     def _(self, func: FunctionObject):
         formatter = Formatter()
         evaluated_args = list()
         for arg in func.args:
             evaluated_args.append(self.run(arg).resolve())
-        if func.func == "clear":  # special case
-            self.force_clear()
-            return formatter
+        if func.func in self.SPECIAL_FUNCTIONS:
+            return self._handle_special_functions(func, evaluated_args)
         if func.func in function_definitions:
             formatter.append(
                 function_definitions[func.func](
