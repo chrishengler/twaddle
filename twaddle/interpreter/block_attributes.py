@@ -14,6 +14,7 @@ class BlockAttributes:
         self.hidden: bool = False
         self.reverse: bool = False
         self.save_as: Optional[str] = None
+        self.copy_as: Optional[str] = None
 
 
 class BlockAttributeManager:
@@ -33,6 +34,9 @@ class BlockAttributeManager:
 
     def save_block(self, name: str):
         self.current_attributes.save_as = name
+
+    def copy_block(self, name: str):
+        self.current_attributes.copy_as = name
 
     def clear(self):
         self.current_attributes = BlockAttributes()

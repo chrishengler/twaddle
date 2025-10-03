@@ -323,5 +323,58 @@ def test_save_load_with_case():
     )
 
 
-if __name__ == "__main__":
-    test_regex()
+def test_save_load_with_synchronizer():
+    assert standard_runner.run_sentence("[save:a]{[sync:x;deck]{a|b}} [load:a]") in [
+        "a b",
+        "b a",
+    ]
+
+
+def test_save_effective_before_reverse():
+    for sentence in [
+        "[save:a][reverse]{abc} [load:a]",
+        "[reverse][save:a]{abc} [load:a]",
+        "[reverse]{[save:a]{abc}} [load:a]",
+        "[save:a]{[reverse]{abc}} [reverse]{[load:a]}",
+    ]:
+        assert standard_runner.run_sentence(sentence) == "cba abc"
+
+
+def test_copy_paste_with_lookups():
+    assert (
+        standard_runner.run_sentence("[copy:a]{<noun-vehicle>} [paste:a]")
+        == "ambulance ambulance"
+    )
+
+
+def test_copy_load_block_with_reverse():
+    assert (
+        standard_runner.run_sentence("[copy:a]{<noun-vehicle>} [reverse]{[paste:a]}")
+        == "ambulance ecnalubma"
+    )
+
+
+def test_copy_load_with_case():
+    assert (
+        standard_runner.run_sentence(
+            "[copy:a]{<noun-vehicle>} [case:upper][reverse]{[paste:a]}"
+        )
+        == "ambulance ECNALUBMA"
+    )
+
+
+def test_copy_paste_with_synchronizer():
+    assert standard_runner.run_sentence("[copy:a]{[sync:x;deck]{a|b}} [paste:a]") in [
+        "a a",
+        "b b",
+    ]
+
+
+def test_copy_effective_before_reverse():
+    for sentence in [
+        "[copy:a][reverse]{abc} [paste:a]",
+        "[reverse][copy:a]{abc} [paste:a]",
+        "[reverse]{[copy:a]{abc}} [paste:a]",
+        "[copy:a]{[reverse]{abc}} [reverse]{[paste:a]}",
+    ]:
+        assert standard_runner.run_sentence(sentence) == "cba abc"
