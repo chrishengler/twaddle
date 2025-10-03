@@ -185,6 +185,27 @@ The `load` function loads a saved pattern. It takes one mandatory argument:
 `name` is the name of the pattern to load. If no pattern has been saved
 with that name, a `TwaddleInterpreterException` is raised.
 
+### Copy
+
+The `copy` function is a [block function](block_functions.md).
+It copies the evaluated result to a [clipboard](clipboard.md) for later
+reuse. It takes one mandatory argument:
+
+`[copy:<name>]{<pattern>}`
+
+`name` is the name of the clipboard to which to save the block's evaluated
+result. If the clipboard already exists, it is overwritten.
+
+### Paste
+
+The `paste` function loads the contents of a [clipboard](clipboard.md).
+It takes one mandatory argument:
+
+`[paste:<name>]`
+
+`name` is the name of the clipboard to load. If nothing has been copied
+to that clipboard, a `TwaddleInterpreterException` is raised.
+
 ### Clear
 
 The `clear` function clears any defined [labels](lookups.md#labels),
