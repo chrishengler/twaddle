@@ -206,10 +206,29 @@ It takes one mandatory argument:
 `name` is the name of the clipboard to load. If nothing has been copied
 to that clipboard, a `TwaddleInterpreterException` is raised.
 
+### Abbreviate
+
+The `abbreviate` function, also callable as `abbr`, is a 
+[block function](block_functions.md). It replaces the next block with
+an abbreviation formed from the initial letters of each word. It takes
+one optional argument:
+
+`[abbreviate]{<block contents>}`
+`[abbreviate:<case>]{<block contents>}`
+
+`<case>` is an optional argument defining the case in which the
+abbreviation is generated. The permitted values are `retain`, `upper`,
+`lower`, and `first`. 
+
+See the [abbreviations](abbreviations.md) documentation page for a full
+description of how abbreviations are created and the meanings of the
+`case` options.
+
 ### Clear
 
 The `clear` function clears any defined [labels](lookups.md#labels),
-[synchronizers](synchronizers.md), and [patterns](patterns.md). 
+[synchronizers](synchronizers.md), [patterns](patterns.md), and
+[clipboards](clipboard.md). 
 It takes no arguments:
 
 `[clear]`

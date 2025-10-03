@@ -166,7 +166,39 @@ class Interpreter:
             block_result = formatter.resolve()
             formatter = Formatter()
             formatter.append("".join(reversed(block_result)))
+        if attributes.abbreviate:
+            abbreviation = self._get_abbreviation(formatter, attributes)
+            formatter = Formatter()
+            formatter.append(abbreviation)
         return formatter
+
+    def _get_abbreviation(
+        self, input_formatter: Formatter, attributes: BlockAttributes
+    ) -> str:
+        output_formatter = Formatter()
+        if case := attributes.abbreviation_case:
+            output_formatter.set_strategy(case)
+
+        def _get_abbr_component(word: str) -> str:
+            for index, char in enumerate(word):
+                if char.isalpha():
+                    return char
+                if char.isdigit():
+                    digits = ""
+                    while char.isdigit():
+                        digits += str(char)
+                        index += 1
+                        if index >= len(word):
+                            break
+                        char = word[index]
+                    return digits
+            return ""
+
+        abbreviation = "".join(
+            [_get_abbr_component(word) for word in input_formatter.resolve().split()]
+        )
+        output_formatter.append(abbreviation)
+        return output_formatter.resolve()
 
     def _handle_special_functions(
         self, func: FunctionObject, evaluated_args: list[str]

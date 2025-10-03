@@ -29,6 +29,7 @@ features of Twaddle:
 
 Some more advanced features of Twaddle include:
 
+- [Abbreviations](abbreviations.md)
 - [Branching templates](branching.md)
 - [Capitalization schemes](capitalization.md)
 - [Clipboards](clipboard.md)

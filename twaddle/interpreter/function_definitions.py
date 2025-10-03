@@ -1,6 +1,7 @@
 from random import randint
 
 from twaddle.compiler.compiler_objects import RootObject
+from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.block_attributes import BlockAttributeManager
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.regex_state import RegexState
@@ -55,6 +56,39 @@ def sync(
     evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
 ):
     block_attribute_manager.set_synchronizer(evaluated_args)
+
+
+def abbreviate(
+    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+):
+    block_attribute_manager.current_attributes.abbreviate = True
+    if len(evaluated_args) == 0:
+        block_attribute_manager.current_attributes.abbreviation_case = (
+            FormattingStrategy.UPPER
+        )
+        return
+    case = evaluated_args[0].strip().lower()
+    match case:
+        case "retain":
+            block_attribute_manager.current_attributes.abbreviation_case = (
+                FormattingStrategy.NONE
+            )
+        case "upper":
+            block_attribute_manager.current_attributes.abbreviation_case = (
+                FormattingStrategy.UPPER
+            )
+        case "lower":
+            block_attribute_manager.current_attributes.abbreviation_case = (
+                FormattingStrategy.LOWER
+            )
+        case "first":
+            block_attribute_manager.current_attributes.abbreviation_case = (
+                FormattingStrategy.TITLE
+            )
+        case _:
+            raise TwaddleFunctionException(
+                "[function_definitions#abbreviate] invalid case " f"argument '{case}'"
+            )
 
 
 def case(evaluated_args: list[str], _block_attribute_manager, _raw_args):

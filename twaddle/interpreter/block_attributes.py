@@ -1,6 +1,7 @@
 from typing import Optional
 
 from twaddle.compiler.compiler_objects import RootObject
+from twaddle.interpreter.formatting_object import FormattingStrategy
 
 
 class BlockAttributes:
@@ -15,6 +16,8 @@ class BlockAttributes:
         self.reverse: bool = False
         self.save_as: Optional[str] = None
         self.copy_as: Optional[str] = None
+        self.abbreviate: bool = False
+        self.abbreviation_case: Optional[FormattingStrategy] = None
 
 
 class BlockAttributeManager:
