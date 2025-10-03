@@ -3,11 +3,7 @@
 If you don't know what regular expressions are, this is probably best
 ignored for the sake of your own sanity. 
 
-If you do know what regular expressions are, then I warn you that this 
-implementation follows that of Rant v3. It is truly hideous and the same
-advice may still apply regarding sanity.
-
-Improved syntax may be available in a later version.
+If you do know what regular expressions are, the same advice may still apply.
 
 You can use regular expressions (regex) to manipulate Twaddle output. The syntax is 
 similar to other Twaddle [functions](functions.md), but the regex itself 
