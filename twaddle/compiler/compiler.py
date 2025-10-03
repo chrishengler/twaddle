@@ -93,6 +93,9 @@ class Compiler:
                 case TokenType.RIGHT_CURLY_BRACKET:
                     if context is CompilerContext.BLOCK:
                         return result
+                    raise TwaddleParserException(
+                        "[Compiler.parse_root] Unexpected right angle bracket"
+                    )
                 case TokenType.COLON:
                     if context is CompilerContext.FUNCTION:
                         return result
@@ -114,9 +117,15 @@ class Compiler:
                         return result
                     if context is CompilerContext.REGEX:
                         return result
+                    raise TwaddleParserException(
+                        "[Compiler.parse_root] Unexpected right square bracket"
+                    )
                 case TokenType.RIGHT_ANGLE_BRACKET:
                     if context is CompilerContext.LOOKUP:
                         return result
+                    raise TwaddleParserException(
+                        "[Compiler.parse_root] Unexpected right angle bracket"
+                    )
                 case TokenType.LOWER_INDEFINITE_ARTICLE:
                     result.append(IndefiniteArticleObject())
                     tokens.popleft()
