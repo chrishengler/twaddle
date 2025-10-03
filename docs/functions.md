@@ -29,29 +29,21 @@ Block functions are marked in the list below.
 
 ## Available functions
 
-### Rand
+Most available functions can be broadly grouped into a number of categories:
 
-The `rand` function generates a random integer. It requires two arguments:
+- [Loop-related functions](#loop-related-functions), controlling how blocks can be
+repeated
+- [Text modifiers](#text-modifiers), which apply some effect to text
+- [Randomization functions](#randomization), which can add or restrict
+randomness within Twaddle output
 
-`[rand:<min>;<max>]`
+Additionally, some [utility functions](#utility) exist which don't fall into 
+these categories. They are generally useful only to manage the side-effects of
+other elements of Twaddle. 
 
-`min` is the minimum value of the integer generated
+### Loop-related functions
 
-`max` is the maximum value of the integer generated
-
-The limits are inclusive. 
-
-### Reverse
-
-The `reverse` function is a [block function](block_functions.md). 
-It prints the following block in reverse:
-
-`[reverse]{oh no, \a <noun>!}`
-
-It takes no arguments.
-
-
-### Repeat
+#### Repeat
 
 The repeat function, `rep`, is a [block function](block_functions.md).  
 It repeats the block.  See [loops](loops.md) for a full description.
@@ -62,7 +54,7 @@ It requires one argument:
 
 `n` is the number of repetitions
 
-### Separator
+#### Separator
 
 The separator function, `sep`, is a [block function](block_functions.md).
 It defines a separator between repetitions of a 
@@ -74,7 +66,7 @@ It requires one argument:
 
 `text` is the text to be inserted as a separator
 
-### First
+#### First
 
 The first function, `first`, is a [block function](block_functions.md).
 It defines text to be inserted before the first
@@ -86,7 +78,7 @@ It requires one argument:
 
 `text` is the text to be inserted before the first repetition### First
 
-### Last
+#### Last
 
 The last function, `last`, is a [block function](block_functions.md).
 It defines text to be inserted before the last repetition of a block. 
@@ -98,7 +90,135 @@ It requires one argument:
 
 `text` is the text to be inserted before the last repetition
 
-### Synchronizer
+
+### Text modifiers
+
+#### Case
+By default the output of Twaddle retains capitalization from the input and
+in the case of [lookups](lookups.md) from dictionary entries. The case 
+function, `case`, changes this. It sets a 
+[capitalization strategy](capitalization.md). It requires one argument:
+
+`[case:<strategy>]`
+
+`strategy` is the capitalization strategy to use. 
+
+The capitalization strategy affects the entire sentence from the point
+it is applied, it is not restricted by e.g. [blocks](blocks.md). To 
+cancel the effect of a capitalization strategy, apply `[case:none]`.
+
+
+#### Abbreviate
+
+The `abbreviate` function, also callable as `abbr`, is a 
+[block function](block_functions.md). It replaces the next block with
+an abbreviation formed from the initial letters of each word. It takes
+one optional argument:
+
+`[abbreviate]{<block contents>}`
+`[abbreviate:<case>]{<block contents>}`
+
+`<case>` is an optional argument defining the case in which the
+abbreviation is generated. The permitted values are `retain`, `upper`,
+`lower`, and `first`. 
+
+See the [abbreviations](abbreviations.md) documentation page for a full
+description of how abbreviations are created and the meanings of the
+`case` options.
+
+#### Reverse
+
+The `reverse` function is a [block function](block_functions.md). 
+It prints the following block in reverse:
+
+`[reverse]{oh no, \a <noun>!}`
+
+It takes no arguments.
+
+#### Regular Expressions
+
+Regular expressions can be used to match and replace patterns within text.
+The pattern takes the place of the function name, and is demarcated by a
+double slash `//` at each end. Two arguments are accepted:
+
+`[//<regex>//:<text>;<replacement>]`
+
+`regex` is the regex to be run,
+
+`text` is the text over which the regex should run
+
+`replacement` is the text which should be used as a replacement for each regex match
+
+See the [regex documentation page](regex.md) for more details.
+
+#### Match
+
+The match function can only be used within the replacement text argument
+a [regex](regex.md). It inserts the text matching the regex. It takes no arguments.
+
+`[match]`
+
+See the [regex documentation page](regex.md) for more details.
+
+### Reproduction
+
+#### Save
+
+The `save` function is a [block function](block_functions.md). 
+It saves the next block as a [pattern](patterns.md) which can be 
+reused. It takes one mandatory argument:
+
+`[save:<name>]{<pattern>}`
+
+`name` is the name with which to save the pattern. If a pattern is
+already saved with that name, it is overwritten. 
+
+#### Load
+
+The `load` function loads a saved pattern. It takes one mandatory argument:
+
+`[load:<name>]`
+
+`name` is the name of the pattern to load. If no pattern has been saved
+with that name, a `TwaddleInterpreterException` is raised.
+
+#### Copy
+
+The `copy` function is a [block function](block_functions.md).
+It copies the evaluated result to a [clipboard](clipboard.md) for later
+reuse. It takes one mandatory argument:
+
+`[copy:<name>]{<pattern>}`
+
+`name` is the name of the clipboard to which to save the block's evaluated
+result. If the clipboard already exists, it is overwritten.
+
+#### Paste
+
+The `paste` function loads the contents of a [clipboard](clipboard.md).
+It takes one mandatory argument:
+
+`[paste:<name>]`
+
+`name` is the name of the clipboard to load. If nothing has been copied
+to that clipboard, a `TwaddleInterpreterException` is raised.
+
+### Randomization
+
+#### Rand
+
+The `rand` function generates a random integer. It requires two arguments:
+
+`[rand:<min>;<max>]`
+
+`min` is the minimum value of the integer generated
+
+`max` is the maximum value of the integer generated
+
+The limits are inclusive. 
+
+
+#### Synchronizer
 
 The synchronizer function, `sync`, is a [block function](block_functions.md).
 It defines a [synchronizer](synchronizers.md).  On first use it requires 
@@ -117,114 +237,21 @@ On subsequent uses, it requires one argument:
 `name` is the name of the synchronizer.
 
 For backwards-compatibility `x` is supported as a synonym of `sync`, with the
-same syntax, but its use is not recommended except where saving characters is
-a priority.
+same syntax.
 
-### Case
 
-By default the output of Twaddle retains capitalization from the input and
-in the case of [lookups](lookups.md) from dictionary entries. The case 
-function, `case`, changes this. It sets a 
-[capitalization strategy](capitalization.md). It requires one argument:
+### Utility
 
-`[case:<strategy>]`
-
-`strategy` is the capitalization strategy to use. 
-
-The capitalization strategy affects the entire sentence from the point
-it is applied, it is not restricted by e.g. [blocks](blocks.md). To 
-cancel the effect of a capitalization strategy, apply `[case:none]`.
-
-### Regular Expressions
-
-Regular expressions can be used to match and replace patterns within text.
-The pattern takes the place of the function name, and is demarcated by a
-double slash `//` at each end. Two arguments are accepted:
-
-`[//<regex>//:<text>;<replacement>]`
-
-`regex` is the regex to be run,
-
-`text` is the text over which the regex should run
-
-`replacement` is the text which should be used as a replacement for each regex match
-
-See the [regex documentation page](regex.md) for more details.
-
-### Match
-
-The match function can only be used within the replacement text argument
-a [regex](regex.md). It inserts the text matching the regex. It takes no arguments.
-
-`[match]`
-
-See the [regex documentation page](regex.md) for more details.
-
-### Hide
+#### Hide
 
 The `hide` function is a [block function](block_functions.md). 
 It allows for a block to be processed but excluded from the output.
 
-### Save
+It accepts no arguments:
 
-The `save` function is a [block function](block_functions.md). 
-It saves the next block as a [pattern](patterns.md) which can be 
-reused. It takes one mandatory argument:
+`[hide]`
 
-`[save:<name>]{<pattern>}`
-
-`name` is the name with which to save the pattern. If a pattern is
-already saved with that name, it is overwritten. 
-
-### Load
-
-The `load` function loads a saved pattern. It takes one mandatory argument:
-
-`[load:<name>]`
-
-`name` is the name of the pattern to load. If no pattern has been saved
-with that name, a `TwaddleInterpreterException` is raised.
-
-### Copy
-
-The `copy` function is a [block function](block_functions.md).
-It copies the evaluated result to a [clipboard](clipboard.md) for later
-reuse. It takes one mandatory argument:
-
-`[copy:<name>]{<pattern>}`
-
-`name` is the name of the clipboard to which to save the block's evaluated
-result. If the clipboard already exists, it is overwritten.
-
-### Paste
-
-The `paste` function loads the contents of a [clipboard](clipboard.md).
-It takes one mandatory argument:
-
-`[paste:<name>]`
-
-`name` is the name of the clipboard to load. If nothing has been copied
-to that clipboard, a `TwaddleInterpreterException` is raised.
-
-### Abbreviate
-
-The `abbreviate` function, also callable as `abbr`, is a 
-[block function](block_functions.md). It replaces the next block with
-an abbreviation formed from the initial letters of each word. It takes
-one optional argument:
-
-`[abbreviate]{<block contents>}`
-`[abbreviate:<case>]{<block contents>}`
-
-`<case>` is an optional argument defining the case in which the
-abbreviation is generated. The permitted values are `retain`, `upper`,
-`lower`, and `first`. 
-
-See the [abbreviations](abbreviations.md) documentation page for a full
-description of how abbreviations are created and the meanings of the
-`case` options.
-
-### Clear
+#### Clear
 
 The `clear` function clears any defined [labels](lookups.md#labels),
 [synchronizers](synchronizers.md), [patterns](patterns.md), and
