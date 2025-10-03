@@ -29,8 +29,9 @@ features of Twaddle:
 
 Some more advanced features of Twaddle include:
 
-- [Capitalization schemes](capitalization.md)
 - [Branching templates](branching.md)
+- [Capitalization schemes](capitalization.md)
+- [Clipboards](clipboard.md)
 - [Functions](functions.md)
 - [Loops](loops.md)
 - [Patterns](patterns.md)

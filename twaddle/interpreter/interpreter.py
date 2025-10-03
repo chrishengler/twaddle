@@ -1,3 +1,4 @@
+from copy import copy
 from functools import singledispatchmethod
 from random import randint, randrange
 from re import Match, sub
@@ -25,7 +26,7 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 
 class Interpreter:
-    SPECIAL_FUNCTIONS = ["clear", "save", "load"]
+    SPECIAL_FUNCTIONS = ["clear", "load", "paste"]
 
     def __init__(
         self,
@@ -33,16 +34,19 @@ class Interpreter:
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
         persistent_patterns: bool = False,
+        persistent_clipboard: bool = False,
         strict_mode: bool = False,
     ):
         self.persistent_labels = persistent_labels
         self.persistent_synchronizers = persistent_synchronizers
         self.persistent_patterns = persistent_patterns
+        self.persistent_clipboard = persistent_clipboard
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
         self.compiler = Compiler(strict_mode=strict_mode)
         self.saved_patterns = dict()
+        self.copied_blocks = dict()
         self.strict_mode = strict_mode
 
     def interpret_external(self, sentence: str) -> str:
@@ -66,6 +70,8 @@ class Interpreter:
             self.synchronizer_manager.clear()
         if not self.persistent_patterns:
             self.saved_patterns.clear()
+        if not self.persistent_clipboard:
+            self.copied_blocks.clear()
         self.block_attribute_manager.clear()
 
     def force_clear(self):
@@ -73,6 +79,7 @@ class Interpreter:
         self.synchronizer_manager.clear()
         self.saved_patterns.clear()
         self.block_attribute_manager.clear()
+        self.copied_blocks.clear()
 
     def _get_synchronizer_for_block(
         self, attributes: BlockAttributes, num_choices: int
@@ -151,6 +158,8 @@ class Interpreter:
                 formatter.append_formatter(self.run(attributes.separator))
         if name := attributes.save_as:
             self.saved_patterns[name] = block
+        if name := attributes.copy_as:
+            self.copied_blocks[name] = copy(formatter)
         if attributes.hidden:
             return Formatter()
         if attributes.reverse:
@@ -178,13 +187,18 @@ class Interpreter:
                         f"to load unknown pattern '{evaluated_args[0]}'"
                     )
                 return self.run(block)
-            case "save":
+            case "paste":
                 if not len(evaluated_args):
                     raise TwaddleInterpreterException(
                         "[Interpreter._handle_special_functions] Tried "
-                        "to save pattern without specifying name"
+                        "to paste block result without specifying name"
                     )
-                self.block_attribute_manager.save_block(evaluated_args[0])
+                if not (block := self.copied_blocks.get(evaluated_args[0])):
+                    raise TwaddleInterpreterException(
+                        "[Interpreter._handle_special_functions#paste] Tried "
+                        f"to paste result of unknown block '{evaluated_args[0]}'"
+                    )
+                return block
             case _:
                 raise TwaddleInterpreterException(
                     f"[Interpreter] function '{func.func}' "

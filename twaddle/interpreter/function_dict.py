@@ -1,9 +1,9 @@
 from .function_definitions import (
     case,
+    copy,
     first,
     hide,
     last,
-    load,
     match,
     rand,
     repeat,
@@ -15,10 +15,10 @@ from .function_definitions import (
 
 function_definitions = {
     "case": case,
+    "copy": copy,
     "first": first,
     "hide": hide,
     "last": last,
-    "load": load,
     "match": match,
     "rand": rand,
     "rep": repeat,
