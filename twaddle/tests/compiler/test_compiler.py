@@ -185,5 +185,15 @@ def test_strict_mode():
     assert lookup.strict_mode
 
 
+def test_raise_on_invalid_closing_brackets():
+    for bracket in ["]", ">", "}"]:
+        with pytest.raises(TwaddleParserException) as e_info:
+            get_standard_compile_result(bracket)
+        assert e_info.value is not None
+        with pytest.raises(TwaddleParserException) as e_info:
+            get_standard_compile_result("some text here" + bracket)
+        assert e_info.value is not None
+
+
 if __name__ == "__main__":
     test_parse_complex_regex()
