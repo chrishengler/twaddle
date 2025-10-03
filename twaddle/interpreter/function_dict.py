@@ -1,4 +1,5 @@
 from .function_definitions import (
+    abbreviate,
     case,
     copy,
     first,
@@ -14,6 +15,8 @@ from .function_definitions import (
 )
 
 function_definitions = {
+    "abbr": abbreviate,
+    "abbreviate": abbreviate,
     "case": case,
     "copy": copy,
     "first": first,

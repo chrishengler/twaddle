@@ -48,3 +48,12 @@ class TwaddleDictionaryException(TwaddleException):
         if message is not None:
             self.message = message
         super().__init__(self.message)
+
+
+class TwaddleFunctionException(TwaddleException):
+    """Thrown when a function is invalid"""
+
+    def __init__(self, message: str = None):
+        if message is not None:
+            self.message = message
+        super().__init__(self.message)

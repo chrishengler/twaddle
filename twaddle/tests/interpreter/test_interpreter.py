@@ -1,6 +1,6 @@
 import pytest
 
-from twaddle.exceptions import TwaddleInterpreterException
+from twaddle.exceptions import TwaddleFunctionException, TwaddleInterpreterException
 from twaddle.interpreter.interpreter import Interpreter
 from twaddle.lookup.lookup_manager import LookupManager
 
@@ -226,6 +226,66 @@ def test_synchronizers_strict_mode_raise_when_num_choices_change():
             == "[Interpreter._get_synchronizer_for_block] Invalid number of choices (3) for"
             " synchronizer 'test', initialised with 2"
         )
+
+
+def test_abbreviate_default_upper():
+    assert (
+        get_standard_interpreter_output(
+            "[abbr]{Dennis obtains German geese in every situation}"
+        )
+        == "DOGGIES"
+    )
+
+
+def test_abbreviate_retain_case():
+    assert (
+        get_standard_interpreter_output(
+            "[abbr:retain]{a boorish cat damaged everybody's feelings, going "
+            "haywire in Japan, killing lemurs maniacally, never omitting personal quarrels, reactivating "
+            "settled tensions until violently whacking xylophones yet zapped}"
+        )
+        == "abcdefghiJklmnopqrstuvwxyz"
+    )
+
+
+def test_abbreviate_lower_case():
+    assert (
+        get_standard_interpreter_output(
+            "[abbr:lower]{Let ordinary Welshmen exist rationally}"
+        )
+        == "lower"
+    )
+
+
+def test_abbreviate_upper_case():
+    assert (
+        get_standard_interpreter_output(
+            "[abbr:upper]{Unlikely, perhaps, plump Edwardian rabbits}"
+        )
+        == "UPPER"
+    )
+
+
+def test_abbreviate_first():
+    assert (
+        get_standard_interpreter_output(
+            "[abbr:first]{friendly Ivan receives Spanish treats}"
+        )
+        == "First"
+    )
+
+
+def test_abbreviation_numbers():
+    assert get_standard_interpreter_output("[abbr]{1234 Serious Items}") == "1234SI"
+
+
+def test_abbreviation_invalid_case():
+    with pytest.raises(TwaddleFunctionException) as e_info:
+        get_standard_interpreter_output("[abbr:dalj]{whatever}")
+    assert (
+        e_info.value.message
+        == "[function_definitions#abbreviate] invalid case argument 'dalj'"
+    )
 
 
 if __name__ == "__main__":
