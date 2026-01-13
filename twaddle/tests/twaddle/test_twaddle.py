@@ -378,3 +378,23 @@ def test_copy_effective_before_reverse():
         "[copy:a]{[reverse]{abc}} [reverse]{[paste:a]}",
     ]:
         assert standard_runner.run_sentence(sentence) == "cba abc"
+
+
+def test_calculation_with_stored_values():
+    persistent_runner = TwaddleRunner(path, persistent=True)
+    assert (
+        persistent_runner.run_sentence("Keanu Reeves was born in [save:krbirth]{1964}.")
+        == "Keanu Reeves was born in 1964."
+    )
+    assert (
+        persistent_runner.run_sentence(
+            "Point Break was released in [save:pbrelease]{1991}."
+        )
+        == "Point Break was released in 1991."
+    )
+    assert (
+        persistent_runner.run_sentence(
+            "At the time, he was about [sub:[load:pbrelease];[load:krbirth]] years old."
+        )
+        == "At the time, he was about 27 years old."
+    )

@@ -1,3 +1,4 @@
+from math import prod
 from random import randint
 
 from twaddle.compiler.compiler_objects import RootObject
@@ -5,6 +6,26 @@ from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.block_attributes import BlockAttributeManager
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.regex_state import RegexState
+
+
+def _parse_numbers(args: list[str]) -> list[int | float]:
+    results: list[int | float] = []
+    for raw in args:
+        s = raw.strip()
+        if s == "":
+            raise TwaddleFunctionException(
+                "[function_definitions#parse_numbers] invalid numeric argument ''"
+            )
+        if s.lstrip("+-").isdigit():
+            results.append(int(s))
+            continue
+        try:
+            results.append(float(s))
+        except ValueError:
+            raise TwaddleFunctionException(
+                f"[function_definitions#parse_numbers] invalid numeric argument '{s}'"
+            )
+    return results
 
 
 def repeat(
@@ -127,3 +148,41 @@ def hide(
     evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
 ) -> str:
     block_attribute_manager.current_attributes.hidden = True
+
+
+def add(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args,
+):
+    if len(evaluated_args) < 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#add] add requires at least two numbers"
+        )
+    parsed_numbers = _parse_numbers(evaluated_args)
+    return str(sum(parsed_numbers))
+
+
+def subtract(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args,
+):
+    if len(evaluated_args) < 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#subtract] subtract requires at least two numbers"
+        )
+    parsed_numbers = _parse_numbers(evaluated_args)
+    parsed_numbers = [parsed_numbers[0]] + [-value for value in parsed_numbers[1:]]
+    return str(sum(parsed_numbers))
+
+
+def multiply(
+    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+):
+    if len(evaluated_args) < 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#multiply] multiply requires at least two numbers"
+        )
+    parsed_numbers = _parse_numbers(evaluated_args)
+    return str(prod(parsed_numbers))
