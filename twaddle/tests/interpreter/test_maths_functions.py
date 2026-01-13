@@ -176,3 +176,10 @@ def test_divide_invalid():
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[divide:5;0]")
     assert e_info.value.message == "[function_definitions#divide] cannot divide by zero"
+
+
+def test_combined_operations():
+    result = get_interpreter_output(
+        "[mul:[add:2;3];[div:7;2];[sub:4.5;2.5]]"
+    )  # (2+3) * (7/2) * (4.5-2.5)
+    assert result == "35"
