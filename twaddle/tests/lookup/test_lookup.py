@@ -112,6 +112,41 @@ def test_labels_negative():
     assert "thing" in results_after_clearing
 
 
+def test_label_overwrite():
+    dictionary = LookupDictionary("noun", ["singular", "plural"])
+    dictionary.add(["thing", "things"], {"tag1"})
+    dictionary.add(["hexagon", "hexagons"], {"tag2"})
+    first_positive_label_lookup = LookupObject(
+        dictionary="noun",
+        form="singular",
+        positive_tags={"tag1"},
+        positive_label="tests",
+    )
+    second_positive_label_lookup = LookupObject(
+        dictionary="noun",
+        form="singular",
+        positive_tags={"tag1"},
+        positive_label="moretests",
+    )
+    assert dictionary._get(first_positive_label_lookup) == "thing"
+    assert dictionary._get(second_positive_label_lookup) == "thing"
+    first_positive_label_lookup.positive_tags = {}
+    second_positive_label_lookup.positive_tags = {}
+    for _ in range(0, 5):
+        assert dictionary._get(first_positive_label_lookup) == "thing"
+        assert dictionary._get(second_positive_label_lookup) == "thing"
+    redefine_label_lookup = LookupObject(
+        dictionary="noun",
+        form="singular",
+        positive_tags={"tag2"},
+        redefine_labels={"tests", "moretests"},
+    )
+    assert dictionary._get(redefine_label_lookup) == "hexagon"
+    for _ in range(0, 5):
+        assert dictionary._get(first_positive_label_lookup) == "hexagon"
+        assert dictionary._get(second_positive_label_lookup) == "hexagon"
+
+
 def test_dictionary_attributes_from_lines():
     factory = DictionaryFileParser()
     name = factory.read_name("#name noun")

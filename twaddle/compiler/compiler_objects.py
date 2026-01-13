@@ -48,6 +48,7 @@ class LookupObject(Object):
         negative_tags: set[str] = None,
         positive_label: str = None,
         negative_labels: set[str] = None,
+        redefine_labels: set[str] = None,
         strict_mode: bool = False,
     ):
         Object.__init__(self, ObjectType.LOOKUP)
@@ -57,6 +58,7 @@ class LookupObject(Object):
         self.negative_tags = negative_tags
         self.positive_label = positive_label
         self.negative_labels = negative_labels
+        self.redefine_labels = redefine_labels
         self.strict_mode = strict_mode
 
 

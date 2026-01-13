@@ -398,3 +398,12 @@ def test_calculation_with_stored_values():
         )
         == "At the time, he was about 27 years old."
     )
+
+
+def test_redefine_label():
+    assert (
+        standard_runner.run_sentence(
+            "<noun-vehicle::=a> <noun::=a> <noun-shape::^=a> <noun::=a>"
+        )
+        == "ambulance ambulance hexagon hexagon"
+    )
