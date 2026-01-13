@@ -249,7 +249,7 @@ class Compiler:
                             redefine_labels.add(tokens.popleft().value)
                         else:
                             raise TwaddleParserException(
-                                "[Compiler.parse_block] no valid definition for match overwrite"
+                                "[Compiler.parse_block] no valid definition for label force definition"
                             )
                 case _:
                     continue
