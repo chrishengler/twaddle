@@ -18,6 +18,7 @@ class BlockAttributes:
         self.copy_as: Optional[str] = None
         self.abbreviate: bool = False
         self.abbreviation_case: Optional[FormattingStrategy] = None
+        self.max_decimals: Optional[int] = None
 
 
 class BlockAttributeManager:
