@@ -77,6 +77,9 @@ def test_parse_complex_lookups():
     assert lookup.negative_tags == {"category3"}
     assert lookup.positive_label is None
     assert lookup.negative_labels == {"b"}
+    result = get_standard_compile_result("<dictionary::^=label1::^=label2>")
+    lookup = result[0]
+    assert lookup.redefine_labels == {"label1", "label2"}
 
 
 def test_parse_function():

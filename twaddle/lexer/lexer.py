@@ -82,6 +82,8 @@ def _get_token_type(input_str: str) -> tuple[TokenType, int]:
                 return TokenType.REGEX, 2
             else:
                 return TokenType.FORWARD_SLASH, 1
+        case "^":
+            return TokenType.CARET, 1
         case _:
             return TokenType.PLAIN_TEXT, 0
 

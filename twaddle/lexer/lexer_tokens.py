@@ -28,6 +28,7 @@ class TokenType(Enum):
     EQUALS = auto()
     PLAIN_TEXT = auto()
     SPACE = auto()
+    CARET = auto()
 
 
 class Token:

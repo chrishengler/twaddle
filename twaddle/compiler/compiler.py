@@ -157,6 +157,7 @@ class Compiler:
         negative_tags = set[str]()
         positive_label = None
         negative_labels = set[str]()
+        redefine_labels = set[set]()
 
         # first thing must always be the opening angle bracket:
         if tokens[0].type is not TokenType.LEFT_ANGLE_BRACKET:
@@ -186,6 +187,7 @@ class Compiler:
                         negative_tags,
                         positive_label,
                         negative_labels,
+                        redefine_labels,
                         strict_mode=self.strict_mode,
                     )
                 case TokenType.DOT:
@@ -233,6 +235,21 @@ class Compiler:
                         else:
                             raise TwaddleParserException(
                                 "[Compiler.parse_block] no valid definition for anti-match"
+                            )
+                    elif tokens[0].type is TokenType.CARET:
+                        tokens.popleft()
+                        if (
+                            len(tokens) >= 2
+                            and tokens[0].type is TokenType.EQUALS
+                            and tokens[1].type is TokenType.PLAIN_TEXT
+                        ):
+                            # get rid of the equals
+                            tokens.popleft()
+                            # get label name
+                            redefine_labels.add(tokens.popleft().value)
+                        else:
+                            raise TwaddleParserException(
+                                "[Compiler.parse_block] no valid definition for label force definition"
                             )
                 case _:
                     continue
