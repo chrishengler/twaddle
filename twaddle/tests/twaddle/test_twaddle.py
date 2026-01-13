@@ -407,3 +407,12 @@ def test_redefine_label():
         )
         == "ambulance ambulance hexagon hexagon"
     )
+
+
+def test_redefine_with_negative_labels():
+    assert (
+        standard_runner.run_sentence(
+            "<noun-building-small::=a> <noun-building::^=a::!=a> <noun-building::^=a::!=a>"
+        )
+        == "shed factory shed"
+    )

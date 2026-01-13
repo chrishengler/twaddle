@@ -27,6 +27,8 @@ def to_plain_text_token(raw: Token) -> Token:
             return Token(TokenType.PLAIN_TEXT, ".")
         case TokenType.EQUALS:
             return Token(TokenType.PLAIN_TEXT, "=")
+        case TokenType.CARET:
+            return Token(TokenType.PLAIN_TEXT, "^")
         # unrecognised token type
         # should throw an error here once everything's ready
         case _:
@@ -89,6 +91,8 @@ def get_text_for_object(raw: Token) -> str:
             return "="
         case TokenType.SPACE:
             return " "
+        case TokenType.CARET:
+            return "^"
         case TokenType.PLAIN_TEXT:
             return raw.value
         # unrecognised token type

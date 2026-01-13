@@ -68,7 +68,7 @@ and
 ## Labels
 
 A Lookup can be given a Label, allowing for reuse (or avoidance) later in a
-sentence. The simplest use case is to simply reuse a word, as in:
+sentence. The simplest use case is to reuse a word, as in:
 
 `You call that \a <noun::=a>? THIS is \a <noun::=a>!`
 
@@ -89,8 +89,12 @@ The Label section of a Lookup begins with a double colon
 
 `::`
 
-followed by either `=` (a Positive Label) or `!=` (a Negative Label), then the
-tag name. 
+followed by `=` (a Positive Label), `!=` (a Negative Label), or `^=` (force 
+definition, which overwrites the previous assignment if the label already existed) 
+then the tag name. 
+
+Each label is scoped to its own dictionary. The same name may be reused
+as a label for multiple dictionaries, entirely independently.
 
 ### Lifespan
 
@@ -117,6 +121,12 @@ each Lookup using the Label, for example:
 
 Class arguments will only be interpreted on the first definition of the Label.
 
+Only one positive definition can be applied in a given lookup. If more than one
+positive label is applied in a lookup, only the last one to be defined is applied:
+
+`<noun::=a::=b>` is equivalent to `<noun::=b>`, and will leave the label `a` undefined 
+unless it has previously been used.
+
 ### Negative Label
 
 Negative Labels can be applied to ensure the returned value is distinct from
@@ -139,6 +149,33 @@ but never
 Negative labels will only take effect if the label has already been defined
 earlier in the sentence. They work on a "best-effort" basis: if there are no 
 valid results for the Lookup respecting the Negative Label, it will be ignored.
+
+### Force Definition
+
+If a label has already been assigned (used as a positive label), it can be updated
+if necessary. To force a redefinition, use the `::^=` syntax:
+
+`<noun-vehicle::=a> <noun::=a> <noun-shape::^=a> <noun::=a>`
+
+redefines the label `a` after its first two uses and may produce something like
+
+`ambulance ambulance hexagon hexagon` 
+
+A force definition can be combined with other labels, including its own preexisting
+assignment:
+
+`<noun-vehicle::=a> <noun::=a> <noun-vehicle::^=a::!=a> <noun::=a>`
+
+may produce `car car bike bike`, but never `car car car car` as the combination of
+force definition with a negative label enforces that the lookup will not match the
+label's previous assignment.
+
+A force definition may also be applied to multiple labels in the same lookup:
+
+`<noun-vehicle::=a> <noun::=a::^=b::^=c>`
+
+will force labels `b` and `c` to refer to the same lookup result as label `a`.
+
 
 ### Definition
 

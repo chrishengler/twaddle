@@ -86,7 +86,10 @@ class LookupDictionary:
         valid_choices = self._get_valid_choices(lookup)
 
         chosen_entry = choice(valid_choices)
-        if lookup.positive_label:
+        if lookup.redefine_labels:
+            for label in lookup.redefine_labels:
+                self.labels[label] = chosen_entry
+        elif lookup.positive_label:
             self.labels[lookup.positive_label] = chosen_entry
         return chosen_entry[lookup.form]
 
