@@ -36,6 +36,7 @@ repeated
 - [Text modifiers](#text-modifiers), which apply some effect to text
 - [Randomization functions](#randomization), which can add or restrict
 randomness within Twaddle output
+- [Maths functions](#maths-functions), which offer some basic mathematical functions
 
 Additionally, some [utility functions](#utility) exist which don't fall into 
 these categories. They are generally useful only to manage the side-effects of
@@ -239,6 +240,55 @@ On subsequent uses, it requires one argument:
 For backwards-compatibility `x` is supported as a synonym of `sync`, with the
 same syntax.
 
+### Maths functions
+
+Twaddle offers a number of basic mathematical functions: `add`, `subtract`, 
+`multiply`, and `divide`.  They accept integer and float values, positive 
+and negative. An error will be raised if the arguments cannot be parsed as 
+numbers. Their results are rounded to no more than three decimal places,
+and truncated if the final remaining decimal place after rounding is `0`. 
+This rounding is not currently configurable.
+
+The arguments are evaluated before the operations are performed, so it is 
+possible to [load](#load) values previously saved or use values resulting 
+from other functions.
+
+#### Add
+
+The `add` function sums its arguments. It accepts `n` arguments, where `n >= 2`.
+
+`[add:1,2,3,4]` performs `1 + 2 + 3 + 4`
+
+
+#### Subtract
+
+The `subtract` function performs subtraction. It accepts `n` arguments,
+where `n >= 2`. All arguments other than the first are subtracted.
+
+`[subtract:4,2,3]` performs `4 - 2 - 3`
+
+The `subtract` function has an alias, `sub`.
+
+#### Multiply
+
+The `multiply` function multiplies all of its arguments. It accepts `n`
+arguments, where `n >= 2`.
+
+`[multiply:2;3]` performs `2 * 3`
+
+The `multiply` function has an alias, `mul`.
+
+#### Divide
+
+The `divide` function performs division. Unlike the other mathematical
+operations, it only accepts exactly two arguments. The first is divided
+by the second:
+
+`[divide:7;4]` performs `7/4`
+
+An error is raised if the divisor is zero. 
+
+The `divide` function has an alias, `div`.
 
 ### Utility
 
