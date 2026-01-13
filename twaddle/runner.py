@@ -10,6 +10,7 @@ class TwaddleRunner:
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
         persistent_patterns: bool = False,
+        persistent_clipboard: bool = False,
         strict_mode: bool = False,
     ):
         self.lookup_manager = LookupManager()
@@ -22,6 +23,7 @@ class TwaddleRunner:
             persistent_labels=persistent_labels,
             persistent_synchronizers=persistent_synchronizers,
             persistent_patterns=persistent_patterns,
+            persistent_clipboard=persistent_clipboard,
             strict_mode=strict_mode,
         )
         pass
