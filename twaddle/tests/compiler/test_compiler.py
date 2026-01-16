@@ -1,3 +1,5 @@
+# pyright: reportInvalidStringEscapeSequence=false
+
 import pytest
 
 from twaddle.compiler.compiler import Compiler, CompilerContext, CompilerContextStack
@@ -45,13 +47,15 @@ def test_parse_text():
     result = get_standard_compile_result("hello")
     assert len(result) == 1
     assert result[0].type == ObjectType.TEXT
+    assert isinstance(result[0], TextObject)
     assert result[0].text == "hello"
 
 
 def test_parse_simple_lookup():
     result = get_standard_compile_result("<whatever>")
     assert len(result) == 1
-    lookup: LookupObject = result[0]
+    lookup = result[0]
+    assert isinstance(lookup, LookupObject)
     assert lookup.type == ObjectType.LOOKUP
     assert lookup.dictionary == "whatever"
 
@@ -59,13 +63,15 @@ def test_parse_simple_lookup():
 def test_parse_complex_lookups():
     result = get_standard_compile_result("<dictionary.form-category>")
     assert len(result) == 1
-    lookup: LookupObject = result[0]
+    lookup = result[0]
+    assert isinstance(lookup, LookupObject)
     assert lookup.type == ObjectType.LOOKUP
     assert lookup.dictionary == "dictionary"
     assert lookup.form == "form"
     assert lookup.positive_tags == {"category"}
     result = get_standard_compile_result("<dictionary.form-!category::=a>")
     lookup = result[0]
+    assert isinstance(lookup, LookupObject)
     assert len(lookup.positive_tags) == 0
     assert lookup.negative_tags == {"category"}
     assert lookup.positive_label == "a"
@@ -73,12 +79,14 @@ def test_parse_complex_lookups():
         "<dictionary-category1-category2-!category3::!=b>"
     )
     lookup = result[0]
+    assert isinstance(lookup, LookupObject)
     assert lookup.positive_tags == {"category1", "category2"}
     assert lookup.negative_tags == {"category3"}
-    assert lookup.positive_label is None
+    assert not lookup.positive_label
     assert lookup.negative_labels == {"b"}
     result = get_standard_compile_result("<dictionary::^=label1::^=label2>")
     lookup = result[0]
+    assert isinstance(lookup, LookupObject)
     assert lookup.redefine_labels == {"label1", "label2"}
 
 
@@ -89,8 +97,12 @@ def test_parse_function():
     func: FunctionObject = lex_result[0]
     assert func.func == "function"
     assert len(func.args) == 2
-    assert func.args[0][0].text == "arg1"
-    assert func.args[1][0].text == "arg2"
+    arg1 = func.args[0][0]
+    assert isinstance(arg1, TextObject)
+    assert arg1.text == "arg1"
+    arg2 = func.args[1][0]
+    assert isinstance(arg2, TextObject)
+    assert arg2.text == "arg2"
 
 
 def test_parse_choice():
@@ -102,8 +114,12 @@ def test_parse_choice():
     assert len(choice_result.choices) == 2
     for choice in choice_result.choices:
         assert len(choice.contents) == 1
-    assert choice_result.choices[0][0].text == "this"
-    assert choice_result.choices[1][0].text == "that"
+    this = choice_result.choices[0][0]
+    assert isinstance(this, TextObject)
+    assert this.text == "this"
+    that = choice_result.choices[1][0]
+    assert isinstance(that, TextObject)
+    assert that.text == "that"
 
 
 def test_nested_block():
@@ -111,14 +127,25 @@ def test_nested_block():
     assert len(parser_output) == 1
     outer_block = parser_output[0]
     assert isinstance(outer_block, BlockObject)
-    ab: BlockObject = outer_block[0][0]
-    cd: BlockObject = outer_block[1][0]
+    ab = outer_block[0][0]
+    cd = outer_block[1][0]
+    assert isinstance(ab, BlockObject)
+    assert isinstance(cd, BlockObject)
     assert len(ab) == 2
     assert len(cd) == 2
-    assert ab[0][0].text == "a"
-    assert ab[1][0].text == "b"
-    assert cd[0][0].text == "c"
-    assert cd[1][0].text == "d"
+    a = ab[0][0]
+    assert isinstance(a, TextObject)
+    b = ab[1][0]
+    assert isinstance(b, TextObject)
+    c = cd[0][0]
+    assert isinstance(c, TextObject)
+    d = cd[1][0]
+    assert isinstance(d, TextObject)
+
+    assert a.text == "a"
+    assert b.text == "b"
+    assert c.text == "c"
+    assert d.text == "d"
 
 
 def test_parse_choice_with_lookups():
@@ -149,26 +176,37 @@ def test_parse_indefinite_article():
 def test_parse_escaped_characters():
     parser_output = get_standard_compile_result(r"\<angles\>")
     assert len(parser_output) == 3
-    for index in [0, 1, 2]:
-        assert isinstance(parser_output[index], TextObject)
-    assert parser_output[0].text == "<"
-    assert parser_output[1].text == "angles"
-    assert parser_output[2].text == ">"
+    left_angle = parser_output[0]
+    assert isinstance(left_angle, TextObject)
+    assert left_angle.text == "<"
+    angles = parser_output[1]
+    assert isinstance(angles, TextObject)
+    assert angles.text == "angles"
+    right_angle = parser_output[2]
+    assert isinstance(right_angle, TextObject)
+    assert right_angle.text == ">"
 
 
 def test_parse_article_in_args():
     parser_output = get_standard_compile_result(r"[rep:2][sep:\a]{<noun>}")
-    separator_args = parser_output[1].args
+    separator = parser_output[1]
+    assert isinstance(separator, FunctionObject)
+    separator_args = separator.args
     assert isinstance(separator_args[0].contents[0], IndefiniteArticleObject)
 
 
 def test_parse_simple_regex():
     parser_output = get_standard_compile_result("[//a//i:a bat;i]")
     assert len(parser_output) == 1
-    rro: RegexObject = parser_output[0]
+    rro = parser_output[0]
+    assert isinstance(rro, RegexObject)
     assert rro.regex == "a"
-    assert rro.scope[0].text == "a bat"
-    assert rro.replacement[0].text == "i"
+    scope = rro.scope[0]
+    assert isinstance(scope, TextObject)
+    assert scope.text == "a bat"
+    replacement = rro.replacement[0]
+    assert isinstance(replacement, TextObject)
+    assert replacement.text == "i"
 
 
 # noinspection SpellCheckingInspection,PyPep8
@@ -177,14 +215,16 @@ def test_parse_complex_regex():
         "[//^\w\w[aeiou]?//i:whatever;something]"
     )
     assert len(parser_output) == 1
-    rro: RegexObject = parser_output[0]
+    rro = parser_output[0]
+    assert isinstance(rro, RegexObject)
     assert rro.regex == "^\w\w[aeiou]?"
 
 
 def test_strict_mode():
     result = get_strict_compile_result("<dict-tag.form>")
     assert len(result) == 1
-    lookup: LookupObject = result[0]
+    lookup = result[0]
+    assert isinstance(lookup, LookupObject)
     assert lookup.strict_mode
 
 

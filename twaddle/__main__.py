@@ -25,7 +25,7 @@ def main():
             sentence = input(">")
             print(twaddle.run_sentence(sentence))
         except TwaddleException as te:
-            print(f"Twaddle encountered an error:\n{te.message}")
+            print(f"Twaddle encountered an error:\n{str(te)}")
             twaddle.clear()
         except EOFError:
             quit()

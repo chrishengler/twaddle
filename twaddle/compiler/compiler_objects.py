@@ -55,11 +55,11 @@ class LookupObject(Object):
         Object.__init__(self, ObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
-        self.positive_tags = positive_tags
-        self.negative_tags = negative_tags
-        self.positive_label = positive_label
-        self.negative_labels = negative_labels
-        self.redefine_labels = redefine_labels
+        self.positive_tags = positive_tags or set[str]()
+        self.negative_tags = negative_tags or set[str]()
+        self.positive_label = positive_label or str()
+        self.negative_labels = negative_labels or set[str]()
+        self.redefine_labels = redefine_labels or set[str]()
         self.strict_mode = strict_mode
 
 

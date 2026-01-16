@@ -1,3 +1,4 @@
+# pyright: reportInvalidStringEscapeSequence=false
 import os
 
 import pytest
@@ -63,7 +64,7 @@ def test_clearing_lookup_labels():
         )
         == "big factory, small shed"
     )
-    results = []
+    results: list[str] = []
     for _ in range(0, 10):
         persistent_runner.clear()
         results.append(persistent_runner.run_sentence("<noun::=a>"))
@@ -78,7 +79,7 @@ def test_clearing_lookup_labels_in_sentence():
         )
         == "big factory, small shed"
     )
-    results = []
+    results: list[str] = []
     for _ in range(0, 10):
         results.append(persistent_runner.run_sentence("[clear]<noun::=a>"))
     assert len(set(results)) > 1
