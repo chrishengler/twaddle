@@ -35,7 +35,7 @@ def test_choice():
 def test_unknown_function_error():
     with pytest.raises(TwaddleInterpreterException) as e_info:
         get_standard_interpreter_output("[funk]")
-    assert e_info.value.message == "[Interpreter::run] no function found named 'funk'"
+    assert str(e_info.value) == "[Interpreter::run] no function found named 'funk'"
 
 
 def test_repeat():
@@ -222,7 +222,7 @@ def test_synchronizers_strict_mode_raise_when_num_choices_change():
                 initial_sync_block + "{a|b} [sync:test]{a|b|c}"
             )
         assert (
-            e_info.value.message
+            str(e_info.value)
             == "[Interpreter._get_synchronizer_for_block] Invalid number of choices (3) for"
             " synchronizer 'test', initialised with 2"
         )
@@ -283,7 +283,7 @@ def test_abbreviation_invalid_case():
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_standard_interpreter_output("[abbr:dalj]{whatever}")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#abbreviate] invalid case argument 'dalj'"
     )
 

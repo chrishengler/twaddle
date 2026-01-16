@@ -1,5 +1,7 @@
+# pyright: reportPrivateUsage=false
 import os
 from pathlib import Path
+from typing import OrderedDict
 
 import pytest
 
@@ -13,12 +15,12 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 def relative_path_to_full_path(rel_path: str) -> str:
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    return Path(os.path.join(current_dir, rel_path))
+    return str(Path(os.path.join(current_dir, rel_path)))
 
 
 # noinspection SpellCheckingInspection
 def test_lookup_type():
-    lookup_thing = DictionaryEntry(
+    forms = OrderedDict(
         {
             "singular": "thing",
             "plural": "things",
@@ -26,6 +28,7 @@ def test_lookup_type():
             "pluralpossessive": "things'",
         }
     )
+    lookup_thing = DictionaryEntry(forms)
     assert lookup_thing["singular"] == "thing"
     assert lookup_thing["plural"] == "things"
     assert lookup_thing["possessive"] == "thing's"
@@ -44,7 +47,7 @@ def test_dictionary():
         lookup.form = "invalid"
         dictionary._get(lookup)
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[LookupDictionary.get] dictionary 'noun' has no form 'invalid'"
     )
 
@@ -62,7 +65,7 @@ def test_tag_requirement():
         lookup.positive_tags = {"tag2"}
         assert dictionary._get(lookup) == "hexagon"
         lookup.form = "plural"
-        lookup.positive_tags = {}
+        lookup.positive_tags = set[str]()
         lookup.negative_tags = {"tag1"}
         assert dictionary._get(lookup) == "hexagons"
 
@@ -79,7 +82,7 @@ def test_label_positive():
     )
     assert dictionary._get(lookup) == "thing"
     for _ in range(0, 5):
-        lookup.positive_tags = {}
+        lookup.positive_tags = set[str]()
         assert dictionary._get(lookup) == "thing"
 
 
@@ -130,8 +133,8 @@ def test_label_overwrite():
     )
     assert dictionary._get(first_positive_label_lookup) == "thing"
     assert dictionary._get(second_positive_label_lookup) == "thing"
-    first_positive_label_lookup.positive_tags = {}
-    second_positive_label_lookup.positive_tags = {}
+    first_positive_label_lookup.positive_tags = set[str]()
+    second_positive_label_lookup.positive_tags = set[str]()
     for _ in range(0, 5):
         assert dictionary._get(first_positive_label_lookup) == "thing"
         assert dictionary._get(second_positive_label_lookup) == "thing"
@@ -161,6 +164,7 @@ def test_dictionary_read_from_file_simple():
     factory = DictionaryFileParser()
     path = relative_path_to_full_path("../resources/valid_dicts/example.dic")
     dictionary = factory.read_from_path(path)
+    assert isinstance(dictionary, LookupDictionary)
     lookup = LookupObject("adj")
     assert dictionary.name == "adj"
     assert dictionary.forms == ["adj", "ness"]
@@ -177,6 +181,7 @@ def test_dictionary_read_from_file_with_classes():
         "../resources/valid_dicts/example_with_classes.dic"
     )
     dictionary = factory.read_from_path(path)
+    assert dictionary is not None
     assert dictionary.name == "noun"
     assert dictionary.forms == ["singular", "plural"]
     lookup = LookupObject("noun", positive_tags={"shape"})
@@ -272,7 +277,7 @@ def test_strict_lookup_invalid_tags():
         with pytest.raises(TwaddleLookupException) as e_info:
             lookup_manager.do_lookup(lookup)
         assert (
-            e_info.value.message
+            str(e_info.value)
             == "[LookupDictionary._strict_class_validation] Invalid class 'invalid'"
             " requested for dictionary 'noun' in strict mode"
         )
@@ -288,7 +293,7 @@ def test_lookup_antimatch_undefined_label():
     with pytest.raises(TwaddleLookupException) as e_info:
         lookup_manager.do_lookup(strict_lookup)
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[LookupDictionary._strict_label_validation] Requested antimatch of label "
         "'undefined', not defined for dictionary 'noun'"
     )
@@ -319,7 +324,7 @@ def test_strict_compiler_raises_when_antimatch_exhausts_all_options():
     with pytest.raises(TwaddleLookupException) as e_info:
         lookup_manager.do_lookup(strict_lookup)
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[LookupDictionary._valid_choices_for_strictness_level] no valid choices for"
         " strict mode lookup in dictionary 'noun'"
     )

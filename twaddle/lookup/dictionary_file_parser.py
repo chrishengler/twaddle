@@ -1,3 +1,4 @@
+from importlib.resources.abc import Traversable
 from pathlib import Path
 
 from twaddle.lookup.lookup_dictionary import LookupDictionary
@@ -17,12 +18,14 @@ class DictionaryFileParser:
         return entry_line.split("/")
 
     @staticmethod
-    def read_from_path(path: Path) -> LookupDictionary:
+    def read_from_path(path: str | Path | Traversable) -> LookupDictionary | None:
+        if not isinstance(path, Path):
+            path = Path(path) if isinstance(path, str) else Path(str(path))
         with path.open("r", encoding="utf-8") as input_file:
-            name = str()
-            forms = list[str]()
-            dictionary = None
-            classes = set[str]()
+            name: str | None = None
+            forms: list[str] | None = None
+            dictionary: LookupDictionary | None = None
+            classes: set[str] = set()
             for line in input_file:
                 if dictionary is None:
                     if not name:
@@ -32,18 +35,21 @@ class DictionaryFileParser:
                     if name and forms:
                         dictionary = LookupDictionary(name, forms)
                 else:
+                    # purely to shut up pylance, dictionary is only set once forms has a value
+                    # so we can't reach here if forms is None
+                    assert forms is not None
                     DictionaryFileParser._read_line(line, forms, classes, dictionary)
             return dictionary
 
     @staticmethod
-    def _try_read_name(line: str) -> str:
+    def _try_read_name(line: str) -> str | None:
         name = None
         if line.startswith("#name"):
             name = DictionaryFileParser.read_name(line)
         return name
 
     @staticmethod
-    def _try_read_forms(line: str) -> list[str]:
+    def _try_read_forms(line: str) -> list[str] | None:
         forms = None
         if line.startswith("#forms") or line.startswith("#subs"):
             forms = DictionaryFileParser.read_forms(line)
@@ -53,7 +59,7 @@ class DictionaryFileParser:
     def _read_line(
         line: str,
         forms: list[str],
-        classes: list[str],
+        classes: set[str],
         dictionary: LookupDictionary,
     ):
         line = line.strip()
@@ -65,4 +71,4 @@ class DictionaryFileParser:
             line = line[2:]
             entry = DictionaryFileParser.read_entry(line)
             if len(entry) == len(forms):
-                dictionary.add(entry, set.copy(classes))
+                dictionary.add(entry, classes.copy())

@@ -119,13 +119,13 @@ def test_add_invalid():
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[add:a;b]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#parse_numbers] invalid numeric argument 'a'"
     )
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[add:3]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#add] add requires at least two numbers"
     )
 
@@ -134,13 +134,13 @@ def test_subtract_invalid():
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[subtract:a;b]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#parse_numbers] invalid numeric argument 'a'"
     )
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[subtract:]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#subtract] subtract requires at least two numbers"
     )
 
@@ -149,13 +149,13 @@ def test_multiply_invalid():
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[multiply:a;b]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#parse_numbers] invalid numeric argument 'a'"
     )
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[multiply:3]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#multiply] multiply requires at least two numbers"
     )
 
@@ -164,18 +164,18 @@ def test_divide_invalid():
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[divide:a;b]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#parse_numbers] invalid numeric argument 'a'"
     )
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[divide:3]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[function_definitions#divide] divide requires exactly two numbers"
     )
     with pytest.raises(TwaddleFunctionException) as e_info:
         get_interpreter_output("[divide:5;0]")
-    assert e_info.value.message == "[function_definitions#divide] cannot divide by zero"
+    assert str(e_info.value) == "[function_definitions#divide] cannot divide by zero"
 
 
 def test_combined_operations():

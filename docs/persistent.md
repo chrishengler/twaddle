@@ -20,11 +20,13 @@ session with [the `clear` function](functions.md#clear).
 ## Partially persistent modes
 
 In some cases it may be desirable to retain labels for use across multiple 
-sentences but not synchronizers, or vice versa. Label-only and synchronizer-only
+sentences but not synchronizers, or vice versa. Label-, synchronizer-,
+pattern- and clipboard-only
 persistent modes are also available with the `persistent_labels`,
-`persistent_synchronizers`, and `persistent_patterns` options on the TwaddleRunner. 
-Setting the generic `persistent` option to `True` forces all persistence kinds to
-be active regardless of these parameters.
+`persistent_synchronizers`, `persistent_patterns` and `persistent_clipboards`
+options on the TwaddleRunner. These can also be combined ad-hoc for any 
+desired combination. Setting the generic `persistent` option to `True` 
+forces all persistence kinds to be active regardless of these parameters.
 
 ### Label-only
 
@@ -37,3 +39,7 @@ be active regardless of these parameters.
 ### Pattern-only
 
 `runner = TwaddleRunner(<path_to_dictionaries>, persistent_patterns=True)`
+
+### Clipboard-only
+
+`runner = TwaddleRunner(<path_to_dictionaries>, persistent_clipboard=True)`

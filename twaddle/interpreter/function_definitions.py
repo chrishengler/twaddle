@@ -79,7 +79,7 @@ def first(
 
 
 def last(
-    _evaluated_args,
+    _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     raw_args: list[RootObject],
 ):
@@ -87,25 +87,33 @@ def last(
 
 
 def save(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ):
     block_attribute_manager.save_block(evaluated_args[0])
 
 
 def copy(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ):
     block_attribute_manager.copy_block(evaluated_args[0])
 
 
 def sync(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ):
     block_attribute_manager.set_synchronizer(evaluated_args)
 
 
 def abbreviate(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ):
     block_attribute_manager.current_attributes.abbreviate = True
     if len(evaluated_args) == 0:
@@ -137,7 +145,11 @@ def abbreviate(
             )
 
 
-def case(evaluated_args: list[str], _block_attribute_manager, _raw_args):
+def case(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
     arg = evaluated_args[0].strip().lower()
     match arg:
         case "none":
@@ -155,30 +167,45 @@ def case(evaluated_args: list[str], _block_attribute_manager, _raw_args):
 
 
 # noinspection PyUnusedLocal
-def match(evaluated_args: list[str], _block_attribute_manager, _raw_args):
+def match(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
     return RegexState.match
 
 
-def rand(evaluated_args: list[str], _block_attribute_manager, _raw_args) -> str:
+def rand(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
     minimum = int(evaluated_args[0])
     maximum = int(evaluated_args[1])
     return str(randint(minimum, maximum))
 
 
-def reverse(_evaluated_args: list[str], block_attribute_manager, _raw_args):
+def reverse(
+    _evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
     block_attribute_manager.current_attributes.reverse = True
 
 
 def hide(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ) -> str:
     block_attribute_manager.current_attributes.hidden = True
+    return ""
 
 
 def add(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args,
+    _raw_args: list[RootObject],
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -193,7 +220,7 @@ def add(
 def subtract(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args,
+    _raw_args: list[RootObject],
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -207,7 +234,9 @@ def subtract(
 
 
 def multiply(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -220,7 +249,9 @@ def multiply(
 
 
 def divide(
-    evaluated_args: list[str], block_attribute_manager: BlockAttributeManager, _raw_args
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
 ):
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(

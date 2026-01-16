@@ -17,18 +17,20 @@ class LookupManager:
             f"[LookupManager.__getitem__] No dictionary loaded named {name}"
         )
 
-    def add_dictionaries_from_folder(self, folder: str | Path):
-        if isinstance(folder, (str, Path)):
-            folder = Path(folder)
+    def add_dictionaries_from_folder(self, path: str | Path):
+        if isinstance(path, str):
+            path = Path(path)
 
-        for entry in folder.iterdir():
+        for entry in path.iterdir():
             if entry.name.endswith(".dic") and entry.is_file():
                 new_dictionary = DictionaryFileParser.read_from_path(entry)
                 if new_dictionary is None:
-                    raise TwaddleDictionaryException(
-                        f"[LookupManager.add_dictionaries_from_folder] dictionary file {entry} could not be read."
+                    exception = TwaddleDictionaryException(
+                        f"[LookupManager.add_dictionaries_from_folder] dictionary file {entry} could not be read. "
                         "Are name and forms defined?"
                     )
+                    print(f"{str(exception)=}")
+                    raise exception
                 self.dictionaries[new_dictionary.name] = new_dictionary
 
     def clear_labels(self):

@@ -6,9 +6,9 @@ from twaddle.compiler.compiler_objects import (
     FunctionObject,
     IndefiniteArticleObject,
     LookupObject,
+    Object,
     ObjectType,
     RegexObject,
-    RootObject,
     TextObject,
 )
 from twaddle.exceptions import TwaddleParserException
@@ -17,11 +17,11 @@ standard_compiler = Compiler()
 strict_compiler = Compiler(strict_mode=True)
 
 
-def get_standard_compile_result(sentence: str) -> RootObject:
+def get_standard_compile_result(sentence: str) -> list[Object]:
     return standard_compiler.compile(sentence).contents
 
 
-def get_strict_compile_result(sentence: str) -> RootObject:
+def get_strict_compile_result(sentence: str) -> list[Object]:
     return strict_compiler.compile(sentence).contents
 
 
@@ -36,7 +36,7 @@ def test_compiler_context_stack():
     with pytest.raises(TwaddleParserException) as e_info:
         stack.remove_context(CompilerContext.BLOCK)
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[CompilerContextStack::remove_context] tried to remove BLOCK but current context is FUNCTION"
     )
 
