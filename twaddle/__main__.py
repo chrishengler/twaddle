@@ -1,6 +1,7 @@
-import readline  # noqa: F401
+import readline  # noqa: F401  # pyright: ignore[reportUnusedImport]
 import sys
-from importlib.resources import files
+from importlib.resources import as_file, files
+from importlib.resources.abc import Traversable
 
 from twaddle.exceptions import TwaddleException
 from twaddle.runner import TwaddleRunner
@@ -11,7 +12,11 @@ def main():
         path = files("twaddle.default_dictionary")
     else:
         path = sys.argv[1]
-    twaddle = TwaddleRunner(path)
+    if isinstance(path, Traversable):
+        with as_file(path) as directory:
+            twaddle = TwaddleRunner(directory)
+    else:
+        twaddle = TwaddleRunner(path)
 
     print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")
 
@@ -20,7 +25,7 @@ def main():
             sentence = input(">")
             print(twaddle.run_sentence(sentence))
         except TwaddleException as te:
-            print(f"Twaddle encountered an error:\n{te.message}")
+            print(f"Twaddle encountered an error:\n{str(te)}")
             twaddle.clear()
         except EOFError:
             quit()

@@ -1,5 +1,5 @@
 from enum import Enum, auto
-from typing import Type
+from typing import Optional
 
 
 class ObjectType(Enum):
@@ -16,6 +16,7 @@ class ObjectType(Enum):
 class Object:
     def __init__(self, t: ObjectType):
         self.type = t
+        self.contents = list[Object]()
 
 
 class RootObject(Object):
@@ -23,10 +24,10 @@ class RootObject(Object):
         Object.__init__(self, ObjectType.ROOT)
         self.contents = list[Object]()
 
-    def __getitem__(self, n: int):
+    def __getitem__(self, n: int) -> Object:
         return self.contents[n]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.contents)
 
     def append(self, new_content: Object):
@@ -43,31 +44,31 @@ class LookupObject(Object):
     def __init__(
         self,
         dictionary: str,
-        form: str = None,
-        positive_tags: set[str] = None,
-        negative_tags: set[str] = None,
-        positive_label: str = None,
-        negative_labels: set[str] = None,
-        redefine_labels: set[str] = None,
+        form: Optional[str] = None,
+        positive_tags: Optional[set[str]] = None,
+        negative_tags: Optional[set[str]] = None,
+        positive_label: Optional[str] = None,
+        negative_labels: Optional[set[str]] = None,
+        redefine_labels: Optional[set[str]] = None,
         strict_mode: bool = False,
     ):
         Object.__init__(self, ObjectType.LOOKUP)
         self.dictionary = dictionary
         self.form = form
-        self.positive_tags = positive_tags
-        self.negative_tags = negative_tags
-        self.positive_label = positive_label
-        self.negative_labels = negative_labels
-        self.redefine_labels = redefine_labels
+        self.positive_tags = positive_tags or set[str]()
+        self.negative_tags = negative_tags or set[str]()
+        self.positive_label = positive_label or str()
+        self.negative_labels = negative_labels or set[str]()
+        self.redefine_labels = redefine_labels or set[str]()
         self.strict_mode = strict_mode
 
 
 class BlockObject(Object):
-    def __init__(self, choices: list[Type[RootObject]]):
+    def __init__(self, choices: list[RootObject]):
         Object.__init__(self, ObjectType.BLOCK)
         self.choices = choices
 
-    def __getitem__(self, n: int):
+    def __getitem__(self, n: int) -> list[Object]:
         return self.choices[n].contents
 
     def __len__(self):

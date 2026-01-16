@@ -1,3 +1,4 @@
+# pyright: reportInvalidStringEscapeSequence=false
 import os
 
 import pytest
@@ -63,7 +64,7 @@ def test_clearing_lookup_labels():
         )
         == "big factory, small shed"
     )
-    results = []
+    results: list[str] = []
     for _ in range(0, 10):
         persistent_runner.clear()
         results.append(persistent_runner.run_sentence("<noun::=a>"))
@@ -78,7 +79,7 @@ def test_clearing_lookup_labels_in_sentence():
         )
         == "big factory, small shed"
     )
-    results = []
+    results: list[str] = []
     for _ in range(0, 10):
         results.append(persistent_runner.run_sentence("[clear]<noun::=a>"))
     assert len(set(results)) > 1
@@ -280,7 +281,7 @@ def test_strict_mode_error_invalid_class():
     with pytest.raises(TwaddleLookupException) as e_info:
         strict_runner.run_sentence("<noun-notarealclass>")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[LookupDictionary._strict_class_validation] Invalid class 'notarealclass' requested "
         "for dictionary 'noun' in strict mode"
     )
@@ -290,7 +291,7 @@ def test_strict_mode_undefined_label():
     with pytest.raises(TwaddleLookupException) as e_info:
         strict_runner.run_sentence("<noun::!=undefined>")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[LookupDictionary._strict_label_validation] Requested antimatch of label "
         "'undefined', not defined for dictionary 'noun'"
     )

@@ -20,7 +20,7 @@ def test_paste_uncopyd_block():
     with pytest.raises(TwaddleInterpreterException) as e_info:
         get_standard_interpreter_output("[paste:nonexistent]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[Interpreter._handle_special_functions#paste] Tried to paste result of unknown block 'nonexistent'"
     )
 
@@ -37,7 +37,7 @@ def test_copy_paste_fails_between_non_persistent_sentences():
     with pytest.raises(TwaddleInterpreterException) as e_info:
         get_standard_interpreter_output("[paste:a]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[Interpreter._handle_special_functions#paste] Tried to paste result of unknown block 'a'"
     )
 

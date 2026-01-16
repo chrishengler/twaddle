@@ -20,7 +20,7 @@ def test_load_unsaved_block():
     with pytest.raises(TwaddleInterpreterException) as e_info:
         get_standard_interpreter_output("[load:nonexistent]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[Interpreter._handle_special_functions#load] Tried to load unknown pattern 'nonexistent'"
     )
 
@@ -37,7 +37,7 @@ def test_save_load_fails_between_non_persistent_sentences():
     with pytest.raises(TwaddleInterpreterException) as e_info:
         get_standard_interpreter_output("[load:a]")
     assert (
-        e_info.value.message
+        str(e_info.value)
         == "[Interpreter._handle_special_functions#load] Tried to load unknown pattern 'a'"
     )
 

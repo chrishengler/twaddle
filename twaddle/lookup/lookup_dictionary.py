@@ -12,16 +12,16 @@ class LookupDictionary:
     def __init__(self, name: str, forms: list[str]):
         self.name = name
         self.forms = forms
-        self.entries = list[DictionaryEntry]()
-        self.labels = dict[str, DictionaryEntry]()
-        self.tags = list[str]()
+        self.entries: list[DictionaryEntry] = []
+        self.labels: dict[str, DictionaryEntry] = {}
+        self.tags: list[str] = []
 
-    def add(self, forms: list[str], tags: set[str] = None):
+    def add(self, forms: list[str], tags: set[str] | None = None):
         if len(forms) != len(self.forms):
             raise TwaddleLookupException(
                 "[LookupDictionary.add] wrong number of forms provided"
             )
-        entry = DictionaryEntry(OrderedDict(zip(self.forms, forms)), tags)
+        entry = DictionaryEntry(OrderedDict(zip(self.forms, forms)), tags or set())
         if tags:
             for tag in tags:
                 if tag not in self.tags:
@@ -29,9 +29,9 @@ class LookupDictionary:
         self.entries.append(entry)
 
     def clear_labels(self):
-        self.labels = dict[str, DictionaryEntry]()
+        self.labels = {}
 
-    def _get_form(self, form: str) -> str:
+    def _get_form(self, form: str | None) -> str:
         if form is None:
             form = self.forms[0]
         if form not in self.forms:
@@ -51,14 +51,14 @@ class LookupDictionary:
                     "[LookupDictionary._valid_choices_for_strictness_level] "
                     f"no valid choices for strict mode lookup in dictionary '{self.name}'"
                 )
-            valid_choices = list.copy(self.entries)
+            valid_choices = self.entries.copy()
         return valid_choices
 
     def _get_valid_choices(
         self,
         lookup: LookupObject,
     ) -> list[DictionaryEntry]:
-        valid_choices = list[DictionaryEntry]()
+        valid_choices: list[DictionaryEntry] = []
         for entry in self.entries:
             if entry.has_any_tag_of(lookup.negative_tags):
                 continue
@@ -94,7 +94,7 @@ class LookupDictionary:
         return chosen_entry[lookup.form]
 
     def _strict_class_validation(self, lookup: LookupObject):
-        all_tags = list()
+        all_tags: list[str] = []
         if lookup.positive_tags:
             for tag in lookup.positive_tags:
                 all_tags.append(tag)

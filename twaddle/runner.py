@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from twaddle.interpreter.interpreter import Interpreter
 from twaddle.lookup.lookup_manager import LookupManager
 
@@ -5,7 +7,7 @@ from twaddle.lookup.lookup_manager import LookupManager
 class TwaddleRunner:
     def __init__(
         self,
-        path: str,
+        path: str | Path,
         persistent: bool = False,
         persistent_labels: bool = False,
         persistent_synchronizers: bool = False,
@@ -18,6 +20,7 @@ class TwaddleRunner:
         persistent_labels = True if persistent else persistent_labels
         persistent_synchronizers = True if persistent else persistent_synchronizers
         persistent_patterns = True if persistent else persistent_patterns
+        persistent_clipboard = True if persistent else persistent_clipboard
         self.interpreter = Interpreter(
             self.lookup_manager,
             persistent_labels=persistent_labels,
