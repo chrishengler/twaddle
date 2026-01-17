@@ -288,8 +288,13 @@ def less_than(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
-):
-    pass
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#less_than] less_than requires exactly two arguments"
+        )
+    args_as_numbers = _parse_numbers(evaluated_args)
+    return "1" if (args_as_numbers[0] < args_as_numbers[1]) else "0"
 
 
 def greater_than(
