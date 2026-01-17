@@ -314,8 +314,16 @@ def equal_to(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
-):
-    pass
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#equal_to] equal_to requires exactly two arguments"
+        )
+    try:
+        args_as_numbers = _parse_numbers(evaluated_args)
+        return "1" if (args_as_numbers[0] == args_as_numbers[1]) else "0"
+    except TwaddleFunctionException:
+        return "1" if (evaluated_args[0].strip() == evaluated_args[1].strip()) else "0"
 
 
 def logical_and(
