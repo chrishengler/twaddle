@@ -16,6 +16,7 @@ from .function_definitions import (
     logical_and,
     logical_not,
     logical_or,
+    logical_xor,
     match,
     multiply,
     rand,
@@ -60,5 +61,6 @@ function_definitions: dict[str, FunctionType] = {
     "subtract": subtract,
     "sub": subtract,
     "x": sync,
+    "xor": logical_xor,
     "sync": sync,
 }
