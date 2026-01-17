@@ -168,7 +168,7 @@ def case(
 
 # noinspection PyUnusedLocal
 def match(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
@@ -194,7 +194,7 @@ def reverse(
 
 
 def hide(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
@@ -278,7 +278,7 @@ def __boolean_helper(evaluated_arg: str) -> bool:
 
 def boolean(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 1:
@@ -291,7 +291,7 @@ def boolean(
 
 def less_than(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -304,7 +304,7 @@ def less_than(
 
 def greater_than(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -317,7 +317,7 @@ def greater_than(
 
 def equal_to(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -333,7 +333,7 @@ def equal_to(
 
 def logical_and(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -346,7 +346,7 @@ def logical_and(
 
 def logical_not(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 1:
@@ -359,7 +359,7 @@ def logical_not(
 
 def logical_or(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -372,7 +372,7 @@ def logical_or(
 
 def logical_xor(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -381,3 +381,15 @@ def logical_xor(
         )
     args = [__boolean_helper(arg) for arg in evaluated_args]
     return "1" if (args[0] != args[1]) else "0"
+
+
+def while_loop(
+    _evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    raw_args: list[RootObject],
+):
+    if len(raw_args) != 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#while] while requires exactly one argument"
+        )
+    block_attribute_manager.current_attributes.while_predicate = raw_args[0]

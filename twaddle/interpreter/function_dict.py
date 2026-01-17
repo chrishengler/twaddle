@@ -26,6 +26,7 @@ from .function_definitions import (
     separator,
     subtract,
     sync,
+    while_loop,
 )
 
 function_definitions: dict[str, FunctionType] = {
@@ -63,4 +64,5 @@ function_definitions: dict[str, FunctionType] = {
     "x": sync,
     "xor": logical_xor,
     "sync": sync,
+    "while": while_loop,
 }

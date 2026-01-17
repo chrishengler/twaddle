@@ -45,8 +45,8 @@ class Interpreter:
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
         self.compiler = Compiler(strict_mode=strict_mode)
-        self.saved_patterns = dict()
-        self.copied_blocks = dict()
+        self.saved_patterns = dict[str, BlockObject]()
+        self.copied_blocks = dict[str, Formatter]()
         self.strict_mode = strict_mode
 
     def interpret_external(self, sentence: str) -> str:
@@ -109,7 +109,7 @@ class Interpreter:
 
     # noinspection PyUnusedLocal
     @singledispatchmethod
-    def run(self, arg) -> Formatter:
+    def run(self, _arg) -> Formatter:
         formatter = Formatter()
         return formatter
 
@@ -243,7 +243,7 @@ class Interpreter:
     @run.register(FunctionObject)
     def _(self, func: FunctionObject):
         formatter = Formatter()
-        evaluated_args = list()
+        evaluated_args = list[str]()
         for arg in func.args:
             evaluated_args.append(self.run(arg).resolve())
         if func.func in self.SPECIAL_FUNCTIONS:

@@ -19,11 +19,12 @@ class BlockAttributes:
         self.abbreviate: bool = False
         self.abbreviation_case: Optional[FormattingStrategy] = None
         self.max_decimals: Optional[int] = None
+        self.while_predicate: Optional[RootObject] = None
 
 
 class BlockAttributeManager:
     def __init__(self):
-        self.saved_blocks = dict()
+        self.saved_blocks = dict[str, RootObject]()
         self.current_attributes = BlockAttributes()
 
     def get_attributes(self) -> BlockAttributes:
