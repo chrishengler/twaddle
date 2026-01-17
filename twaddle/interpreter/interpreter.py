@@ -18,6 +18,7 @@ from twaddle.compiler.compiler_objects import (
 from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 from twaddle.interpreter.formatter import Formatter
+from twaddle.interpreter.function_definitions import boolean_helper
 from twaddle.interpreter.function_dict import function_definitions
 from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
@@ -126,14 +127,29 @@ class Interpreter:
     def _(self, block: BlockObject):
         formatter = Formatter()
         attributes: BlockAttributes = self.block_attribute_manager.get_attributes()
+        if attributes.repetitions > 1 and attributes.while_predicate:
+            raise TwaddleInterpreterException(
+                "Cannot apply repeat and while to same block "
+                "(try nesting [while] inside [repeat]-ed block if this was intentional)."
+            )
         first_repetition = True
-        if attributes.repetitions < 2:
+        if attributes.repetitions and (attributes.repetitions < 2):
             attributes.separator = None
             attributes.first = None
             attributes.last = None
         synchronizer = self._get_synchronizer_for_block(attributes, len(block.choices))
 
-        while attributes.repetitions:
+        def _continue():
+            rep_active = attributes.repetitions > 0
+            while_active = (
+                boolean_helper(self.run(attributes.while_predicate).resolve())
+                if attributes.while_predicate
+                else False
+            )
+            print(f"{rep_active=} {while_active=}")
+            return rep_active or while_active
+
+        while _continue():
             if synchronizer is None:
                 choice = randrange(0, len(block.choices))
             else:
@@ -156,6 +172,8 @@ class Interpreter:
             formatter += partial_result
             if attributes.repetitions > 1 and attributes.separator:
                 formatter.append_formatter(self.run(attributes.separator))
+
+            print(f"{formatter=}")
         if name := attributes.save_as:
             self.saved_patterns[name] = block
         if name := attributes.copy_as:

@@ -268,7 +268,7 @@ def divide(
     )
 
 
-def __boolean_helper(evaluated_arg: str) -> bool:
+def boolean_helper(evaluated_arg: str) -> bool:
     try:
         as_number = _parse_numbers([evaluated_arg])
         return True if as_number[0] > 0 else False
@@ -285,7 +285,7 @@ def boolean(
         raise TwaddleFunctionException(
             "[function_definitions#bool] bool requires exactly one argument"
         )
-    converted = __boolean_helper(evaluated_args[0])
+    converted = boolean_helper(evaluated_args[0])
     return "1" if converted else "0"
 
 
@@ -340,7 +340,7 @@ def logical_and(
         raise TwaddleFunctionException(
             "[function_definitions#logical_and] logical_and requires exactly two arguments"
         )
-    args = [__boolean_helper(arg) for arg in evaluated_args]
+    args = [boolean_helper(arg) for arg in evaluated_args]
     return "1" if (args[0] and args[1]) else "0"
 
 
@@ -353,7 +353,7 @@ def logical_not(
         raise TwaddleFunctionException(
             "[function_definitions#logical_not] logical_not requires exactly one argument"
         )
-    converted = __boolean_helper(evaluated_args[0])
+    converted = boolean_helper(evaluated_args[0])
     return "0" if converted else "1"
 
 
@@ -366,7 +366,7 @@ def logical_or(
         raise TwaddleFunctionException(
             "[function_definitions#logical_or] logical_or requires exactly two arguments"
         )
-    args = [__boolean_helper(arg) for arg in evaluated_args]
+    args = [boolean_helper(arg) for arg in evaluated_args]
     return "1" if (args[0] or args[1]) else "0"
 
 
@@ -379,7 +379,7 @@ def logical_xor(
         raise TwaddleFunctionException(
             "[function_definitions#logical_or] logical_or requires exactly two arguments"
         )
-    args = [__boolean_helper(arg) for arg in evaluated_args]
+    args = [boolean_helper(arg) for arg in evaluated_args]
     return "1" if (args[0] != args[1]) else "0"
 
 
