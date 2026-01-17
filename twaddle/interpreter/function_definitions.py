@@ -362,7 +362,12 @@ def logical_or(
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
-    pass
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_or] logical_or requires exactly two arguments"
+        )
+    args = [__boolean_helper(arg) for arg in evaluated_args]
+    return "1" if (args[0] or args[1]) else "0"
 
 
 def logical_xor(

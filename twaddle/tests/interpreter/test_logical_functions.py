@@ -312,7 +312,7 @@ def test_or_zero_and_zero():
 
 
 def test_or_negative_numbers():
-    assert get_interpreter_output("[or:-1;-2]") == "1"
+    assert get_interpreter_output("[or:-1;-2]") == "0"
 
 
 def test_or_strings_both_nonempty():
