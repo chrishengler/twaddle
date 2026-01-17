@@ -266,3 +266,67 @@ def divide(
         parsed_numbers[0] / parsed_numbers[1],
         block_attribute_manager.current_attributes.max_decimals,
     )
+
+
+def boolean(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def less_than(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def greater_than(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def equal_to(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def logical_and(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def logical_not(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def logical_or(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
+
+
+def logical_xor(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+):
+    pass
