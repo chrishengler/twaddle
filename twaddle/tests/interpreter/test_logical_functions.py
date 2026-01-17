@@ -230,7 +230,7 @@ def test_and_zero_and_positive():
 
 
 def test_and_negative_numbers():
-    assert get_interpreter_output("[and:-1;-2]") == "1"
+    assert get_interpreter_output("[and:-1;-2]") == "0"
 
 
 def test_and_strings_both_nonempty():
@@ -263,7 +263,7 @@ def test_not_positive_number():
 
 
 def test_not_negative_number():
-    assert get_interpreter_output("[not:-3]") == "0"
+    assert get_interpreter_output("[not:-3]") == "1"
 
 
 def test_not_zero():

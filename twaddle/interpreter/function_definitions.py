@@ -268,6 +268,14 @@ def divide(
     )
 
 
+def __boolean_helper(evaluated_arg: str) -> bool:
+    try:
+        as_number = _parse_numbers([evaluated_arg])
+        return True if as_number[0] > 0 else False
+    except TwaddleFunctionException:
+        return True if len(evaluated_arg.strip()) else False
+
+
 def boolean(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
@@ -277,11 +285,8 @@ def boolean(
         raise TwaddleFunctionException(
             "[function_definitions#bool] bool requires exactly one argument"
         )
-    try:
-        as_number = _parse_numbers([evaluated_args[0]])[0]
-        return "1" if as_number > 0 else "0"
-    except TwaddleFunctionException:
-        return "1" if len(evaluated_args[0].strip()) else "0"
+    converted = __boolean_helper(evaluated_args[0])
+    return "1" if converted else "0"
 
 
 def less_than(
@@ -330,16 +335,26 @@ def logical_and(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
-):
-    pass
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_and] logical_and requires exactly two arguments"
+        )
+    args = [__boolean_helper(arg) for arg in evaluated_args]
+    return "1" if (args[0] and args[1]) else "0"
 
 
 def logical_not(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
-):
-    pass
+) -> str:
+    if len(evaluated_args) != 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_not] logical_not requires exactly one argument"
+        )
+    converted = __boolean_helper(evaluated_args[0])
+    return "0" if converted else "1"
 
 
 def logical_or(
