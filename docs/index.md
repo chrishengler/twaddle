@@ -56,7 +56,7 @@ You can then import the TwaddleRunner class:
 `from twaddle.runner import TwaddleRunner`
 
 Instantiate it with the path to your dictionaries and choice of 
-whether to use [oersistent mode](persistent.md):
+whether to use [persistent mode](persistent.md):
 
 `runner = TwaddleRunner(<path_to_dictionaries>, persistent=<True/False>)`
 
