@@ -168,7 +168,7 @@ def case(
 
 # noinspection PyUnusedLocal
 def match(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
@@ -194,7 +194,7 @@ def reverse(
 
 
 def hide(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
@@ -266,3 +266,147 @@ def divide(
         parsed_numbers[0] / parsed_numbers[1],
         block_attribute_manager.current_attributes.max_decimals,
     )
+
+
+def boolean_helper(evaluated_arg: str) -> bool:
+    try:
+        as_number = _parse_numbers([evaluated_arg])
+        return True if as_number[0] > 0 else False
+    except TwaddleFunctionException:
+        return True if len(evaluated_arg.strip()) else False
+
+
+def boolean(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#bool] bool requires exactly one argument"
+        )
+    converted = boolean_helper(evaluated_args[0])
+    return "1" if converted else "0"
+
+
+def less_than(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#less_than] less_than requires exactly two arguments"
+        )
+    args_as_numbers = _parse_numbers(evaluated_args)
+    return "1" if (args_as_numbers[0] < args_as_numbers[1]) else "0"
+
+
+def greater_than(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#less_than] less_than requires exactly two arguments"
+        )
+    args_as_numbers = _parse_numbers(evaluated_args)
+    return "1" if (args_as_numbers[0] > args_as_numbers[1]) else "0"
+
+
+def equal_to(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#equal_to] equal_to requires exactly two arguments"
+        )
+    try:
+        args_as_numbers = _parse_numbers(evaluated_args)
+        return "1" if (args_as_numbers[0] == args_as_numbers[1]) else "0"
+    except TwaddleFunctionException:
+        return "1" if (evaluated_args[0].strip() == evaluated_args[1].strip()) else "0"
+
+
+def logical_and(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_and] logical_and requires exactly two arguments"
+        )
+    args = [boolean_helper(arg) for arg in evaluated_args]
+    return "1" if (args[0] and args[1]) else "0"
+
+
+def logical_not(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_not] logical_not requires exactly one argument"
+        )
+    converted = boolean_helper(evaluated_args[0])
+    return "0" if converted else "1"
+
+
+def logical_or(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_or] logical_or requires exactly two arguments"
+        )
+    args = [boolean_helper(arg) for arg in evaluated_args]
+    return "1" if (args[0] or args[1]) else "0"
+
+
+def logical_xor(
+    evaluated_args: list[str],
+    _block_attribute_manager: BlockAttributeManager,
+    _raw_args: list[RootObject],
+) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#logical_or] logical_or requires exactly two arguments"
+        )
+    args = [boolean_helper(arg) for arg in evaluated_args]
+    return "1" if (args[0] != args[1]) else "0"
+
+
+def while_loop(
+    evaluated_args: list[str],
+    block_attribute_manager: BlockAttributeManager,
+    raw_args: list[RootObject],
+):
+    if len(raw_args) not in [1, 2]:
+        raise TwaddleFunctionException(
+            f"[function_definitions#while] while requires either one or two arguments, got {len(raw_args)}"
+        )
+    if len(evaluated_args) == 2:
+        try:
+            max_iterations = _parse_numbers([evaluated_args[1]])[0]
+            if not isinstance(max_iterations, int):
+                raise TwaddleFunctionException(
+                    "[function_definitions#while] max iterations must be int,"
+                    f" got {raw_args[1]}, evaluated to {evaluated_args[1]}"
+                )
+            block_attribute_manager.current_attributes.max_while_iterations = (
+                max_iterations
+            )
+        except TwaddleFunctionException:
+            raise TwaddleFunctionException(
+                "[function_definitions#while] max iterations must be int,"
+                f" got {raw_args[1]}, evaluated to {evaluated_args[1]}"
+            )
+
+    block_attribute_manager.current_attributes.while_predicate = raw_args[0]
