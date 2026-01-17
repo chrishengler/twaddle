@@ -1,6 +1,9 @@
+from types import FunctionType
+
 from .function_definitions import (
     abbreviate,
     add,
+    boolean,
     case,
     copy,
     divide,
@@ -18,10 +21,11 @@ from .function_definitions import (
     sync,
 )
 
-function_definitions = {
+function_definitions: dict[str, FunctionType] = {
     "abbr": abbreviate,
     "abbreviate": abbreviate,
     "add": add,
+    "bool": boolean,
     "case": case,
     "copy": copy,
     "divide": divide,

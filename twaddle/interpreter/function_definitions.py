@@ -272,8 +272,16 @@ def boolean(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
-):
-    pass
+) -> str:
+    if len(evaluated_args) != 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#bool] bool requires exactly one argument"
+        )
+    try:
+        as_number = _parse_numbers([evaluated_args[0]])[0]
+        return "1" if as_number > 0 else "0"
+    except TwaddleFunctionException:
+        return "1" if len(evaluated_args[0].strip()) else "0"
 
 
 def less_than(
