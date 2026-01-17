@@ -123,7 +123,7 @@ Performs comparison based on whether both arguments are numeric:
 [equal_to:hello;hello]   → "1"
 [equal_to:hello;world]   → "0"
 [equal_to:5;hello]       → "0"
-[equal_to:5;5.000]       → "0"
+[equal_to:5;5.000]       → "1"
 ```
 
 ## Logical Operators
