@@ -384,12 +384,29 @@ def logical_xor(
 
 
 def while_loop(
-    _evaluated_args: list[str],
+    evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
     raw_args: list[RootObject],
 ):
-    if len(raw_args) != 1:
+    if len(raw_args) not in [1, 2]:
         raise TwaddleFunctionException(
-            "[function_definitions#while] while requires exactly one argument"
+            f"[function_definitions#while] while requires either one or two arguments, got {len(raw_args)}"
         )
+    if len(evaluated_args) == 2:
+        try:
+            max_iterations = _parse_numbers([evaluated_args[1]])[0]
+            if not isinstance(max_iterations, int):
+                raise TwaddleFunctionException(
+                    "[function_definitions#while] max iterations must be int,"
+                    f" got {raw_args[1]}, evaluated to {evaluated_args[1]}"
+                )
+            block_attribute_manager.current_attributes.max_while_iterations = (
+                max_iterations
+            )
+        except TwaddleFunctionException:
+            raise TwaddleFunctionException(
+                "[function_definitions#while] max iterations must be int,"
+                f" got {raw_args[1]}, evaluated to {evaluated_args[1]}"
+            )
+
     block_attribute_manager.current_attributes.while_predicate = raw_args[0]

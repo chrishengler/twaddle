@@ -20,6 +20,8 @@ class BlockAttributes:
         self.abbreviation_case: Optional[FormattingStrategy] = None
         self.max_decimals: Optional[int] = None
         self.while_predicate: Optional[RootObject] = None
+        self.while_iteration = 0
+        self.max_while_iterations = 100
 
 
 class BlockAttributeManager:

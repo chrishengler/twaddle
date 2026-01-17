@@ -37,6 +37,8 @@ repeated
 - [Randomization functions](#randomization), which can add or restrict
 randomness within Twaddle output
 - [Maths functions](#maths-functions), which offer some basic mathematical functions
+- [Boolean logic functions](#boolean-logic-functions), which evaluate conditions
+and return boolean values
 
 Additionally, some [utility functions](#utility) exist which don't fall into 
 these categories. They are generally useful only to manage the side-effects of
@@ -289,6 +291,30 @@ by the second:
 An error is raised if the divisor is zero. 
 
 The `divide` function has an alias, `div`.
+
+### Boolean logic functions
+
+Twaddle provides a set of boolean logic functions for evaluating conditions
+and performing logical operations. These functions are primarily intended for
+use with [while loops](boolean_predicates.md#while-loops), but can also be
+used standalone to generate conditional values.
+
+All boolean logic functions return either `"1"` (true) or `"0"` (false).
+
+For a complete description of these functions, including truth tables, 
+bool conversion rules, and example usage within while loops, see the
+[boolean predicates and while loops](boolean_predicates.md) documentation page.
+
+The available boolean functions are:
+
+- [`bool`](boolean_predicates.md#bool) — evaluates truthiness of a value
+- [`less_than`](boolean_predicates.md#less_than) — numeric less-than comparison
+- [`greater_than`](boolean_predicates.md#greater_than) — numeric greater-than comparison
+- [`equal_to`](boolean_predicates.md#equal_to) — numeric or string equality
+- [`logical_and`](boolean_predicates.md#logical_and) — logical AND
+- [`logical_or`](boolean_predicates.md#logical_or) — logical OR
+- [`logical_xor`](boolean_predicates.md#logical_xor) — logical XOR (exclusive OR)
+- [`logical_not`](boolean_predicates.md#logical_not) — logical NOT
 
 ### Utility
 

@@ -140,14 +140,14 @@ class Interpreter:
         synchronizer = self._get_synchronizer_for_block(attributes, len(block.choices))
 
         def _continue():
-            rep_active = attributes.repetitions > 0
-            while_active = (
-                boolean_helper(self.run(attributes.while_predicate).resolve())
-                if attributes.while_predicate
-                else False
-            )
-            print(f"{rep_active=} {while_active=}")
-            return rep_active or while_active
+            if attributes.while_predicate:
+                attributes.while_iteration += 1
+                if attributes.while_iteration > attributes.max_while_iterations:
+                    return False
+                return boolean_helper(self.run(attributes.while_predicate).resolve())
+            if attributes.repetitions > 0:
+                return True
+            return False
 
         while _continue():
             if synchronizer is None:
