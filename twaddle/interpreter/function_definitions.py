@@ -58,6 +58,10 @@ def repeat(
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
+    if len(evaluated_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#repeat] repeat requires exactly one argument"
+        )
     repetitions = int(evaluated_args[0])
     block_attribute_manager.current_attributes.repetitions = repetitions
 
@@ -67,6 +71,10 @@ def separator(
     block_attribute_manager: BlockAttributeManager,
     raw_args: list[RootObject],
 ):
+    if len(raw_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#separator] separator requires exactly one argument"
+        )
     block_attribute_manager.current_attributes.separator = raw_args[0]
 
 
@@ -75,6 +83,10 @@ def first(
     block_attribute_manager: BlockAttributeManager,
     raw_args: list[RootObject],
 ):
+    if len(raw_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#first] first requires exactly one argument"
+        )
     block_attribute_manager.current_attributes.first = raw_args[0]
 
 
@@ -83,6 +95,10 @@ def last(
     block_attribute_manager: BlockAttributeManager,
     raw_args: list[RootObject],
 ):
+    if len(raw_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#last] last requires exactly one argument"
+        )
     block_attribute_manager.current_attributes.last = raw_args[0]
 
 
@@ -91,6 +107,10 @@ def save(
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
+    if len(evaluated_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#save] save requires exactly one argument"
+        )
     block_attribute_manager.save_block(evaluated_args[0])
 
 
@@ -99,6 +119,10 @@ def copy(
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
+    if len(evaluated_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#copy] copy requires exactly one argument"
+        )
     block_attribute_manager.copy_block(evaluated_args[0])
 
 
@@ -107,6 +131,10 @@ def sync(
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
+    if len(evaluated_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#sync] sync requires at least one argument"
+        )
     block_attribute_manager.set_synchronizer(evaluated_args)
 
 
@@ -150,6 +178,10 @@ def case(
     _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
+    if len(evaluated_args) < 1:
+        raise TwaddleFunctionException(
+            "[function_definitions#case] case requires exactly one argument"
+        )
     arg = evaluated_args[0].strip().lower()
     match arg:
         case "none":
@@ -180,6 +212,10 @@ def rand(
     _block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ) -> str:
+    if len(evaluated_args) != 2:
+        raise TwaddleFunctionException(
+            "[function_definitions#rand] rand requires exactly two arguments"
+        )
     minimum = int(evaluated_args[0])
     maximum = int(evaluated_args[1])
     return str(randint(minimum, maximum))
