@@ -173,7 +173,6 @@ class Interpreter:
             if attributes.repetitions > 1 and attributes.separator:
                 formatter.append_formatter(self.run(attributes.separator))
 
-            print(f"{formatter=}")
         if name := attributes.save_as:
             self.saved_patterns[name] = block
         if name := attributes.copy_as:
