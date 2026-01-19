@@ -15,6 +15,17 @@ to use the save function without specifying a name.
 The `save` function is a [block function](block_functions.md), and the 
 saved pattern consists of the entirety of the next block to be opened. 
 
+A pattern is loaded with the `load` function, which takes one mandatory
+and one optional argument:
+
+`[load:<name>;<fallback>]`
+
+`name` is the name of the pattern to load
+
+`fallback` is a fallback which will be run if the pattern being loaded 
+does not exist. Attempting to load a pattern which has not been saved
+results in an error unless a `fallback` option is defined.
+
 ## Edge-Cases and Restrictions 
 
 In principle patterns can contain, and be saved and loaded within, any 
