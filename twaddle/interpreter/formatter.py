@@ -2,7 +2,7 @@ import re
 from functools import singledispatchmethod
 from typing import Self, Type
 
-from twaddle.compiler.compiler_objects import IndefiniteArticleObject
+from twaddle.compiler.compiler_objects import IndefiniteArticleObject, Object
 from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.interpreter.formatting_object import (
     FormattingObject,
@@ -18,16 +18,22 @@ class Formatter:
     alphabetic_regex = re.compile(r"[^\W_]+", re.UNICODE)
 
     def __init__(self):
-        self.output_stack = list()
+        self.output_stack = list[Object | FormattingObject]()
         self.sentence = str()
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
     def _reset_(self):
-        self.output_stack = list()
+        self.output_stack = list[Object | FormattingObject]()
         self.sentence = str()
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
+
+    @classmethod
+    def from_text(cls, text: str) -> Self:
+        formatter = Formatter()
+        formatter.append(text)
+        return formatter
 
     @singledispatchmethod
     def append(self, arg) -> Self:

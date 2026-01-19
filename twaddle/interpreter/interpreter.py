@@ -181,12 +181,10 @@ class Interpreter:
             return Formatter()
         if attributes.reverse:
             block_result = formatter.resolve()
-            formatter = Formatter()
-            formatter.append("".join(reversed(block_result)))
+            formatter = Formatter.from_text("".join(reversed(block_result)))
         if attributes.abbreviate:
             abbreviation = self._get_abbreviation(formatter, attributes)
-            formatter = Formatter()
-            formatter.append(abbreviation)
+            formatter = Formatter.from_text(abbreviation)
         return formatter
 
     def _get_abbreviation(
@@ -245,9 +243,7 @@ class Interpreter:
             )
         if not (block := self.saved_patterns.get(evaluated_args[0])):
             if len(evaluated_args) > 1:
-                formatter = Formatter()
-                formatter.append(evaluated_args[1])
-                return formatter
+                return Formatter.from_text(evaluated_args[1])
             raise TwaddleInterpreterException(
                 "[Interpreter._handle_special_functions#load] Tried "
                 f"to load unknown pattern '{evaluated_args[0]}'"
@@ -262,9 +258,7 @@ class Interpreter:
             )
         if not (block := self.copied_blocks.get(evaluated_args[0])):
             if len(evaluated_args) > 1:
-                formatter = Formatter()
-                formatter.append(evaluated_args[1])
-                return formatter
+                return Formatter.from_text(evaluated_args[1])
             raise TwaddleInterpreterException(
                 "[Interpreter._handle_special_functions#paste] Tried "
                 f"to paste result of unknown block '{evaluated_args[0]}'"
@@ -294,9 +288,7 @@ class Interpreter:
 
     @run.register(TextObject)
     def _(self, text: TextObject):
-        formatter = Formatter()
-        formatter.append(text.text)
-        return formatter
+        return Formatter.from_text(text.text)
 
     @run.register(LookupObject)
     def _(self, lookup: LookupObject):
@@ -315,18 +307,16 @@ class Interpreter:
     # noinspection PyUnusedLocal
     @run.register(DigitObject)
     def _(self, digit: DigitObject):
-        formatter = Formatter()
-        formatter.append(str(randint(0, 9)))
-        return formatter
+        return Formatter.from_text(str(randint(0, 9)))
 
     @run.register(RegexObject)
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
-        formatter = Formatter()
 
         def repl(matchobj: Match):
             RegexState.match = matchobj.group()
             return self.run(regex.replacement).resolve()
 
-        formatter.append(sub(regex.regex, repl, self.run(regex.scope).resolve()))
-        return formatter
+        return Formatter.from_text(
+            sub(regex.regex, repl, self.run(regex.scope).resolve())
+        )
