@@ -181,12 +181,10 @@ class Interpreter:
             return Formatter()
         if attributes.reverse:
             block_result = formatter.resolve()
-            formatter = Formatter()
-            formatter.append("".join(reversed(block_result)))
+            formatter = Formatter.from_text("".join(reversed(block_result)))
         if attributes.abbreviate:
             abbreviation = self._get_abbreviation(formatter, attributes)
-            formatter = Formatter()
-            formatter.append(abbreviation)
+            formatter = Formatter.from_text(abbreviation)
         return formatter
 
     def _get_abbreviation(
@@ -225,29 +223,9 @@ class Interpreter:
                 self.force_clear()
                 return Formatter()
             case "load":
-                if not len(evaluated_args):
-                    raise TwaddleInterpreterException(
-                        "[Interpreter._handle_special_functions] Tried "
-                        "to load pattern without specifying name"
-                    )
-                if not (block := self.saved_patterns.get(evaluated_args[0])):
-                    raise TwaddleInterpreterException(
-                        "[Interpreter._handle_special_functions#load] Tried "
-                        f"to load unknown pattern '{evaluated_args[0]}'"
-                    )
-                return self.run(block)
+                return self._load_pattern(evaluated_args)
             case "paste":
-                if not len(evaluated_args):
-                    raise TwaddleInterpreterException(
-                        "[Interpreter._handle_special_functions] Tried "
-                        "to paste block result without specifying name"
-                    )
-                if not (block := self.copied_blocks.get(evaluated_args[0])):
-                    raise TwaddleInterpreterException(
-                        "[Interpreter._handle_special_functions#paste] Tried "
-                        f"to paste result of unknown block '{evaluated_args[0]}'"
-                    )
-                return block
+                return self._paste_block(evaluated_args)
             case _:
                 raise TwaddleInterpreterException(
                     f"[Interpreter] function '{func.func}' "
@@ -257,11 +235,42 @@ class Interpreter:
     def _save_pattern(self, block: BlockObject, name: str):
         self.saved_patterns[name] = block
 
+    def _load_pattern(self, evaluated_args: list[str]) -> Formatter:
+        if not len(evaluated_args):
+            raise TwaddleInterpreterException(
+                "[Interpreter._handle_special_functions] Tried "
+                "to load pattern without specifying name"
+            )
+        if not (block := self.saved_patterns.get(evaluated_args[0])):
+            if len(evaluated_args) > 1:
+                return Formatter.from_text(evaluated_args[1])
+            raise TwaddleInterpreterException(
+                "[Interpreter._handle_special_functions#load] Tried "
+                f"to load unknown pattern '{evaluated_args[0]}'"
+            )
+        return self.run(block)
+
+    def _paste_block(self, evaluated_args: list[str]) -> Formatter:
+        if not len(evaluated_args):
+            raise TwaddleInterpreterException(
+                "[Interpreter._handle_special_functions] Tried "
+                "to paste block result without specifying name"
+            )
+        if not (block := self.copied_blocks.get(evaluated_args[0])):
+            if len(evaluated_args) > 1:
+                return Formatter.from_text(evaluated_args[1])
+            raise TwaddleInterpreterException(
+                "[Interpreter._handle_special_functions#paste] Tried "
+                f"to paste result of unknown block '{evaluated_args[0]}'"
+            )
+        return block
+
     @run.register(FunctionObject)
     def _(self, func: FunctionObject):
         formatter = Formatter()
         evaluated_args = list[str]()
         for arg in func.args:
+            print(f"{arg=}")
             evaluated_args.append(self.run(arg).resolve())
         if func.func in self.SPECIAL_FUNCTIONS:
             return self._handle_special_functions(func, evaluated_args)
@@ -279,9 +288,7 @@ class Interpreter:
 
     @run.register(TextObject)
     def _(self, text: TextObject):
-        formatter = Formatter()
-        formatter.append(text.text)
-        return formatter
+        return Formatter.from_text(text.text)
 
     @run.register(LookupObject)
     def _(self, lookup: LookupObject):
@@ -300,18 +307,16 @@ class Interpreter:
     # noinspection PyUnusedLocal
     @run.register(DigitObject)
     def _(self, digit: DigitObject):
-        formatter = Formatter()
-        formatter.append(str(randint(0, 9)))
-        return formatter
+        return Formatter.from_text(str(randint(0, 9)))
 
     @run.register(RegexObject)
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
-        formatter = Formatter()
 
         def repl(matchobj: Match):
             RegexState.match = matchobj.group()
             return self.run(regex.replacement).resolve()
 
-        formatter.append(sub(regex.regex, repl, self.run(regex.scope).resolve()))
-        return formatter
+        return Formatter.from_text(
+            sub(regex.regex, repl, self.run(regex.scope).resolve())
+        )

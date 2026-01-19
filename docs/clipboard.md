@@ -20,6 +20,18 @@ functions such as [reverse](functions.md#reverse) which would modify the
 text. If it is desired to save the modified text, the `copy` function
 should be placed in an external block.
 
+The `paste` function loads a copied block from the clipboard. It takes
+one mandatory and one optional argument:
+
+`[paste:<name>;<fallback>]`
+
+`name` is the name of the clipboard from which to paste.
+
+`fallback` is the pattern to run if the clipboard does not exist.
+Attempting to paste from a clipboard to which nothing has been copied
+will result in an error unless the `fallback` option is provided.
+
+
 ## Edge-Cases and Restrictions
 
 In principle clipboard items can contain, and be copied/pasted within,

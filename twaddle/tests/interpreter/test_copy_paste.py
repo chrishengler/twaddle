@@ -46,3 +46,14 @@ def test_copy_paste_persistence():
     interpreter = Interpreter(LookupManager(), persistent_clipboard=True)
     interpreter.interpret_external("[copy:a]{hello}")
     assert interpreter.interpret_external("[paste:a]") == "hello"
+
+
+def test_copy_paste_fallback():
+    assert get_standard_interpreter_output("[paste:a;hello]") == "hello"
+
+
+def test_copy_paste_complex_fallback():
+    assert (
+        get_standard_interpreter_output("[paste:a;[rep:3][sep:\\s]{hey}]")
+        == "hey hey hey"
+    )
