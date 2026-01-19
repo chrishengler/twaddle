@@ -66,7 +66,6 @@ class TwaddleRunner:
             persistent_clipboard=persistent_clipboard,
             strict_mode=strict_mode,
         )
-        pass
 
     def add_dictionaries_from_folder(self, path: str | Path | Traversable):
         if isinstance(path, Traversable):
