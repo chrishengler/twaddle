@@ -46,3 +46,14 @@ def test_save_load_persistence():
     interpreter = Interpreter(LookupManager(), persistent_patterns=True)
     interpreter.interpret_external("[save:a]{hello}")
     assert interpreter.interpret_external("[load:a]") == "hello"
+
+
+def test_load_fallback():
+    assert get_standard_interpreter_output("[load:a;hello]") == "hello"
+
+
+def test_load_complex_fallback():
+    assert (
+        get_standard_interpreter_output("[load:a;[rep:3][sep:\\s]{hey}]")
+        == "hey hey hey"
+    )
