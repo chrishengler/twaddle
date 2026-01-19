@@ -268,10 +268,7 @@ class Interpreter:
     @run.register(FunctionObject)
     def _(self, func: FunctionObject):
         formatter = Formatter()
-        evaluated_args = list[str]()
-        for arg in func.args:
-            print(f"{arg=}")
-            evaluated_args.append(self.run(arg).resolve())
+        evaluated_args = [self.run(arg).resolve() for arg in func.args]
         if func.func in self.SPECIAL_FUNCTIONS:
             return self._handle_special_functions(func, evaluated_args)
         if func.func in function_definitions:
