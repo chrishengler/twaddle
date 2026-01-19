@@ -1,3 +1,4 @@
+from importlib.resources import as_file
 from importlib.resources.abc import Traversable
 from pathlib import Path
 
@@ -18,8 +19,6 @@ class TwaddleRunner:
     ):
         # Handle Traversable objects from importlib.resources
         if isinstance(path, Traversable):
-            from importlib.resources import as_file
-
             with as_file(path) as directory:
                 self._initialize(
                     directory,
@@ -31,6 +30,8 @@ class TwaddleRunner:
                     strict_mode,
                 )
         else:
+            if not isinstance(path, Path):
+                path = Path(path)
             self._initialize(
                 path,
                 persistent,
@@ -43,7 +44,7 @@ class TwaddleRunner:
 
     def _initialize(
         self,
-        path: str | Path,
+        path: Path,
         persistent: bool,
         persistent_labels: bool,
         persistent_synchronizers: bool,
@@ -66,6 +67,24 @@ class TwaddleRunner:
             strict_mode=strict_mode,
         )
         pass
+
+    def add_dictionaries_from_folder(self, path: str | Path | Traversable):
+        if isinstance(path, Traversable):
+            with as_file(path) as directory:
+                self.lookup_manager.add_dictionaries_from_folder(directory)
+        else:
+            if not isinstance(path, Path):
+                path = Path(path)
+            self.lookup_manager.add_dictionaries_from_folder(path)
+
+    def add_dictionary_file(self, path: str | Path | Traversable):
+        if isinstance(path, Traversable):
+            with as_file(path) as file:
+                self.lookup_manager.add_dictionary_file(file)
+        else:
+            if not isinstance(path, Path):
+                path = Path(path)
+            self.lookup_manager.add_dictionary_file(path)
 
     def run_sentence(self, sentence: str) -> str:
         return self.interpreter.interpret_external(sentence)

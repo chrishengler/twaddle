@@ -78,3 +78,17 @@ if __name__ == "__main__":
     main()
 
 ```
+
+#### Adding dictionaries
+
+In the example above a single path is inspected for dictionary files. When integrating
+Twaddle into your code it is also possible to pass a list of directories where
+dictionaries may be found, or to add additional dictionaries after initialisation.
+
+The `TwaddleRunner` provides two methods:
+
+- `add_dictionaries_from_folder(self, path: str | Path | Traversable)` 
+- `add_dictionary_file(self, path: str | Path | Traversable)`
+
+These methods can be called at any time to add, respectively, all dictionary files 
+within a folder or an individual dictionary file.
