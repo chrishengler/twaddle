@@ -1,25 +1,23 @@
-[project]
+[tool.poetry]
 name = "twaddle"
 version = "1.8.1"
 description = "Text generation and templating"
-authors = [
-    {name = "Chris Hengler",email = "chrysics@gmail.com"}
-]
-license = {text = "MIT"}
+authors = ["Chris Hengler <chrysics@gmail.com>"]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "pytest (>=7.2.0)"
-]
-    
-[project.urls]
+packages = [{ include = "twaddle" }]
+include = ["twaddle/py.typed"]
+
+[tool.poetry.urls]
 documentation = "https://chrishengler.github.io/twaddle/"
 repository = "https://github.com/chrishengler/twaddle"
+
+[tool.poetry.dependencies]
+python = ">=3.11"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=7.2.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry]
-packages = [{ include = "twaddle" }]
-include = ["twaddle/py.typed"]
