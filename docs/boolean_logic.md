@@ -1,9 +1,9 @@
-# Boolean Predicates and While Loops
+# Boolean Logic
 
-This page documents Twaddle's boolean logic functions and while loop construct.
+This page documents Twaddle's boolean logic functions, if/else, and while loop construct.
 Boolean functions evaluate conditions and return either `"1"` (true) or `"0"` 
-(false). They are designed to work seamlessly with [while loops](boolean_predicates.md#while-loops),
-but can also be used standalone within regular Twaddle sentences.
+(false). They are designed to work seamlessly with [while loops](boolean_logic.md#while-loops)
+and Twaddle's [if/else functionality](boolean_logic.md#if-else), but can also be used standalone within regular Twaddle sentences.
 
 ## Boolean Conversion
 
@@ -236,7 +236,7 @@ low: `100`.
 parseable as an int. Defaults to `100` if not set. 
 - `block contents` — the block to repeat
 
-**Behavior:**
+**Behaviour:**
 
 1. The predicate is evaluated
 2. If the result is truthy (by bool conversion rules), the block is executed once
@@ -261,6 +261,46 @@ Repeat until a condition is met:
 
 Output: repeatedly prints random South American countries until the first time Brazil is chosen.
 
+
+## If/Else
+
+Twaddle's `if` function accepts any of the boolean predicates above, or implicitly
+converts a standard Twaddle pattern according to the same rules as stated above for
+[boolean conversion](#boolean-conversion). It accepts two mandatory and one optional 
+argument:
+
+**Syntax:**
+```
+[if:<predicate>;<if-branch>;<else-branch>]
+```
+
+**Arguments:**
+- `predicate` - a boolean expression, implicitly converted if necessary
+- `if-branch` - a Twaddle pattern to run if the predicate is true
+- `else-branch` (optional) - a Twaddle pattern to run if the predicate is false
+
+**Examples:**
+
+```
+[if:[less_than:3;5];3 is smaller than 5;3 is bigger than 5]
+```
+
+Output: `3 is smaller than 5`
+
+```
+[if:[eq:3;5];3 is equal to 5;3 is not equal to 5]
+```
+
+Output: `3 is not equal to 5`
+
+
+```
+[hide]{[copy:i]{0}}[while:[less_than:[paste:i];5]]{[if:[eq:[paste:i];2];2;x][hide]{[copy:i]{[add:[paste:i];1]}}}
+```
+
+Output: `xx2xx`
+
+
 ## Combining Boolean Functions
 
 Boolean functions can be nested and combined to create complex predicates:
@@ -273,4 +313,5 @@ Boolean functions can be nested and combined to create complex predicates:
 
 This loop continues while `x < 10` AND `y > 0` (note that `x` and `y` must be copied
 already with some numeric value so they can be loaded and used in the `less_than` and
-`greater_than` functions on the first iteration).
+`greater_than` functions on the first iteration). The same principle can also be applied 
+to `if` predicates.
