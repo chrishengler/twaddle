@@ -110,7 +110,7 @@ class Interpreter:
 
     # noinspection PyUnusedLocal
     @singledispatchmethod
-    def run(self, _arg) -> Formatter:
+    def run(self, _arg: None) -> Formatter:
         formatter = Formatter()
         return formatter
 
@@ -327,7 +327,7 @@ class Interpreter:
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
 
-        def repl(matchobj: Match):
+        def repl(matchobj: Match[str]):
             RegexState.match = matchobj.group()
             return self.run(regex.replacement).resolve()
 
