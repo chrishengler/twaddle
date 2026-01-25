@@ -21,11 +21,16 @@ def test_if_false_simple():
 
 
 def test_if_positive_number():
-    assert get_interpreter_output("[if:5;positive;not positive]") == "positive"
+    assert (
+        get_interpreter_output("[if:5;positive true;positive false]") == "positive true"
+    )
 
 
 def test_if_negative_number():
-    assert get_interpreter_output("[if:-3;negative;not negative]") == "not negative"
+    assert (
+        get_interpreter_output("[if:-3;negative true;negative false]")
+        == "negative false"
+    )
 
 
 def test_if_zero():
@@ -165,8 +170,8 @@ def test_if_with_functions_in_both_branches():
 
 
 def test_if_with_string_functions():
-    assert get_interpreter_output("[if:1;[upper:hello];[lower:WORLD]]") == "HELLO"
-    assert get_interpreter_output("[if:0;[upper:hello];[lower:WORLD]]") == "world"
+    assert get_interpreter_output("[if:1;[reverse]{hello};hello]") == "olleh"
+    assert get_interpreter_output("[if:0;[reverse]{hello};hello]") == "hello"
 
 
 # ============================================================================
@@ -218,17 +223,17 @@ def test_if_both_branches_empty():
 
 
 def test_if_with_copy_paste_in_predicate():
-    sentence = "[copy:var]{5}[if:[paste:var];yes;no]"
+    sentence = "[hide]{[copy:var]{5}}[if:[paste:var];yes;no]"
     assert get_interpreter_output(sentence) == "yes"
 
 
 def test_if_with_copy_paste_in_branches():
-    sentence = "[copy:val]{10}[if:1;[paste:val];[add:[paste:val];5]]"
+    sentence = "[hide]{[copy:val]{10}}[if:1;[paste:val];[add:[paste:val];8]]"
     assert get_interpreter_output(sentence) == "10"
 
 
 def test_if_selecting_branch_based_on_comparison_with_paste():
-    sentence = "[copy:x]{3}[if:[less_than:[paste:x];5];small;large]"
+    sentence = "[hide]{[copy:x]{3}}[if:[less_than:[paste:x];5];small;large]"
     assert get_interpreter_output(sentence) == "small"
 
 
@@ -238,17 +243,23 @@ def test_if_selecting_branch_based_on_comparison_with_paste():
 
 
 def test_if_inside_while_loop():
-    sentence = "[copy:i]{0}[while:[less_than:[paste:i];3]]{[if:[equal_to:[paste:i];1];X;O][copy:i]{[add:[paste:i];1]}}"
+    sentence = (
+        "[hide]{[copy:i]{0}}[while:[less_than:[paste:i];3]]{[if:[equal_to:[paste:i];1];X;O]"
+        "[hide]{[copy:i]{[add:[paste:i];1]}}}"
+    )
     assert get_interpreter_output(sentence) == "OXO"
 
 
 def test_while_loop_inside_if_true_branch():
-    sentence = "[if:1;[copy:i]{0}[while:[less_than:[paste:i];3]]{A[copy:i]{[add:[paste:i];1]}}; ]"
+    sentence = (
+        "[hide]{[copy:i]{1}}[if:[paste:i];[while:[less_than:[paste:i];4]]"
+        "{{A}[hide]{[copy:i]{[add:[paste:i];1]}}}]"
+    )
     assert get_interpreter_output(sentence) == "AAA"
 
 
 def test_while_loop_inside_if_false_branch():
-    sentence = "[if:0; ;[copy:i]{0}[while:[less_than:[paste:i];3]]{B[copy:i]{[add:[paste:i];1]}}]"
+    sentence = "[if:0; ;[hide]{[copy:i]{0}}[while:[less_than:[paste:i];3]]{B[hide]{[copy:i]{[add:[paste:i];1]}}}]"
     assert get_interpreter_output(sentence) == "BBB"
 
 
@@ -312,7 +323,7 @@ def test_multiple_sequential_ifs():
 
 def test_chained_if_else_logic():
     # Simulating if-elif-else with nested ifs
-    sentence = "[copy:x]{7}[if:[less_than:[paste:x];5];small;[if:[less_than:[paste:x];10];medium;large]]"
+    sentence = "[hide]{[copy:x]{7}}[if:[less_than:[paste:x];5];small;[if:[less_than:[paste:x];10];medium;large]]"
     assert get_interpreter_output(sentence) == "medium"
 
 
@@ -334,8 +345,5 @@ def test_if_inside_rep():
 
 
 def test_if_alternating_with_counter_in_rep():
-    # Using modulo to alternate (if modulo function exists)
-    # Or using comparison with counter
-    sentence = "[copy:i]{0}[rep:4]{[if:[less_than:[paste:i];2];A;B][copy:i]{[add:[paste:i];1]}}"
-    # i=0: A (i<2), i=1: A (i<2), i=2: B (i>=2), i=3: B (i>=2)
+    sentence = "[hide]{[copy:i]{0}}[rep:4]{[if:[less_than:[paste:i];2];A;B][hide]{[copy:i]{[add:[paste:i];1]}}}"
     assert get_interpreter_output(sentence) == "AABB"
