@@ -27,7 +27,7 @@ from twaddle.lookup.lookup_manager import LookupManager
 
 
 class Interpreter:
-    SPECIAL_FUNCTIONS = ["clear", "load", "paste"]
+    SPECIAL_FUNCTIONS = ["clear", "load", "paste", "if"]
 
     def __init__(
         self,
@@ -110,7 +110,7 @@ class Interpreter:
 
     # noinspection PyUnusedLocal
     @singledispatchmethod
-    def run(self, _arg) -> Formatter:
+    def run(self, _arg: None) -> Formatter:
         formatter = Formatter()
         return formatter
 
@@ -215,17 +215,19 @@ class Interpreter:
         output_formatter.append(abbreviation)
         return output_formatter.resolve()
 
-    def _handle_special_functions(
-        self, func: FunctionObject, evaluated_args: list[str]
-    ):
+    def _handle_special_functions(self, func: FunctionObject):
         match func.func:
             case "clear":
                 self.force_clear()
                 return Formatter()
             case "load":
+                evaluated_args = [self.run(arg).resolve() for arg in func.args]
                 return self._load_pattern(evaluated_args)
             case "paste":
+                evaluated_args = [self.run(arg).resolve() for arg in func.args]
                 return self._paste_block(evaluated_args)
+            case "if":
+                return self._handle_if(func)
             case _:
                 raise TwaddleInterpreterException(
                     f"[Interpreter] function '{func.func}' "
@@ -265,12 +267,27 @@ class Interpreter:
             )
         return block
 
+    def _handle_if(self, func: FunctionObject) -> Formatter:
+        num_args = len(func.args)
+        if num_args not in [2, 3]:
+            raise TwaddleInterpreterException(
+                f"[Interpreter._handle_if] if requires either two or three arguments, got {num_args}"
+            )
+        predicate_result = self.run(func.args[0]).resolve()
+        predicate_bool = boolean_helper(predicate_result)
+        if predicate_bool:
+            return self.run(func.args[1])
+        elif num_args == 3:
+            return self.run(func.args[2])
+        else:
+            return Formatter()
+
     @run.register(FunctionObject)
     def _(self, func: FunctionObject):
         formatter = Formatter()
-        evaluated_args = [self.run(arg).resolve() for arg in func.args]
         if func.func in self.SPECIAL_FUNCTIONS:
-            return self._handle_special_functions(func, evaluated_args)
+            return self._handle_special_functions(func)
+        evaluated_args = [self.run(arg).resolve() for arg in func.args]
         if func.func in function_definitions:
             formatter.append(
                 function_definitions[func.func](
@@ -310,7 +327,7 @@ class Interpreter:
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
 
-        def repl(matchobj: Match):
+        def repl(matchobj: Match[str]):
             RegexState.match = matchobj.group()
             return self.run(regex.replacement).resolve()
 
