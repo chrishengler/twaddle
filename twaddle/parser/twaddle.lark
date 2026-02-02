@@ -1,0 +1,32 @@
+ # grammar.lark
+  start: element*
+  !element: block | function | lookup | escape | TEXT | SEMICOLON | PIPE
+  # we want semicolons to be prioritised as arg separators in arg context
+  # without forcing them to always be escaped
+  # so we define a separate rule - the only difference from a standard element is that
+  # it can't be a semicolon
+  !arg_element: block | function | lookup | escape | TEXT | PIPE
+
+  block: "{" choice ("|" choice)* "}"
+  !choice_element: block | function | lookup | escape | TEXT | SEMICOLON
+  choice: choice_element*
+
+  function: "[" NAME (":" arg (SEMICOLON arg)*)? "]"
+  arg: arg_element*
+
+  lookup: "<" NAME ((lookup_modifier)*)? ">"
+  lookup_modifier: form | tag | label
+  form: "." NAME
+  tag: "-" TAG_MODIFIER? NAME
+  TAG_MODIFIER: "!"
+  tag_name: NAME
+  label: "::" LABEL_MODIFIER? "=" NAME
+  LABEL_MODIFIER: "!" | "^"
+
+  NAME: /[^\s\!<>{}\[\]|\\:.-]+/
+
+  TEXT: /[^<>{}\[\]|\\;]+/
+  SEMICOLON: ";"
+  PIPE: "|"
+  escape: "\\" ESCAPED_CHAR
+  ESCAPED_CHAR: /[naAdts\\;]/

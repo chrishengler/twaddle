@@ -4,7 +4,7 @@ from random import randint, randrange
 from re import Match, sub
 from typing import Optional
 
-from twaddle.compiler.compiler import Compiler
+# from twaddle.compiler.compiler import Compiler
 from twaddle.compiler.compiler_objects import (
     BlockObject,
     DigitObject,
@@ -24,6 +24,11 @@ from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
+from twaddle.parser.transformer import TwaddleTransformer
+from twaddle.parser.twaddle_parser import Lark_StandAlone as TwaddleParser
+
+parser = TwaddleParser()
+transformer = TwaddleTransformer()
 
 
 class Interpreter:
@@ -45,15 +50,18 @@ class Interpreter:
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
-        self.compiler = Compiler(strict_mode=strict_mode)
+        # parser = Compiler(strict_mode=strict_mode)
+        # TODO: strict mode handling
         self.saved_patterns = dict[str, BlockObject]()
         self.copied_blocks = dict[str, Formatter]()
         self.strict_mode = strict_mode
 
     def interpret_external(self, sentence: str) -> str:
         self.clear()
-        compiled_sentence = self.compiler.compile(sentence)
-        return self.interpret_internal(compiled_sentence)
+        tree = parser.parse(sentence)
+        print(tree.pretty())
+        transformed_tree = transformer.transform(tree)
+        return self.interpret_internal(transformed_tree)
 
     def interpret_internal(self, parse_result: RootObject) -> str:
         formatter = Formatter()
