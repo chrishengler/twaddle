@@ -4,6 +4,8 @@ from random import randint, randrange
 from re import Match, sub
 from typing import Optional
 
+from lark.exceptions import UnexpectedInput
+
 # from twaddle.compiler.compiler import Compiler
 from twaddle.compiler.compiler_objects import (
     BlockObject,
@@ -60,7 +62,10 @@ class Interpreter:
         self.clear()
         tree = parser.parse(sentence)
         print(tree.pretty())
-        transformed_tree = transformer.transform(tree)
+        try:
+            transformed_tree = transformer.transform(tree)
+        except UnexpectedInput as err:
+            raise TwaddleInterpreterException(err.get_context(sentence))
         return self.interpret_internal(transformed_tree)
 
     def interpret_internal(self, parse_result: RootObject) -> str:
@@ -295,6 +300,8 @@ class Interpreter:
         formatter = Formatter()
         if func.func in self.SPECIAL_FUNCTIONS:
             return self._handle_special_functions(func)
+        for arg in func.args:
+            print(f"{arg} ({type(arg)=})")
         evaluated_args = [self.run(arg).resolve() for arg in func.args]
         if func.func in function_definitions:
             formatter.append(
@@ -334,6 +341,8 @@ class Interpreter:
     @run.register(RegexObject)
     def _(self, regex: RegexObject):
         # noinspection SpellCheckingInspection
+
+        print(f"{regex.regex=}; {regex.scope=}; {regex.replacement=}")
 
         def repl(matchobj: Match[str]):
             RegexState.match = matchobj.group()

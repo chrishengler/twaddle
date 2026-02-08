@@ -58,11 +58,14 @@ def repeat(
     block_attribute_manager: BlockAttributeManager,
     _raw_args: list[RootObject],
 ):
+    print("repeat")
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#repeat] repeat requires exactly one argument"
         )
+    print(evaluated_args)
     repetitions = int(evaluated_args[0])
+    print(f"{repetitions=}")
     block_attribute_manager.current_attributes.repetitions = repetitions
 
 

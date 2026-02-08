@@ -26,34 +26,13 @@ __version__ = "1.3.1"
 #
 #
 
-from abc import ABC, abstractmethod
 from copy import deepcopy
+from abc import ABC, abstractmethod
 from types import ModuleType
 from typing import (
-    IO,
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    ClassVar,
-    Collection,
-    Dict,
-    FrozenSet,
-    Generic,
-    Iterable,
-    Iterator,
-    List,
-    Mapping,
-    Optional,
-)
-from typing import Pattern as REPattern
-from typing import (
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    TypeVar,
-    Union,
-    overload,
+    TypeVar, Generic, Type, Tuple, List, Dict, Iterator, Collection, Callable, Optional, FrozenSet, Any,
+    Union, Iterable, IO, TYPE_CHECKING, overload, Sequence,
+    Pattern as REPattern, ClassVar, Set, Mapping
 )
 
 
@@ -65,7 +44,7 @@ class ConfigurationError(LarkError, ValueError):
     pass
 
 
-def assert_config(value, options: Collection, msg="Got %r, expected one of %s"):
+def assert_config(value, options: Collection, msg='Got %r, expected one of %s'):
     if value not in options:
         raise ConfigurationError(msg % (value, options))
 
@@ -81,43 +60,37 @@ class ParseError(LarkError):
 class LexError(LarkError):
     pass
 
-
-T = TypeVar("T")
-
+T = TypeVar('T')
 
 class UnexpectedInput(LarkError):
-    # --
+    #--
     line: int
     column: int
     pos_in_stream = None
     state: Any
     _terminals_by_name = None
-    interactive_parser: "InteractiveParser"
+    interactive_parser: 'InteractiveParser'
 
-    def get_context(self, text: str, span: int = 40) -> str:
-        # --
+    def get_context(self, text: str, span: int=40) -> str:
+        #--
         pos = self.pos_in_stream or 0
         start = max(pos - span, 0)
         end = pos + span
         if not isinstance(text, bytes):
-            before = text[start:pos].rsplit("\n", 1)[-1]
-            after = text[pos:end].split("\n", 1)[0]
-            return before + after + "\n" + " " * len(before.expandtabs()) + "^\n"
+            before = text[start:pos].rsplit('\n', 1)[-1]
+            after = text[pos:end].split('\n', 1)[0]
+            return before + after + '\n' + ' ' * len(before.expandtabs()) + '^\n'
         else:
-            before = text[start:pos].rsplit(b"\n", 1)[-1]
-            after = text[pos:end].split(b"\n", 1)[0]
-            return (
-                before + after + b"\n" + b" " * len(before.expandtabs()) + b"^\n"
-            ).decode("ascii", "backslashreplace")
+            before = text[start:pos].rsplit(b'\n', 1)[-1]
+            after = text[pos:end].split(b'\n', 1)[0]
+            return (before + after + b'\n' + b' ' * len(before.expandtabs()) + b'^\n').decode("ascii", "backslashreplace")
 
-    def match_examples(
-        self,
-        parse_fn: "Callable[[str], Tree]",
-        examples: Union[Mapping[T, Iterable[str]], Iterable[Tuple[T, Iterable[str]]]],
-        token_type_match_fallback: bool = False,
-        use_accepts: bool = True,
-    ) -> Optional[T]:
-        # --
+    def match_examples(self, parse_fn: 'Callable[[str], Tree]',
+                             examples: Union[Mapping[T, Iterable[str]], Iterable[Tuple[T, Iterable[str]]]],
+                             token_type_match_fallback: bool=False,
+                             use_accepts: bool=True
+                         ) -> Optional[T]:
+        #--
         assert self.state is not None, "Not supported for this exception"
 
         if isinstance(examples, Mapping):
@@ -138,14 +111,13 @@ class UnexpectedInput(LarkError):
                             and isinstance(ut, UnexpectedToken)
                             and ut.accepts != self.accepts
                         ):
-                            logger.debug(
-                                "Different accepts with same state[%d]: %s != %s at example [%s][%s]"
-                                % (self.state, self.accepts, ut.accepts, i, j)
-                            )
+                            logger.debug("Different accepts with same state[%d]: %s != %s at example [%s][%s]" %
+                                         (self.state, self.accepts, ut.accepts, i, j))
                             continue
-                        if isinstance(
-                            self, (UnexpectedToken, UnexpectedEOF)
-                        ) and isinstance(ut, (UnexpectedToken, UnexpectedEOF)):
+                        if (
+                            isinstance(self, (UnexpectedToken, UnexpectedEOF))
+                            and isinstance(ut, (UnexpectedToken, UnexpectedEOF))
+                        ):
                             if ut.token == self.token:  ##
 
                                 logger.debug("Exact Match at example [%s][%s]" % (i, j))
@@ -154,19 +126,12 @@ class UnexpectedInput(LarkError):
                             if token_type_match_fallback:
                                 ##
 
-                                if (ut.token.type == self.token.type) and not candidate[
-                                    -1
-                                ]:
-                                    logger.debug(
-                                        "Token Type Fallback at example [%s][%s]"
-                                        % (i, j)
-                                    )
+                                if (ut.token.type == self.token.type) and not candidate[-1]:
+                                    logger.debug("Token Type Fallback at example [%s][%s]" % (i, j))
                                     candidate = label, True
 
                         if candidate[0] is None:
-                            logger.debug(
-                                "Same State match at example [%s][%s]" % (i, j)
-                            )
+                            logger.debug("Same State match at example [%s][%s]" % (i, j))
                             candidate = label, False
 
         return candidate[0]
@@ -174,15 +139,13 @@ class UnexpectedInput(LarkError):
     def _format_expected(self, expected):
         if self._terminals_by_name:
             d = self._terminals_by_name
-            expected = [
-                d[t_name].user_repr() if t_name in d else t_name for t_name in expected
-            ]
-        return "Expected one of: \n\t* %s\n" % "\n\t* ".join(expected)
+            expected = [d[t_name].user_repr() if t_name in d else t_name for t_name in expected]
+        return "Expected one of: \n\t* %s\n" % '\n\t* '.join(expected)
 
 
 class UnexpectedEOF(ParseError, UnexpectedInput):
-    # --
-    expected: "List[Token]"
+    #--
+    expected: 'List[Token]'
 
     def __init__(self, expected, state=None, terminals_by_name=None):
         super(UnexpectedEOF, self).__init__()
@@ -190,13 +153,13 @@ class UnexpectedEOF(ParseError, UnexpectedInput):
         self.expected = expected
         self.state = state
         from .lexer import Token
-
         self.token = Token("<EOF>", "")  ##
 
         self.pos_in_stream = -1
         self.line = -1
         self.column = -1
         self._terminals_by_name = terminals_by_name
+
 
     def __str__(self):
         message = "Unexpected end-of-input. "
@@ -205,24 +168,13 @@ class UnexpectedEOF(ParseError, UnexpectedInput):
 
 
 class UnexpectedCharacters(LexError, UnexpectedInput):
-    # --
+    #--
 
     allowed: Set[str]
     considered_tokens: Set[Any]
 
-    def __init__(
-        self,
-        seq,
-        lex_pos,
-        line,
-        column,
-        allowed=None,
-        considered_tokens=None,
-        state=None,
-        token_history=None,
-        terminals_by_name=None,
-        considered_rules=None,
-    ):
+    def __init__(self, seq, lex_pos, line, column, allowed=None, considered_tokens=None, state=None, token_history=None,
+                 terminals_by_name=None, considered_rules=None):
         super(UnexpectedCharacters, self).__init__()
 
         ##
@@ -239,49 +191,36 @@ class UnexpectedCharacters(LexError, UnexpectedInput):
         self.token_history = token_history
 
         if isinstance(seq, bytes):
-            self.char = seq[lex_pos : lex_pos + 1].decode("ascii", "backslashreplace")
+            self.char = seq[lex_pos:lex_pos + 1].decode("ascii", "backslashreplace")
         else:
             self.char = seq[lex_pos]
         self._context = self.get_context(seq)
 
+
     def __str__(self):
-        message = (
-            "No terminal matches '%s' in the current parser context, at line %d col %d"
-            % (self.char, self.line, self.column)
-        )
-        message += "\n\n" + self._context
+        message = "No terminal matches '%s' in the current parser context, at line %d col %d" % (self.char, self.line, self.column)
+        message += '\n\n' + self._context
         if self.allowed:
             message += self._format_expected(self.allowed)
         if self.token_history:
-            message += "\nPrevious tokens: %s\n" % ", ".join(
-                repr(t) for t in self.token_history
-            )
+            message += '\nPrevious tokens: %s\n' % ', '.join(repr(t) for t in self.token_history)
         return message
 
 
 class UnexpectedToken(ParseError, UnexpectedInput):
-    # --
+    #--
 
     expected: Set[str]
     considered_rules: Set[str]
 
-    def __init__(
-        self,
-        token,
-        expected,
-        considered_rules=None,
-        state=None,
-        interactive_parser=None,
-        terminals_by_name=None,
-        token_history=None,
-    ):
+    def __init__(self, token, expected, considered_rules=None, state=None, interactive_parser=None, terminals_by_name=None, token_history=None):
         super(UnexpectedToken, self).__init__()
 
         ##
 
-        self.line = getattr(token, "line", "?")
-        self.column = getattr(token, "column", "?")
-        self.pos_in_stream = getattr(token, "start_pos", None)
+        self.line = getattr(token, 'line', '?')
+        self.column = getattr(token, 'column', '?')
+        self.pos_in_stream = getattr(token, 'start_pos', None)
         self.state = state
 
         self.token = token
@@ -293,31 +232,27 @@ class UnexpectedToken(ParseError, UnexpectedInput):
         self._terminals_by_name = terminals_by_name
         self.token_history = token_history
 
+
     @property
     def accepts(self) -> Set[str]:
         if self._accepts is NO_VALUE:
-            self._accepts = (
-                self.interactive_parser and self.interactive_parser.accepts()
-            )
+            self._accepts = self.interactive_parser and self.interactive_parser.accepts()
         return self._accepts
 
     def __str__(self):
-        message = "Unexpected token %r at line %s, column %s.\n%s" % (
-            self.token,
-            self.line,
-            self.column,
-            self._format_expected(self.accepts or self.expected),
-        )
+        message = ("Unexpected token %r at line %s, column %s.\n%s"
+                   % (self.token, self.line, self.column, self._format_expected(self.accepts or self.expected)))
         if self.token_history:
             message += "Previous tokens: %r\n" % self.token_history
 
         return message
 
 
-class VisitError(LarkError):
-    # --
 
-    obj: "Union[Tree, Token]"
+class VisitError(LarkError):
+    #--
+
+    obj: 'Union[Tree, Token]'
     orig_exc: Exception
 
     def __init__(self, rule, obj, orig_exc):
@@ -333,11 +268,10 @@ class MissingVariableError(LarkError):
     pass
 
 
+import sys, re
 import logging
-import re
-import sys
 from dataclasses import dataclass
-from typing import AnyStr, Generic
+from typing import Generic, AnyStr
 
 logger: logging.Logger = logging.getLogger("lark")
 logger.addHandler(logging.StreamHandler())
@@ -353,9 +287,7 @@ NO_VALUE = object()
 T = TypeVar("T")
 
 
-def classify(
-    seq: Iterable, key: Optional[Callable] = None, value: Optional[Callable] = None
-) -> Dict:
+def classify(seq: Iterable, key: Optional[Callable] = None, value: Optional[Callable] = None) -> Dict:
     d: Dict[Any, Any] = {}
     for item in seq:
         k = key(item) if (key is not None) else item
@@ -369,15 +301,13 @@ def classify(
 
 def _deserialize(data: Any, namespace: Dict[str, Any], memo: Dict) -> Any:
     if isinstance(data, dict):
-        if "__type__" in data:  ##
+        if '__type__' in data:  ##
 
-            class_ = namespace[data["__type__"]]
+            class_ = namespace[data['__type__']]
             return class_.deserialize(data, memo)
-        elif "@" in data:
-            return memo[data["@"]]
-        return {
-            key: _deserialize(value, namespace, memo) for key, value in data.items()
-        }
+        elif '@' in data:
+            return memo[data['@']]
+        return {key:_deserialize(value, namespace, memo) for key, value in data.items()}
     elif isinstance(data, list):
         return [_deserialize(value, namespace, memo) for value in data]
     return data
@@ -385,34 +315,33 @@ def _deserialize(data: Any, namespace: Dict[str, Any], memo: Dict) -> Any:
 
 _T = TypeVar("_T", bound="Serialize")
 
-
 class Serialize:
-    # --
+    #--
 
     def memo_serialize(self, types_to_memoize: List) -> Any:
         memo = SerializeMemoizer(types_to_memoize)
         return self.serialize(memo), memo.serialize()
 
-    def serialize(self, memo=None) -> Dict[str, Any]:
+    def serialize(self, memo = None) -> Dict[str, Any]:
         if memo and memo.in_types(self):
-            return {"@": memo.memoized.get(self)}
+            return {'@': memo.memoized.get(self)}
 
-        fields = getattr(self, "__serialize_fields__")
+        fields = getattr(self, '__serialize_fields__')
         res = {f: _serialize(getattr(self, f), memo) for f in fields}
-        res["__type__"] = type(self).__name__
-        if hasattr(self, "_serialize"):
+        res['__type__'] = type(self).__name__
+        if hasattr(self, '_serialize'):
             self._serialize(res, memo)
         return res
 
     @classmethod
     def deserialize(cls: Type[_T], data: Dict[str, Any], memo: Dict[int, Any]) -> _T:
-        namespace = getattr(cls, "__serialize_namespace__", [])
-        namespace = {c.__name__: c for c in namespace}
+        namespace = getattr(cls, '__serialize_namespace__', [])
+        namespace = {c.__name__:c for c in namespace}
 
-        fields = getattr(cls, "__serialize_fields__")
+        fields = getattr(cls, '__serialize_fields__')
 
-        if "@" in data:
-            return memo[data["@"]]
+        if '@' in data:
+            return memo[data['@']]
 
         inst = cls.__new__(cls)
         for f in fields:
@@ -421,16 +350,16 @@ class Serialize:
             except KeyError as e:
                 raise KeyError("Cannot find key for class", cls, e)
 
-        if hasattr(inst, "_deserialize"):
+        if hasattr(inst, '_deserialize'):
             inst._deserialize()
 
         return inst
 
 
 class SerializeMemoizer(Serialize):
-    # --
+    #--
 
-    __serialize_fields__ = ("memoized",)
+    __serialize_fields__ = 'memoized',
 
     def __init__(self, types_to_memoize: List) -> None:
         self.types_to_memoize = tuple(types_to_memoize)
@@ -444,29 +373,25 @@ class SerializeMemoizer(Serialize):
         return _serialize(self.memoized.reversed(), None)
 
     @classmethod
-    def deserialize(
-        cls, data: Dict[int, Any], namespace: Dict[str, Any], memo: Dict[Any, Any]
-    ) -> Dict[int, Any]:  ##
+    def deserialize(cls, data: Dict[int, Any], namespace: Dict[str, Any], memo: Dict[Any, Any]) -> Dict[int, Any]:  ##
 
         return _deserialize(data, namespace, memo)
 
 
 try:
     import regex
-
     _has_regex = True
 except ImportError:
     _has_regex = False
 
 if sys.version_info >= (3, 11):
-    import re._constants as sre_constants
     import re._parser as sre_parse
+    import re._constants as sre_constants
 else:
-    import sre_constants
     import sre_parse
+    import sre_constants
 
-categ_pattern = re.compile(r"\\p{[A-Za-z_]+}")
-
+categ_pattern = re.compile(r'\\p{[A-Za-z_]+}')
 
 def get_regexp_width(expr: str) -> Union[Tuple[int, int], List[int]]:
     if _has_regex:
@@ -476,13 +401,10 @@ def get_regexp_width(expr: str) -> Union[Tuple[int, int], List[int]]:
 
         ##
 
-        regexp_final = re.sub(categ_pattern, "A", expr)
+        regexp_final = re.sub(categ_pattern, 'A', expr)
     else:
         if re.search(categ_pattern, expr):
-            raise ImportError(
-                "`regex` module must be installed in order to use Unicode categories.",
-                expr,
-            )
+            raise ImportError('`regex` module must be installed in order to use Unicode categories.', expr)
         regexp_final = expr
     try:
         ##
@@ -502,7 +424,7 @@ def get_regexp_width(expr: str) -> Union[Tuple[int, int], List[int]]:
             ##
 
             MAXWIDTH = getattr(sre_parse, "MAXWIDTH", sre_constants.MAXREPEAT)
-            if c.match("") is None:
+            if c.match('') is None:
                 ##
 
                 return 1, int(MAXWIDTH)
@@ -512,7 +434,7 @@ def get_regexp_width(expr: str) -> Union[Tuple[int, int], List[int]]:
 
 @dataclass(frozen=True)
 class TextSlice(Generic[AnyStr]):
-    # --
+    #--
     text: AnyStr
     start: int
     end: int
@@ -522,17 +444,17 @@ class TextSlice(Generic[AnyStr]):
             raise TypeError("text must be str or bytes")
 
         if self.start < 0:
-            object.__setattr__(self, "start", self.start + len(self.text))
-            assert self.start >= 0
+            object.__setattr__(self, 'start', self.start + len(self.text))
+            assert self.start >=0
 
         if self.end is None:
-            object.__setattr__(self, "end", len(self.text))
+            object.__setattr__(self, 'end', len(self.text))
         elif self.end < 0:
-            object.__setattr__(self, "end", self.end + len(self.text))
+            object.__setattr__(self, 'end', self.end + len(self.text))
             assert self.end <= len(self.text)
 
     @classmethod
-    def cast_from(cls, text: "TextOrSlice") -> "TextSlice[AnyStr]":
+    def cast_from(cls, text: 'TextOrSlice') -> 'TextSlice[AnyStr]':
         if isinstance(text, TextSlice):
             return text
 
@@ -551,8 +473,9 @@ class TextSlice(Generic[AnyStr]):
         return self.text.rindex(substr, self.start, self.end)
 
 
-TextOrSlice = Union[AnyStr, "TextSlice[AnyStr]"]
+TextOrSlice = Union[AnyStr, 'TextSlice[AnyStr]']
 LarkInput = Union[AnyStr, TextSlice[AnyStr], Any]
+
 
 
 class Meta:
@@ -564,7 +487,7 @@ class Meta:
     end_line: int
     end_column: int
     end_pos: int
-    orig_expansion: "List[TerminalDef]"
+    orig_expansion: 'List[TerminalDef]'
     match_tree: bool
 
     def __init__(self):
@@ -572,18 +495,16 @@ class Meta:
 
 
 _Leaf_T = TypeVar("_Leaf_T")
-Branch = Union[_Leaf_T, "Tree[_Leaf_T]"]
+Branch = Union[_Leaf_T, 'Tree[_Leaf_T]']
 
 
 class Tree(Generic[_Leaf_T]):
-    # --
+    #--
 
     data: str
-    children: "List[Branch[_Leaf_T]]"
+    children: 'List[Branch[_Leaf_T]]'
 
-    def __init__(
-        self, data: str, children: "List[Branch[_Leaf_T]]", meta: Optional[Meta] = None
-    ) -> None:
+    def __init__(self, data: str, children: 'List[Branch[_Leaf_T]]', meta: Optional[Meta]=None) -> None:
         self.data = data
         self.children = children
         self._meta = meta
@@ -595,7 +516,7 @@ class Tree(Generic[_Leaf_T]):
         return self._meta
 
     def __repr__(self):
-        return "Tree(%r, %r)" % (self.data, self.children)
+        return 'Tree(%r, %r)' % (self.data, self.children)
 
     __match_args__ = ("data", "children")
 
@@ -603,38 +524,37 @@ class Tree(Generic[_Leaf_T]):
         return self.data
 
     def _pretty(self, level, indent_str):
-        yield f"{indent_str*level}{self._pretty_label()}"
+        yield f'{indent_str*level}{self._pretty_label()}'
         if len(self.children) == 1 and not isinstance(self.children[0], Tree):
-            yield f"\t{self.children[0]}\n"
+            yield f'\t{self.children[0]}\n'
         else:
-            yield "\n"
+            yield '\n'
             for n in self.children:
                 if isinstance(n, Tree):
-                    yield from n._pretty(level + 1, indent_str)
+                    yield from n._pretty(level+1, indent_str)
                 else:
-                    yield f"{indent_str*(level+1)}{n}\n"
+                    yield f'{indent_str*(level+1)}{n}\n'
 
-    def pretty(self, indent_str: str = "  ") -> str:
-        # --
-        return "".join(self._pretty(0, indent_str))
+    def pretty(self, indent_str: str='  ') -> str:
+        #--
+        return ''.join(self._pretty(0, indent_str))
 
-    def __rich__(self, parent: Optional["rich.tree.Tree"] = None) -> "rich.tree.Tree":
-        # --
+    def __rich__(self, parent:Optional['rich.tree.Tree']=None) -> 'rich.tree.Tree':
+        #--
         return self._rich(parent)
 
     def _rich(self, parent):
         if parent:
-            tree = parent.add(f"[bold]{self.data}[/bold]")
+            tree = parent.add(f'[bold]{self.data}[/bold]')
         else:
             import rich.tree
-
             tree = rich.tree.Tree(self.data)
 
         for c in self.children:
             if isinstance(c, Tree):
                 c._rich(tree)
             else:
-                tree.add(f"[green]{c}[/green]")
+                tree.add(f'[green]{c}[/green]')
 
         return tree
 
@@ -650,23 +570,20 @@ class Tree(Generic[_Leaf_T]):
     def __hash__(self) -> int:
         return hash((self.data, tuple(self.children)))
 
-    def iter_subtrees(self) -> "Iterator[Tree[_Leaf_T]]":
-        # --
+    def iter_subtrees(self) -> 'Iterator[Tree[_Leaf_T]]':
+        #--
         queue = [self]
         subtrees = dict()
         for subtree in queue:
             subtrees[id(subtree)] = subtree
-            queue += [
-                c
-                for c in reversed(subtree.children)
-                if isinstance(c, Tree) and id(c) not in subtrees
-            ]
+            queue += [c for c in reversed(subtree.children)
+                      if isinstance(c, Tree) and id(c) not in subtrees]
 
         del queue
         return reversed(list(subtrees.values()))
 
     def iter_subtrees_topdown(self):
-        # --
+        #--
         stack = [self]
         stack_append = stack.append
         stack_pop = stack.pop
@@ -678,35 +595,31 @@ class Tree(Generic[_Leaf_T]):
             for child in reversed(node.children):
                 stack_append(child)
 
-    def find_pred(
-        self, pred: "Callable[[Tree[_Leaf_T]], bool]"
-    ) -> "Iterator[Tree[_Leaf_T]]":
-        # --
+    def find_pred(self, pred: 'Callable[[Tree[_Leaf_T]], bool]') -> 'Iterator[Tree[_Leaf_T]]':
+        #--
         return filter(pred, self.iter_subtrees())
 
-    def find_data(self, data: str) -> "Iterator[Tree[_Leaf_T]]":
-        # --
+    def find_data(self, data: str) -> 'Iterator[Tree[_Leaf_T]]':
+        #--
         return self.find_pred(lambda t: t.data == data)
 
 
-from functools import update_wrapper, wraps
+from functools import wraps, update_wrapper
 from inspect import getmembers, getmro
 
-_Return_T = TypeVar("_Return_T")
-_Return_V = TypeVar("_Return_V")
-_Leaf_T = TypeVar("_Leaf_T")
-_Leaf_U = TypeVar("_Leaf_U")
-_R = TypeVar("_R")
+_Return_T = TypeVar('_Return_T')
+_Return_V = TypeVar('_Return_V')
+_Leaf_T = TypeVar('_Leaf_T')
+_Leaf_U = TypeVar('_Leaf_U')
+_R = TypeVar('_R')
 _FUNC = Callable[..., _Return_T]
 _DECORATED = Union[_FUNC, type]
 
-
 class _DiscardType:
-    # --
+    #--
 
     def __repr__(self):
         return "lark.visitors.Discard"
-
 
 Discard = _DiscardType()
 
@@ -714,7 +627,7 @@ Discard = _DiscardType()
 
 
 class _Decoratable:
-    # --
+    #--
 
     @classmethod
     def _apply_v_args(cls, visit_wrapper):
@@ -725,9 +638,7 @@ class _Decoratable:
 
             ##
 
-            if name.startswith("_") or (
-                name in libmembers and name not in cls.__dict__
-            ):
+            if name.startswith('_') or (name in libmembers and name not in cls.__dict__):
                 continue
             if not callable(value):
                 continue
@@ -745,10 +656,11 @@ class _Decoratable:
 
 
 class Transformer(_Decoratable, ABC, Generic[_Leaf_T, _Return_T]):
-    # --
-    __visit_tokens__ = True  ##
+    #--
+    __visit_tokens__ = True   ##
 
-    def __init__(self, visit_tokens: bool = True) -> None:
+
+    def __init__(self,  visit_tokens: bool=True) -> None:
         self.__visit_tokens__ = visit_tokens
 
     def _call_userfunc(self, tree, new_children=None):
@@ -761,7 +673,7 @@ class Transformer(_Decoratable, ABC, Generic[_Leaf_T, _Return_T]):
             return self.__default__(tree.data, children, tree.meta)
         else:
             try:
-                wrapper = getattr(f, "visit_wrapper", None)
+                wrapper = getattr(f, 'visit_wrapper', None)
                 if wrapper is not None:
                     return f.visit_wrapper(f, tree.data, children, tree.meta)
                 else:
@@ -801,32 +713,32 @@ class Transformer(_Decoratable, ABC, Generic[_Leaf_T, _Return_T]):
         return self._call_userfunc(tree, children)
 
     def transform(self, tree: Tree[_Leaf_T]) -> _Return_T:
-        # --
+        #--
         res = list(self._transform_children([tree]))
         if not res:
-            return None  ##
+            return None     ##
 
         assert len(res) == 1
         return res[0]
 
     def __mul__(
-        self: "Transformer[_Leaf_T, Tree[_Leaf_U]]",
-        other: "Union[Transformer[_Leaf_U, _Return_V], TransformerChain[_Leaf_U, _Return_V,]]",
-    ) -> "TransformerChain[_Leaf_T, _Return_V]":
-        # --
+            self: 'Transformer[_Leaf_T, Tree[_Leaf_U]]',
+            other: 'Union[Transformer[_Leaf_U, _Return_V], TransformerChain[_Leaf_U, _Return_V,]]'
+    ) -> 'TransformerChain[_Leaf_T, _Return_V]':
+        #--
         return TransformerChain(self, other)
 
     def __default__(self, data, children, meta):
-        # --
+        #--
         return Tree(data, children, meta)
 
     def __default_token__(self, token):
-        # --
+        #--
         return token
 
 
 def merge_transformers(base_transformer=None, **transformers_to_merge):
-    # --
+    #--
     if base_transformer is None:
         base_transformer = Transformer()
     for prefix, transformer in transformers_to_merge.items():
@@ -838,16 +750,14 @@ def merge_transformers(base_transformer=None, **transformers_to_merge):
                 continue
             prefixed_method = prefix + "__" + method_name
             if hasattr(base_transformer, prefixed_method):
-                raise AttributeError(
-                    "Cannot merge: method '%s' appears more than once" % prefixed_method
-                )
+                raise AttributeError("Cannot merge: method '%s' appears more than once" % prefixed_method)
 
             setattr(base_transformer, prefixed_method, method)
 
     return base_transformer
 
 
-class InlineTransformer(Transformer):  ##
+class InlineTransformer(Transformer):   ##
 
     def _call_userfunc(self, tree, new_children=None):
         ##
@@ -863,9 +773,9 @@ class InlineTransformer(Transformer):  ##
 
 class TransformerChain(Generic[_Leaf_T, _Return_T]):
 
-    transformers: "Tuple[Union[Transformer, TransformerChain], ...]"
+    transformers: 'Tuple[Union[Transformer, TransformerChain], ...]'
 
-    def __init__(self, *transformers: "Union[Transformer, TransformerChain]") -> None:
+    def __init__(self, *transformers: 'Union[Transformer, TransformerChain]') -> None:
         self.transformers = transformers
 
     def transform(self, tree: Tree[_Leaf_T]) -> _Return_T:
@@ -874,15 +784,15 @@ class TransformerChain(Generic[_Leaf_T, _Return_T]):
         return cast(_Return_T, tree)
 
     def __mul__(
-        self: "TransformerChain[_Leaf_T, Tree[_Leaf_U]]",
-        other: "Union[Transformer[_Leaf_U, _Return_V], TransformerChain[_Leaf_U, _Return_V]]",
-    ) -> "TransformerChain[_Leaf_T, _Return_V]":
+            self: 'TransformerChain[_Leaf_T, Tree[_Leaf_U]]',
+            other: 'Union[Transformer[_Leaf_U, _Return_V], TransformerChain[_Leaf_U, _Return_V]]'
+    ) -> 'TransformerChain[_Leaf_T, _Return_V]':
         return TransformerChain(*self.transformers + (other,))
 
 
 class Transformer_InPlace(Transformer[_Leaf_T, _Return_T]):
-    # --
-    def _transform_tree(self, tree):  ##
+    #--
+    def _transform_tree(self, tree):           ##
 
         return self._call_userfunc(tree)
 
@@ -894,7 +804,7 @@ class Transformer_InPlace(Transformer[_Leaf_T, _Return_T]):
 
 
 class Transformer_NonRecursive(Transformer[_Leaf_T, _Return_T]):
-    # --
+    #--
 
     def transform(self, tree: Tree[_Leaf_T]) -> _Return_T:
         ##
@@ -930,7 +840,7 @@ class Transformer_NonRecursive(Transformer[_Leaf_T, _Return_T]):
             else:
                 stack.append(x)
 
-        (result,) = stack  ##
+        result, = stack  ##
 
         ##
 
@@ -942,7 +852,7 @@ class Transformer_NonRecursive(Transformer[_Leaf_T, _Return_T]):
 
 
 class Transformer_InPlaceRecursive(Transformer[_Leaf_T, _Return_T]):
-    # --
+    #--
     def _transform_tree(self, tree):
         tree.children = list(self._transform_children(tree.children))
         return self._call_userfunc(tree)
@@ -956,7 +866,7 @@ class VisitorBase:
         return getattr(self, tree.data, self.__default__)(tree)
 
     def __default__(self, tree):
-        # --
+        #--
         return tree
 
     def __class_getitem__(cls, _):
@@ -964,26 +874,26 @@ class VisitorBase:
 
 
 class Visitor(VisitorBase, ABC, Generic[_Leaf_T]):
-    # --
+    #--
 
     def visit(self, tree: Tree[_Leaf_T]) -> Tree[_Leaf_T]:
-        # --
+        #--
         for subtree in tree.iter_subtrees():
             self._call_userfunc(subtree)
         return tree
 
     def visit_topdown(self, tree: Tree[_Leaf_T]) -> Tree[_Leaf_T]:
-        # --
+        #--
         for subtree in tree.iter_subtrees_topdown():
             self._call_userfunc(subtree)
         return tree
 
 
 class Visitor_Recursive(VisitorBase, Generic[_Leaf_T]):
-    # --
+    #--
 
     def visit(self, tree: Tree[_Leaf_T]) -> Tree[_Leaf_T]:
-        # --
+        #--
         for child in tree.children:
             if isinstance(child, Tree):
                 self.visit(child)
@@ -991,8 +901,8 @@ class Visitor_Recursive(VisitorBase, Generic[_Leaf_T]):
         self._call_userfunc(tree)
         return tree
 
-    def visit_topdown(self, tree: Tree[_Leaf_T]) -> Tree[_Leaf_T]:
-        # --
+    def visit_topdown(self,tree: Tree[_Leaf_T]) -> Tree[_Leaf_T]:
+        #--
         self._call_userfunc(tree)
 
         for child in tree.children:
@@ -1003,7 +913,7 @@ class Visitor_Recursive(VisitorBase, Generic[_Leaf_T]):
 
 
 class Interpreter(_Decoratable, ABC, Generic[_Leaf_T, _Return_T]):
-    # --
+    #--
 
     def visit(self, tree: Tree[_Leaf_T]) -> _Return_T:
         ##
@@ -1016,17 +926,15 @@ class Interpreter(_Decoratable, ABC, Generic[_Leaf_T, _Return_T]):
 
     def _visit_tree(self, tree: Tree[_Leaf_T]):
         f = getattr(self, tree.data)
-        wrapper = getattr(f, "visit_wrapper", None)
+        wrapper = getattr(f, 'visit_wrapper', None)
         if wrapper is not None:
             return f.visit_wrapper(f, tree.data, tree.children, tree.meta)
         else:
             return f(tree)
 
     def visit_children(self, tree: Tree[_Leaf_T]) -> List:
-        return [
-            self._visit_tree(child) if isinstance(child, Tree) else child
-            for child in tree.children
-        ]
+        return [self._visit_tree(child) if isinstance(child, Tree) else child
+                for child in tree.children]
 
     def __getattr__(self, name):
         return self.__default__
@@ -1037,16 +945,13 @@ class Interpreter(_Decoratable, ABC, Generic[_Leaf_T, _Return_T]):
 
 _InterMethod = Callable[[Type[Interpreter], _Return_T], _R]
 
-
 def visit_children_decor(func: _InterMethod) -> _InterMethod:
-    # --
+    #--
     @wraps(func)
     def inner(cls, tree):
         values = cls.visit_children(tree)
         return func(cls, values)
-
     return inner
-
 
 ##
 
@@ -1061,12 +966,10 @@ def _apply_v_args(obj, visit_wrapper):
 
 
 class _VArgsWrapper:
-    # --
+    #--
     base_func: Callable
 
-    def __init__(
-        self, func: Callable, visit_wrapper: Callable[[Callable, str, list, Any], Any]
-    ):
+    def __init__(self, func: Callable, visit_wrapper: Callable[[Callable, str, list, Any], Any]):
         if isinstance(func, _VArgsWrapper):
             func = func.base_func
         self.base_func = func
@@ -1099,31 +1002,18 @@ class _VArgsWrapper:
 
 def _vargs_inline(f, _data, children, _meta):
     return f(*children)
-
-
 def _vargs_meta_inline(f, _data, children, meta):
     return f(meta, *children)
-
-
 def _vargs_meta(f, _data, children, meta):
     return f(meta, children)
-
-
 def _vargs_tree(f, data, children, meta):
     return f(Tree(data, children, meta))
 
 
-def v_args(
-    inline: bool = False,
-    meta: bool = False,
-    tree: bool = False,
-    wrapper: Optional[Callable] = None,
-) -> Callable[[_DECORATED], _DECORATED]:
-    # --
+def v_args(inline: bool = False, meta: bool = False, tree: bool = False, wrapper: Optional[Callable] = None) -> Callable[[_DECORATED], _DECORATED]:
+    #--
     if tree and (meta or inline):
-        raise ValueError(
-            "Visitor functions cannot combine 'tree' with 'meta' or 'inline'."
-        )
+        raise ValueError("Visitor functions cannot combine 'tree' with 'meta' or 'inline'.")
 
     func = None
     if meta:
@@ -1138,22 +1028,20 @@ def v_args(
 
     if wrapper is not None:
         if func is not None:
-            raise ValueError(
-                "Cannot use 'wrapper' along with 'tree', 'meta' or 'inline'."
-            )
+            raise ValueError("Cannot use 'wrapper' along with 'tree', 'meta' or 'inline'.")
         func = wrapper
 
     def _visitor_args_dec(obj):
         return _apply_v_args(obj, func)
-
     return _visitor_args_dec
+
 
 
 TOKEN_DEFAULT_PRIORITY = 0
 
 
 class Symbol(Serialize):
-    __slots__ = ("name",)
+    __slots__ = ('name',)
 
     name: str
     is_term: ClassVar[bool] = NotImplemented
@@ -1173,7 +1061,7 @@ class Symbol(Serialize):
         return hash(self.name)
 
     def __repr__(self):
-        return "%s(%r)" % (type(self).__name__, self.name)
+        return '%s(%r)' % (type(self).__name__, self.name)
 
     fullrepr = property(__repr__)
 
@@ -1182,7 +1070,7 @@ class Symbol(Serialize):
 
 
 class Terminal(Symbol):
-    __serialize_fields__ = "name", "filter_out"
+    __serialize_fields__ = 'name', 'filter_out'
 
     is_term: ClassVar[bool] = True
 
@@ -1192,14 +1080,14 @@ class Terminal(Symbol):
 
     @property
     def fullrepr(self):
-        return "%s(%r, %r)" % (type(self).__name__, self.name, self.filter_out)
+        return '%s(%r, %r)' % (type(self).__name__, self.name, self.filter_out)
 
     def renamed(self, f):
         return type(self)(f(self.name), self.filter_out)
 
 
 class NonTerminal(Symbol):
-    __serialize_fields__ = ("name",)
+    __serialize_fields__ = 'name',
 
     is_term: ClassVar[bool] = False
 
@@ -1208,17 +1096,11 @@ class NonTerminal(Symbol):
 
         ##
 
-        return {"name": str(self.name), "__type__": "NonTerminal"}
+        return {'name': str(self.name), '__type__': 'NonTerminal'}
 
 
 class RuleOptions(Serialize):
-    __serialize_fields__ = (
-        "keep_all_tokens",
-        "expand1",
-        "priority",
-        "template_source",
-        "empty_indices",
-    )
+    __serialize_fields__ = 'keep_all_tokens', 'expand1', 'priority', 'template_source', 'empty_indices'
 
     keep_all_tokens: bool
     expand1: bool
@@ -1226,14 +1108,7 @@ class RuleOptions(Serialize):
     template_source: Optional[str]
     empty_indices: Tuple[bool, ...]
 
-    def __init__(
-        self,
-        keep_all_tokens: bool = False,
-        expand1: bool = False,
-        priority: Optional[int] = None,
-        template_source: Optional[str] = None,
-        empty_indices: Tuple[bool, ...] = (),
-    ) -> None:
+    def __init__(self, keep_all_tokens: bool=False, expand1: bool=False, priority: Optional[int]=None, template_source: Optional[str]=None, empty_indices: Tuple[bool, ...]=()) -> None:
         self.keep_all_tokens = keep_all_tokens
         self.expand1 = expand1
         self.priority = priority
@@ -1241,19 +1116,19 @@ class RuleOptions(Serialize):
         self.empty_indices = empty_indices
 
     def __repr__(self):
-        return "RuleOptions(%r, %r, %r, %r)" % (
+        return 'RuleOptions(%r, %r, %r, %r)' % (
             self.keep_all_tokens,
             self.expand1,
             self.priority,
-            self.template_source,
+            self.template_source
         )
 
 
 class Rule(Serialize):
-    # --
-    __slots__ = ("origin", "expansion", "alias", "options", "order", "_hash")
+    #--
+    __slots__ = ('origin', 'expansion', 'alias', 'options', 'order', '_hash')
 
-    __serialize_fields__ = "origin", "expansion", "order", "alias", "options"
+    __serialize_fields__ = 'origin', 'expansion', 'order', 'alias', 'options'
     __serialize_namespace__ = Terminal, NonTerminal, RuleOptions
 
     origin: NonTerminal
@@ -1263,14 +1138,8 @@ class Rule(Serialize):
     options: RuleOptions
     _hash: int
 
-    def __init__(
-        self,
-        origin: NonTerminal,
-        expansion: Sequence[Symbol],
-        order: int = 0,
-        alias: Optional[str] = None,
-        options: Optional[RuleOptions] = None,
-    ):
+    def __init__(self, origin: NonTerminal, expansion: Sequence[Symbol],
+                 order: int=0, alias: Optional[str]=None, options: Optional[RuleOptions]=None):
         self.origin = origin
         self.expansion = expansion
         self.alias = alias
@@ -1282,18 +1151,10 @@ class Rule(Serialize):
         self._hash = hash((self.origin, tuple(self.expansion)))
 
     def __str__(self):
-        return "<%s : %s>" % (
-            self.origin.name,
-            " ".join(x.name for x in self.expansion),
-        )
+        return '<%s : %s>' % (self.origin.name, ' '.join(x.name for x in self.expansion))
 
     def __repr__(self):
-        return "Rule(%r, %r, %r, %r)" % (
-            self.origin,
-            self.expansion,
-            self.alias,
-            self.options,
-        )
+        return 'Rule(%r, %r, %r, %r)' % (self.origin, self.expansion, self.alias, self.options)
 
     def __hash__(self):
         return self._hash
@@ -1302,6 +1163,7 @@ class Rule(Serialize):
         if not isinstance(other, Rule):
             return False
         return self.origin == other.origin and self.expansion == other.expansion
+
 
 
 from contextlib import suppress
@@ -1313,18 +1175,15 @@ try:  ##
 except NameError:
     has_interegular = False
 
-
 class Pattern(Serialize, ABC):
-    # --
+    #--
 
     value: str
     flags: Collection[str]
     raw: Optional[str]
     type: ClassVar[str]
 
-    def __init__(
-        self, value: str, flags: Collection[str] = (), raw: Optional[str] = None
-    ) -> None:
+    def __init__(self, value: str, flags: Collection[str] = (), raw: Optional[str] = None) -> None:
         self.value = value
         self.flags = frozenset(flags)
         self.raw = raw
@@ -1338,11 +1197,7 @@ class Pattern(Serialize, ABC):
         return hash((type(self), self.value, self.flags))
 
     def __eq__(self, other):
-        return (
-            type(self) == type(other)
-            and self.value == other.value
-            and self.flags == other.flags
-        )
+        return type(self) == type(other) and self.value == other.value and self.flags == other.flags
 
     @abstractmethod
     def to_regexp(self) -> str:
@@ -1360,12 +1215,12 @@ class Pattern(Serialize, ABC):
 
     def _get_flags(self, value):
         for f in self.flags:
-            value = "(?%s:%s)" % (f, value)
+            value = ('(?%s:%s)' % (f, value))
         return value
 
 
 class PatternStr(Pattern):
-    __serialize_fields__ = "value", "flags", "raw"
+    __serialize_fields__ = 'value', 'flags', 'raw'
 
     type: ClassVar[str] = "str"
 
@@ -1382,7 +1237,7 @@ class PatternStr(Pattern):
 
 
 class PatternRE(Pattern):
-    __serialize_fields__ = "value", "flags", "raw", "_width"
+    __serialize_fields__ = 'value', 'flags', 'raw', '_width'
 
     type: ClassVar[str] = "re"
 
@@ -1390,7 +1245,6 @@ class PatternRE(Pattern):
         return self._get_flags(self.value)
 
     _width = None
-
     def _get_width(self):
         if self._width is None:
             self._width = get_regexp_width(self.to_regexp())
@@ -1406,50 +1260,37 @@ class PatternRE(Pattern):
 
 
 class TerminalDef(Serialize):
-    # --
-    __serialize_fields__ = "name", "pattern", "priority"
+    #--
+    __serialize_fields__ = 'name', 'pattern', 'priority'
     __serialize_namespace__ = PatternStr, PatternRE
 
     name: str
     pattern: Pattern
     priority: int
 
-    def __init__(
-        self, name: str, pattern: Pattern, priority: int = TOKEN_DEFAULT_PRIORITY
-    ) -> None:
+    def __init__(self, name: str, pattern: Pattern, priority: int = TOKEN_DEFAULT_PRIORITY) -> None:
         assert isinstance(pattern, Pattern), pattern
         self.name = name
         self.pattern = pattern
         self.priority = priority
 
     def __repr__(self):
-        return "%s(%r, %r)" % (type(self).__name__, self.name, self.pattern)
+        return '%s(%r, %r)' % (type(self).__name__, self.name, self.pattern)
 
     def user_repr(self) -> str:
-        if self.name.startswith("__"):  ##
+        if self.name.startswith('__'):  ##
 
             return self.pattern.raw or self.name
         else:
             return self.name
 
-
-_T = TypeVar("_T", bound="Token")
-
+_T = TypeVar('_T', bound="Token")
 
 class Token(str):
-    # --
-    __slots__ = (
-        "type",
-        "start_pos",
-        "value",
-        "line",
-        "column",
-        "end_line",
-        "end_column",
-        "end_pos",
-    )
+    #--
+    __slots__ = ('type', 'start_pos', 'value', 'line', 'column', 'end_line', 'end_column', 'end_pos')
 
-    __match_args__ = ("type", "value")
+    __match_args__ = ('type', 'value')
 
     type: str
     start_pos: Optional[int]
@@ -1460,58 +1301,47 @@ class Token(str):
     end_column: Optional[int]
     end_pos: Optional[int]
 
-    @overload
-    def __new__(
-        cls,
-        type: str,
-        value: Any,
-        start_pos: Optional[int] = None,
-        line: Optional[int] = None,
-        column: Optional[int] = None,
-        end_line: Optional[int] = None,
-        end_column: Optional[int] = None,
-        end_pos: Optional[int] = None,
-    ) -> "Token": ...
 
     @overload
     def __new__(
-        cls,
-        type_: str,
-        value: Any,
-        start_pos: Optional[int] = None,
-        line: Optional[int] = None,
-        column: Optional[int] = None,
-        end_line: Optional[int] = None,
-        end_column: Optional[int] = None,
-        end_pos: Optional[int] = None,
-    ) -> "Token": ...
+            cls,
+            type: str,
+            value: Any,
+            start_pos: Optional[int] = None,
+            line: Optional[int] = None,
+            column: Optional[int] = None,
+            end_line: Optional[int] = None,
+            end_column: Optional[int] = None,
+            end_pos: Optional[int] = None
+    ) -> 'Token':
+        ...
+
+    @overload
+    def __new__(
+            cls,
+            type_: str,
+            value: Any,
+            start_pos: Optional[int] = None,
+            line: Optional[int] = None,
+            column: Optional[int] = None,
+            end_line: Optional[int] = None,
+            end_column: Optional[int] = None,
+            end_pos: Optional[int] = None
+    ) -> 'Token':        ...
 
     def __new__(cls, *args, **kwargs):
         if "type_" in kwargs:
-            warnings.warn(
-                "`type_` is deprecated use `type` instead", DeprecationWarning
-            )
+            warnings.warn("`type_` is deprecated use `type` instead", DeprecationWarning)
 
             if "type" in kwargs:
-                raise TypeError(
-                    "Error: using both 'type' and the deprecated 'type_' as arguments."
-                )
+                raise TypeError("Error: using both 'type' and the deprecated 'type_' as arguments.")
             kwargs["type"] = kwargs.pop("type_")
 
         return cls._future_new(*args, **kwargs)
 
+
     @classmethod
-    def _future_new(
-        cls,
-        type,
-        value,
-        start_pos=None,
-        line=None,
-        column=None,
-        end_line=None,
-        end_column=None,
-        end_pos=None,
-    ):
+    def _future_new(cls, type, value, start_pos=None, line=None, column=None, end_line=None, end_column=None, end_pos=None):
         inst = super(Token, cls).__new__(cls, value)
 
         inst.type = type
@@ -1525,59 +1355,39 @@ class Token(str):
         return inst
 
     @overload
-    def update(
-        self, type: Optional[str] = None, value: Optional[Any] = None
-    ) -> "Token": ...
+    def update(self, type: Optional[str] = None, value: Optional[Any] = None) -> 'Token':
+        ...
 
     @overload
-    def update(
-        self, type_: Optional[str] = None, value: Optional[Any] = None
-    ) -> "Token": ...
+    def update(self, type_: Optional[str] = None, value: Optional[Any] = None) -> 'Token':
+        ...
 
     def update(self, *args, **kwargs):
         if "type_" in kwargs:
-            warnings.warn(
-                "`type_` is deprecated use `type` instead", DeprecationWarning
-            )
+            warnings.warn("`type_` is deprecated use `type` instead", DeprecationWarning)
 
             if "type" in kwargs:
-                raise TypeError(
-                    "Error: using both 'type' and the deprecated 'type_' as arguments."
-                )
+                raise TypeError("Error: using both 'type' and the deprecated 'type_' as arguments.")
             kwargs["type"] = kwargs.pop("type_")
 
         return self._future_update(*args, **kwargs)
 
-    def _future_update(
-        self, type: Optional[str] = None, value: Optional[Any] = None
-    ) -> "Token":
+    def _future_update(self, type: Optional[str] = None, value: Optional[Any] = None) -> 'Token':
         return Token.new_borrow_pos(
             type if type is not None else self.type,
             value if value is not None else self.value,
-            self,
+            self
         )
 
     @classmethod
-    def new_borrow_pos(cls: Type[_T], type_: str, value: Any, borrow_t: "Token") -> _T:
-        return cls(
-            type_,
-            value,
-            borrow_t.start_pos,
-            borrow_t.line,
-            borrow_t.column,
-            borrow_t.end_line,
-            borrow_t.end_column,
-            borrow_t.end_pos,
-        )
+    def new_borrow_pos(cls: Type[_T], type_: str, value: Any, borrow_t: 'Token') -> _T:
+        return cls(type_, value, borrow_t.start_pos, borrow_t.line, borrow_t.column, borrow_t.end_line, borrow_t.end_column, borrow_t.end_pos)
 
     def __reduce__(self):
-        return (
-            self.__class__,
-            (self.type, self.value, self.start_pos, self.line, self.column),
-        )
+        return (self.__class__, (self.type, self.value, self.start_pos, self.line, self.column))
 
     def __repr__(self):
-        return "Token(%r, %r)" % (self.type, self.value)
+        return 'Token(%r, %r)' % (self.type, self.value)
 
     def __deepcopy__(self, memo):
         return Token(self.type, self.value, self.start_pos, self.line, self.column)
@@ -1592,9 +1402,9 @@ class Token(str):
 
 
 class LineCounter:
-    # --
+    #--
 
-    __slots__ = "char_pos", "line", "column", "line_start_pos", "newline_char"
+    __slots__ = 'char_pos', 'line', 'column', 'line_start_pos', 'newline_char'
 
     def __init__(self, newline_char):
         self.newline_char = newline_char
@@ -1607,26 +1417,22 @@ class LineCounter:
         if not isinstance(other, LineCounter):
             return NotImplemented
 
-        return (
-            self.char_pos == other.char_pos and self.newline_char == other.newline_char
-        )
+        return self.char_pos == other.char_pos and self.newline_char == other.newline_char
 
     def feed(self, token: TextOrSlice, test_newline=True):
-        # --
+        #--
         if test_newline:
             newlines = token.count(self.newline_char)
             if newlines:
                 self.line += newlines
-                self.line_start_pos = (
-                    self.char_pos + token.rindex(self.newline_char) + 1
-                )
+                self.line_start_pos = self.char_pos + token.rindex(self.newline_char) + 1
 
         self.char_pos += len(token)
         self.column = self.char_pos - self.line_start_pos + 1
 
 
 class UnlessCallback:
-    def __init__(self, scanner: "Scanner"):
+    def __init__(self, scanner: 'Scanner'):
         self.scanner = scanner
 
     def __call__(self, t: Token):
@@ -1652,7 +1458,6 @@ def _get_match(re_, regexp, s, flags):
     if m:
         return m.group(0)
 
-
 def _create_unless(terminals, g_regex_flags, re_, use_bytes):
     tokens_by_type = classify(terminals, lambda t: type(t.pattern))
     assert len(tokens_by_type) <= 2, tokens_by_type.keys()
@@ -1669,9 +1474,7 @@ def _create_unless(terminals, g_regex_flags, re_, use_bytes):
                 if strtok.pattern.flags <= retok.pattern.flags:
                     embedded_strs.add(strtok)
         if unless:
-            callback[retok.name] = UnlessCallback(
-                Scanner(unless, g_regex_flags, re_, use_bytes=use_bytes)
-            )
+            callback[retok.name] = UnlessCallback(Scanner(unless, g_regex_flags, re_, use_bytes=use_bytes))
 
     new_terminals = [t for t in terminals if t not in embedded_strs]
     return new_terminals, callback
@@ -1697,12 +1500,9 @@ class Scanner:
 
         mres = []
         while terminals:
-            pattern = "|".join(
-                "(?P<%s>%s)" % (t.name, t.pattern.to_regexp())
-                for t in terminals[:max_size]
-            )
+            pattern = u'|'.join(u'(?P<%s>%s)' % (t.name, t.pattern.to_regexp()) for t in terminals[:max_size])
             if self.use_bytes:
-                pattern = pattern.encode("latin-1")
+                pattern = pattern.encode('latin-1')
             try:
                 mre = self.re_.compile(pattern, self.g_regex_flags)
             except AssertionError:  ##
@@ -1719,6 +1519,7 @@ class Scanner:
             if m:
                 return m.group(0), m.lastgroup
 
+
     def fullmatch(self, text: str) -> Optional[str]:
         for mre in self._mres:
             m = mre.fullmatch(text)
@@ -1726,32 +1527,24 @@ class Scanner:
                 return m.lastgroup
         return None
 
-
 def _regexp_has_newline(r: str):
-    # --
-    return (
-        "\n" in r or "\\n" in r or "\\s" in r or "[^" in r or ("(?s" in r and "." in r)
-    )
+    #--
+    return '\n' in r or '\\n' in r or '\\s' in r or '[^' in r or ('(?s' in r and '.' in r)
 
 
 class LexerState:
-    # --
+    #--
 
-    __slots__ = "text", "line_ctr", "last_token"
+    __slots__ = 'text', 'line_ctr', 'last_token'
 
     text: TextSlice
     line_ctr: LineCounter
     last_token: Optional[Token]
 
-    def __init__(
-        self,
-        text: TextSlice,
-        line_ctr: Optional[LineCounter] = None,
-        last_token: Optional[Token] = None,
-    ):
+    def __init__(self, text: TextSlice, line_ctr: Optional[LineCounter] = None, last_token: Optional[Token]=None):
         if isinstance(text, TextSlice):
             if line_ctr is None:
-                line_ctr = LineCounter(b"\n" if isinstance(text.text, bytes) else "\n")
+                line_ctr = LineCounter(b'\n' if isinstance(text.text, bytes) else '\n')
 
                 if text.start > 0:
                     ##
@@ -1765,34 +1558,31 @@ class LexerState:
         self.line_ctr = line_ctr
         self.last_token = last_token
 
+
     def __eq__(self, other):
         if not isinstance(other, LexerState):
             return NotImplemented
 
-        return (
-            self.text == other.text
-            and self.line_ctr == other.line_ctr
-            and self.last_token == other.last_token
-        )
+        return self.text == other.text and self.line_ctr == other.line_ctr and self.last_token == other.last_token
 
     def __copy__(self):
         return type(self)(self.text, copy(self.line_ctr), self.last_token)
 
 
 class LexerThread:
-    # --
+    #--
 
-    def __init__(self, lexer: "Lexer", lexer_state: Optional[LexerState]):
+    def __init__(self, lexer: 'Lexer', lexer_state: Optional[LexerState]):
         self.lexer = lexer
         self.state = lexer_state
 
     @classmethod
-    def from_text(cls, lexer: "Lexer", text_or_slice: TextOrSlice) -> "LexerThread":
+    def from_text(cls, lexer: 'Lexer', text_or_slice: TextOrSlice) -> 'LexerThread':
         text = TextSlice.cast_from(text_or_slice)
         return cls(lexer, LexerState(text))
 
     @classmethod
-    def from_custom_input(cls, lexer: "Lexer", text: Any) -> "LexerThread":
+    def from_custom_input(cls, lexer: 'Lexer', text: Any) -> 'LexerThread':
         return cls(lexer, LexerState(text))
 
     def lex(self, parser_state):
@@ -1808,24 +1598,18 @@ class LexerThread:
 
 _Callback = Callable[[Token], Token]
 
-
 class Lexer(ABC):
-    # --
+    #--
     @abstractmethod
     def lex(self, lexer_state: LexerState, parser_state: Any) -> Iterator[Token]:
         return NotImplemented
 
     def make_lexer_state(self, text: str):
-        # --
+        #--
         return LexerState(TextSlice.cast_from(text))
 
 
-def _check_regex_collisions(
-    terminal_to_regexp: Dict[TerminalDef, str],
-    comparator,
-    strict_mode,
-    max_collisions_to_show=8,
-):
+def _check_regex_collisions(terminal_to_regexp: Dict[TerminalDef, str], comparator, strict_mode, max_collisions_to_show=8):
     if not comparator:
         comparator = interegular.Comparator.from_regexes(terminal_to_regexp)
 
@@ -1850,20 +1634,14 @@ def _check_regex_collisions(
 
             message = f"Collision between Terminals {a.name} and {b.name}. "
             try:
-                example = comparator.get_example_overlap(
-                    a, b, max_time
-                ).format_multiline()
+                example = comparator.get_example_overlap(a, b, max_time).format_multiline()
             except ValueError:
                 ##
 
                 example = "No example could be found fast enough. However, the collision does still exists"
             if strict_mode:
                 raise LexError(f"{message}\n{example}")
-            logger.warning(
-                "%s The lexer will choose between them arbitrarily.\n%s",
-                message,
-                example,
-            )
+            logger.warning("%s The lexer will choose between them arbitrarily.\n%s", message, example)
             if comparator.count_marked_pairs() >= max_collisions_to_show:
                 logger.warning("Found 8 regex collisions, will not check for more.")
                 return
@@ -1873,10 +1651,12 @@ class AbstractBasicLexer(Lexer):
     terminals_by_name: Dict[str, TerminalDef]
 
     @abstractmethod
-    def __init__(self, conf: "LexerConf", comparator=None) -> None: ...
+    def __init__(self, conf: 'LexerConf', comparator=None) -> None:
+        ...
 
     @abstractmethod
-    def next_token(self, lex_state: LexerState, parser_state: Any = None) -> Token: ...
+    def next_token(self, lex_state: LexerState, parser_state: Any = None) -> Token:
+        ...
 
     def lex(self, state: LexerState, parser_state: Any) -> Iterator[Token]:
         with suppress(EOFError):
@@ -1892,7 +1672,7 @@ class BasicLexer(AbstractBasicLexer):
     callback: Dict[str, _Callback]
     re: ModuleType
 
-    def __init__(self, conf: "LexerConf", comparator=None) -> None:
+    def __init__(self, conf: 'LexerConf', comparator=None) -> None:
         terminals = list(conf.terminals)
         assert all(isinstance(t, TerminalDef) for t in terminals), terminals
 
@@ -1910,41 +1690,24 @@ class BasicLexer(AbstractBasicLexer):
                     raise LexError("Cannot compile token %s: %s" % (t.name, t.pattern))
 
                 if t.pattern.min_width == 0:
-                    raise LexError(
-                        "Lexer does not allow zero-width terminals. (%s: %s)"
-                        % (t.name, t.pattern)
-                    )
+                    raise LexError("Lexer does not allow zero-width terminals. (%s: %s)" % (t.name, t.pattern))
                 if t.pattern.type == "re":
                     terminal_to_regexp[t] = regexp
 
             if not (set(conf.ignore) <= {t.name for t in terminals}):
-                raise LexError(
-                    "Ignore terminals are not defined: %s"
-                    % (set(conf.ignore) - {t.name for t in terminals})
-                )
+                raise LexError("Ignore terminals are not defined: %s" % (set(conf.ignore) - {t.name for t in terminals}))
 
             if has_interegular:
                 _check_regex_collisions(terminal_to_regexp, comparator, conf.strict)
             elif conf.strict:
-                raise LexError(
-                    "interegular must be installed for strict mode. Use `pip install 'lark[interegular]'`."
-                )
+                raise LexError("interegular must be installed for strict mode. Use `pip install 'lark[interegular]'`.")
 
         ##
 
-        self.newline_types = frozenset(
-            t.name for t in terminals if _regexp_has_newline(t.pattern.to_regexp())
-        )
+        self.newline_types = frozenset(t.name for t in terminals if _regexp_has_newline(t.pattern.to_regexp()))
         self.ignore_types = frozenset(conf.ignore)
 
-        terminals.sort(
-            key=lambda x: (
-                -x.priority,
-                -x.pattern.max_width,
-                -len(x.pattern.value),
-                x.name,
-            )
-        )
+        terminals.sort(key=lambda x: (-x.priority, -x.pattern.max_width, -len(x.pattern.value), x.name))
         self.terminals = terminals
         self.user_callbacks = conf.callbacks
         self.g_regex_flags = conf.g_regex_flags
@@ -1954,18 +1717,14 @@ class BasicLexer(AbstractBasicLexer):
         self._scanner: Optional[Scanner] = None
 
     def _build_scanner(self) -> Scanner:
-        terminals, self.callback = _create_unless(
-            self.terminals, self.g_regex_flags, self.re, self.use_bytes
-        )
+        terminals, self.callback = _create_unless(self.terminals, self.g_regex_flags, self.re, self.use_bytes)
         assert all(self.callback.values())
 
         for type_, f in self.user_callbacks.items():
             if type_ in self.callback:
                 ##
 
-                self.callback[type_] = CallChain(
-                    self.callback[type_], f, lambda t: t.type == type_
-                )
+                self.callback[type_] = CallChain(self.callback[type_], f, lambda t: t.type == type_)
             else:
                 self.callback[type_] = f
 
@@ -1988,25 +1747,16 @@ class BasicLexer(AbstractBasicLexer):
                 allowed = self.scanner.allowed_types - self.ignore_types
                 if not allowed:
                     allowed = {"<END-OF-FILE>"}
-                raise UnexpectedCharacters(
-                    lex_state.text.text,
-                    line_ctr.char_pos,
-                    line_ctr.line,
-                    line_ctr.column,
-                    allowed=allowed,
-                    token_history=lex_state.last_token and [lex_state.last_token],
-                    state=parser_state,
-                    terminals_by_name=self.terminals_by_name,
-                )
+                raise UnexpectedCharacters(lex_state.text.text, line_ctr.char_pos, line_ctr.line, line_ctr.column,
+                                           allowed=allowed, token_history=lex_state.last_token and [lex_state.last_token],
+                                           state=parser_state, terminals_by_name=self.terminals_by_name)
 
             value, type_ = res
 
             ignored = type_ in self.ignore_types
             t = None
             if not ignored or type_ in self.callback:
-                t = Token(
-                    type_, value, line_ctr.char_pos, line_ctr.line, line_ctr.column
-                )
+                t = Token(type_, value, line_ctr.char_pos, line_ctr.line, line_ctr.column)
             line_ctr.feed(value, type_ in self.newline_types)
             if t is not None:
                 t.end_line = line_ctr.line
@@ -2016,9 +1766,7 @@ class BasicLexer(AbstractBasicLexer):
                     t = self.callback[t.type](t)
                 if not ignored:
                     if not isinstance(t, Token):
-                        raise LexError(
-                            "Callbacks must return a token (returned %r)" % t
-                        )
+                        raise LexError("Callbacks must return a token (returned %r)" % t)
                     lex_state.last_token = t
                     return t
 
@@ -2033,12 +1781,7 @@ class ContextualLexer(Lexer):
 
     BasicLexer: Type[AbstractBasicLexer] = BasicLexer
 
-    def __init__(
-        self,
-        conf: "LexerConf",
-        states: Dict[int, Collection[str]],
-        always_accept: Collection[str] = (),
-    ) -> None:
+    def __init__(self, conf: 'LexerConf', states: Dict[int, Collection[str]], always_accept: Collection[str]=()) -> None:
         terminals = list(conf.terminals)
         terminals_by_name = conf.terminals_by_name
 
@@ -2046,9 +1789,7 @@ class ContextualLexer(Lexer):
         trad_conf.terminals = terminals
 
         if has_interegular and not conf.skip_validation:
-            comparator = interegular.Comparator.from_regexes(
-                {t: t.pattern.to_regexp() for t in terminals}
-            )
+            comparator = interegular.Comparator.from_regexes({t: t.pattern.to_regexp() for t in terminals})
         else:
             comparator = None
         lexer_by_tokens: Dict[FrozenSet[str], AbstractBasicLexer] = {}
@@ -2060,9 +1801,7 @@ class ContextualLexer(Lexer):
             except KeyError:
                 accepts = set(accepts) | set(conf.ignore) | set(always_accept)
                 lexer_conf = copy(trad_conf)
-                lexer_conf.terminals = [
-                    terminals_by_name[n] for n in accepts if n in terminals_by_name
-                ]
+                lexer_conf.terminals = [terminals_by_name[n] for n in accepts if n in terminals_by_name]
                 lexer = self.BasicLexer(lexer_conf, comparator)
                 lexer_by_tokens[key] = lexer
 
@@ -2073,9 +1812,7 @@ class ContextualLexer(Lexer):
 
         self.root_lexer = self.BasicLexer(trad_conf, comparator)
 
-    def lex(
-        self, lexer_state: LexerState, parser_state: "ParserState"
-    ) -> Iterator[Token]:
+    def lex(self, lexer_state: LexerState, parser_state: 'ParserState') -> Iterator[Token]:
         try:
             while True:
                 lexer = self.lexers[parser_state.position]
@@ -2091,39 +1828,26 @@ class ContextualLexer(Lexer):
                 last_token = lexer_state.last_token  ##
 
                 token = self.root_lexer.next_token(lexer_state, parser_state)
-                raise UnexpectedToken(
-                    token,
-                    e.allowed,
-                    state=parser_state,
-                    token_history=[last_token],
-                    terminals_by_name=self.root_lexer.terminals_by_name,
-                )
+                raise UnexpectedToken(token, e.allowed, state=parser_state, token_history=[last_token], terminals_by_name=self.root_lexer.terminals_by_name)
             except UnexpectedCharacters:
                 raise e  ##
 
 
-_ParserArgType: "TypeAlias" = 'Literal["earley", "lalr", "cyk", "auto"]'
-_LexerArgType: "TypeAlias" = (
-    'Union[Literal["auto", "basic", "contextual", "dynamic", "dynamic_complete"], Type[Lexer]]'
-)
+
+
+_ParserArgType: 'TypeAlias' = 'Literal["earley", "lalr", "cyk", "auto"]'
+_LexerArgType: 'TypeAlias' = 'Union[Literal["auto", "basic", "contextual", "dynamic", "dynamic_complete"], Type[Lexer]]'
 _LexerCallback = Callable[[Token], Token]
 ParserCallbacks = Dict[str, Callable]
 
-
 class LexerConf(Serialize):
-    __serialize_fields__ = (
-        "terminals",
-        "ignore",
-        "g_regex_flags",
-        "use_bytes",
-        "lexer_type",
-    )
-    __serialize_namespace__ = (TerminalDef,)
+    __serialize_fields__ = 'terminals', 'ignore', 'g_regex_flags', 'use_bytes', 'lexer_type'
+    __serialize_namespace__ = TerminalDef,
 
     terminals: Collection[TerminalDef]
     re_module: ModuleType
     ignore: Collection[str]
-    postlex: "Optional[PostLex]"
+    postlex: 'Optional[PostLex]'
     callbacks: Dict[str, _LexerCallback]
     g_regex_flags: int
     skip_validation: bool
@@ -2131,18 +1855,8 @@ class LexerConf(Serialize):
     lexer_type: Optional[_LexerArgType]
     strict: bool
 
-    def __init__(
-        self,
-        terminals: Collection[TerminalDef],
-        re_module: ModuleType,
-        ignore: Collection[str] = (),
-        postlex: "Optional[PostLex]" = None,
-        callbacks: Optional[Dict[str, _LexerCallback]] = None,
-        g_regex_flags: int = 0,
-        skip_validation: bool = False,
-        use_bytes: bool = False,
-        strict: bool = False,
-    ):
+    def __init__(self, terminals: Collection[TerminalDef], re_module: ModuleType, ignore: Collection[str]=(), postlex: 'Optional[PostLex]'=None,
+                 callbacks: Optional[Dict[str, _LexerCallback]]=None, g_regex_flags: int=0, skip_validation: bool=False, use_bytes: bool=False, strict: bool=False):
         self.terminals = terminals
         self.terminals_by_name = {t.name: t for t in self.terminals}
         assert len(self.terminals) == len(self.terminals_by_name)
@@ -2171,18 +1885,15 @@ class LexerConf(Serialize):
             deepcopy(self.use_bytes, memo),
         )
 
-
 class ParserConf(Serialize):
-    __serialize_fields__ = "rules", "start", "parser_type"
+    __serialize_fields__ = 'rules', 'start', 'parser_type'
 
-    rules: List["Rule"]
+    rules: List['Rule']
     callbacks: ParserCallbacks
     start: List[str]
     parser_type: _ParserArgType
 
-    def __init__(
-        self, rules: List["Rule"], callbacks: ParserCallbacks, start: List[str]
-    ):
+    def __init__(self, rules: List['Rule'], callbacks: ParserCallbacks, start: List[str]):
         assert isinstance(start, list)
         self.rules = rules
         self.callbacks = callbacks
@@ -2204,6 +1915,7 @@ class ExpandSingleChild:
             return self.node_builder(children)
 
 
+
 class PropagatePositions:
     def __init__(self, node_builder, node_filter=None):
         self.node_builder = node_builder
@@ -2221,57 +1933,34 @@ class PropagatePositions:
 
             ##
 
+
             res_meta = res.meta
 
             first_meta = self._pp_get_meta(children)
             if first_meta is not None:
-                if not hasattr(res_meta, "line"):
+                if not hasattr(res_meta, 'line'):
                     ##
 
-                    res_meta.line = getattr(
-                        first_meta, "container_line", first_meta.line
-                    )
-                    res_meta.column = getattr(
-                        first_meta, "container_column", first_meta.column
-                    )
-                    res_meta.start_pos = getattr(
-                        first_meta, "container_start_pos", first_meta.start_pos
-                    )
+                    res_meta.line = getattr(first_meta, 'container_line', first_meta.line)
+                    res_meta.column = getattr(first_meta, 'container_column', first_meta.column)
+                    res_meta.start_pos = getattr(first_meta, 'container_start_pos', first_meta.start_pos)
                     res_meta.empty = False
 
-                res_meta.container_line = getattr(
-                    first_meta, "container_line", first_meta.line
-                )
-                res_meta.container_column = getattr(
-                    first_meta, "container_column", first_meta.column
-                )
-                res_meta.container_start_pos = getattr(
-                    first_meta, "container_start_pos", first_meta.start_pos
-                )
+                res_meta.container_line = getattr(first_meta, 'container_line', first_meta.line)
+                res_meta.container_column = getattr(first_meta, 'container_column', first_meta.column)
+                res_meta.container_start_pos = getattr(first_meta, 'container_start_pos', first_meta.start_pos)
 
             last_meta = self._pp_get_meta(reversed(children))
             if last_meta is not None:
-                if not hasattr(res_meta, "end_line"):
-                    res_meta.end_line = getattr(
-                        last_meta, "container_end_line", last_meta.end_line
-                    )
-                    res_meta.end_column = getattr(
-                        last_meta, "container_end_column", last_meta.end_column
-                    )
-                    res_meta.end_pos = getattr(
-                        last_meta, "container_end_pos", last_meta.end_pos
-                    )
+                if not hasattr(res_meta, 'end_line'):
+                    res_meta.end_line = getattr(last_meta, 'container_end_line', last_meta.end_line)
+                    res_meta.end_column = getattr(last_meta, 'container_end_column', last_meta.end_column)
+                    res_meta.end_pos = getattr(last_meta, 'container_end_pos', last_meta.end_pos)
                     res_meta.empty = False
 
-                res_meta.container_end_line = getattr(
-                    last_meta, "container_end_line", last_meta.end_line
-                )
-                res_meta.container_end_column = getattr(
-                    last_meta, "container_end_column", last_meta.end_column
-                )
-                res_meta.container_end_pos = getattr(
-                    last_meta, "container_end_pos", last_meta.end_pos
-                )
+                res_meta.container_end_line = getattr(last_meta, 'container_end_line', last_meta.end_line)
+                res_meta.container_end_column = getattr(last_meta, 'container_end_column', last_meta.end_column)
+                res_meta.container_end_pos = getattr(last_meta, 'container_end_pos', last_meta.end_pos)
 
         return res
 
@@ -2284,9 +1973,8 @@ class PropagatePositions:
                     return c.meta
             elif isinstance(c, Token):
                 return c
-            elif hasattr(c, "__lark_meta__"):
+            elif hasattr(c, '__lark_meta__'):
                 return c.__lark_meta__()
-
 
 def make_propagate_positions(option):
     if callable(option):
@@ -2296,7 +1984,7 @@ def make_propagate_positions(option):
     elif option is False:
         return None
 
-    raise ConfigurationError("Invalid option for propagate_positions: %r" % option)
+    raise ConfigurationError('Invalid option for propagate_positions: %r' % option)
 
 
 class ChildFilter:
@@ -2323,7 +2011,7 @@ class ChildFilter:
 
 
 class ChildFilterLALR(ChildFilter):
-    # --
+    #--
 
     def __call__(self, children):
         filtered = []
@@ -2333,7 +2021,7 @@ class ChildFilterLALR(ChildFilter):
             if to_expand:
                 if filtered:
                     filtered += children[i].children
-                else:  ##
+                else:   ##
 
                     filtered = children[i].children
             else:
@@ -2346,7 +2034,7 @@ class ChildFilterLALR(ChildFilter):
 
 
 class ChildFilterLALR_NoPlaceholders(ChildFilter):
-    # --
+    #--
     def __init__(self, to_include, node_builder):
         self.node_builder = node_builder
         self.to_include = to_include
@@ -2357,7 +2045,7 @@ class ChildFilterLALR_NoPlaceholders(ChildFilter):
             if to_expand:
                 if filtered:
                     filtered += children[i].children
-                else:  ##
+                else:   ##
 
                     filtered = children[i].children
             else:
@@ -2366,21 +2054,19 @@ class ChildFilterLALR_NoPlaceholders(ChildFilter):
 
 
 def _should_expand(sym):
-    return not sym.is_term and sym.name.startswith("_")
+    return not sym.is_term and sym.name.startswith('_')
 
 
-def maybe_create_child_filter(
-    expansion, keep_all_tokens, ambiguous, _empty_indices: List[bool]
-):
+def maybe_create_child_filter(expansion, keep_all_tokens, ambiguous, _empty_indices: List[bool]):
     ##
 
     if _empty_indices:
         assert _empty_indices.count(False) == len(expansion)
-        s = "".join(str(int(b)) for b in _empty_indices)
-        empty_indices = [len(ones) for ones in s.split("0")]
-        assert len(empty_indices) == len(expansion) + 1, (empty_indices, len(expansion))
+        s = ''.join(str(int(b)) for b in _empty_indices)
+        empty_indices = [len(ones) for ones in s.split('0')]
+        assert len(empty_indices) == len(expansion)+1, (empty_indices, len(expansion))
     else:
-        empty_indices = [0] * (len(expansion) + 1)
+        empty_indices = [0] * (len(expansion)+1)
 
     to_include = []
     nones_to_add = 0
@@ -2392,25 +2078,17 @@ def maybe_create_child_filter(
 
     nones_to_add += empty_indices[len(expansion)]
 
-    if (
-        _empty_indices
-        or len(to_include) < len(expansion)
-        or any(to_expand for i, to_expand, _ in to_include)
-    ):
+    if _empty_indices or len(to_include) < len(expansion) or any(to_expand for i, to_expand,_ in to_include):
         if _empty_indices or ambiguous:
-            return partial(
-                ChildFilter if ambiguous else ChildFilterLALR, to_include, nones_to_add
-            )
+            return partial(ChildFilter if ambiguous else ChildFilterLALR, to_include, nones_to_add)
         else:
             ##
 
-            return partial(
-                ChildFilterLALR_NoPlaceholders, [(i, x) for i, x, _ in to_include]
-            )
+            return partial(ChildFilterLALR_NoPlaceholders, [(i, x) for i,x,_ in to_include])
 
 
 class AmbiguousExpander:
-    # --
+    #--
     def __init__(self, to_expand, tree_class, node_builder):
         self.node_builder = node_builder
         self.tree_class = tree_class
@@ -2418,7 +2096,7 @@ class AmbiguousExpander:
 
     def __call__(self, children):
         def _is_ambig_tree(t):
-            return hasattr(t, "data") and t.data == "_ambig"
+            return hasattr(t, 'data') and t.data == '_ambig'
 
         ##
 
@@ -2434,33 +2112,24 @@ class AmbiguousExpander:
                 if i in self.to_expand:
                     ambiguous.append(i)
 
-                child.expand_kids_by_data("_ambig")
+                child.expand_kids_by_data('_ambig')
 
         if not ambiguous:
             return self.node_builder(children)
 
-        expand = [
-            child.children if i in ambiguous else (child,)
-            for i, child in enumerate(children)
-        ]
-        return self.tree_class(
-            "_ambig", [self.node_builder(list(f)) for f in product(*expand)]
-        )
+        expand = [child.children if i in ambiguous else (child,) for i, child in enumerate(children)]
+        return self.tree_class('_ambig', [self.node_builder(list(f)) for f in product(*expand)])
 
 
 def maybe_create_ambiguous_expander(tree_class, expansion, keep_all_tokens):
-    to_expand = [
-        i
-        for i, sym in enumerate(expansion)
-        if keep_all_tokens
-        or ((not (sym.is_term and sym.filter_out)) and _should_expand(sym))
-    ]
+    to_expand = [i for i, sym in enumerate(expansion)
+                 if keep_all_tokens or ((not (sym.is_term and sym.filter_out)) and _should_expand(sym))]
     if to_expand:
         return partial(AmbiguousExpander, to_expand, tree_class)
 
 
 class AmbiguousIntermediateExpander:
-    # --
+    #--
 
     def __init__(self, tree_class, node_builder):
         self.node_builder = node_builder
@@ -2468,10 +2137,10 @@ class AmbiguousIntermediateExpander:
 
     def __call__(self, children):
         def _is_iambig_tree(child):
-            return hasattr(child, "data") and child.data == "_iambig"
+            return hasattr(child, 'data') and child.data == '_iambig'
 
         def _collapse_iambig(children):
-            # --
+            #--
 
             ##
 
@@ -2487,18 +2156,17 @@ class AmbiguousIntermediateExpander:
                             child.children += children[1:]
                         result += collapsed
                     else:
-                        new_tree = self.tree_class(
-                            "_inter", grandchild.children + children[1:]
-                        )
+                        new_tree = self.tree_class('_inter', grandchild.children + children[1:])
                         result.append(new_tree)
                 return result
 
         collapsed = _collapse_iambig(children)
         if collapsed:
             processed_nodes = [self.node_builder(c.children) for c in collapsed]
-            return self.tree_class("_ambig", processed_nodes)
+            return self.tree_class('_ambig', processed_nodes)
 
         return self.node_builder(children)
+
 
 
 def inplace_transformer(func):
@@ -2508,32 +2176,21 @@ def inplace_transformer(func):
 
         tree = Tree(func.__name__, children)
         return func(tree)
-
     return f
 
 
 def apply_visit_wrapper(func, name, wrapper):
     if wrapper is _vargs_meta or wrapper is _vargs_meta_inline:
-        raise NotImplementedError(
-            "Meta args not supported for internal transformer; use YourTransformer().transform(parser.parse()) instead"
-        )
+        raise NotImplementedError("Meta args not supported for internal transformer; use YourTransformer().transform(parser.parse()) instead")
 
     @wraps(func)
     def f(children):
         return wrapper(func, name, children, None)
-
     return f
 
 
 class ParseTreeBuilder:
-    def __init__(
-        self,
-        rules,
-        tree_class,
-        propagate_positions=False,
-        ambiguous=False,
-        maybe_placeholders=False,
-    ):
+    def __init__(self, rules, tree_class, propagate_positions=False, ambiguous=False, maybe_placeholders=False):
         self.tree_class = tree_class
         self.propagate_positions = propagate_positions
         self.ambiguous = ambiguous
@@ -2549,50 +2206,32 @@ class ParseTreeBuilder:
             keep_all_tokens = options.keep_all_tokens
             expand_single_child = options.expand1
 
-            wrapper_chain = list(
-                filter(
-                    None,
-                    [
-                        (expand_single_child and not rule.alias) and ExpandSingleChild,
-                        maybe_create_child_filter(
-                            rule.expansion,
-                            keep_all_tokens,
-                            self.ambiguous,
-                            options.empty_indices if self.maybe_placeholders else None,
-                        ),
-                        propagate_positions,
-                        self.ambiguous
-                        and maybe_create_ambiguous_expander(
-                            self.tree_class, rule.expansion, keep_all_tokens
-                        ),
-                        self.ambiguous
-                        and partial(AmbiguousIntermediateExpander, self.tree_class),
-                    ],
-                )
-            )
+            wrapper_chain = list(filter(None, [
+                (expand_single_child and not rule.alias) and ExpandSingleChild,
+                maybe_create_child_filter(rule.expansion, keep_all_tokens, self.ambiguous, options.empty_indices if self.maybe_placeholders else None),
+                propagate_positions,
+                self.ambiguous and maybe_create_ambiguous_expander(self.tree_class, rule.expansion, keep_all_tokens),
+                self.ambiguous and partial(AmbiguousIntermediateExpander, self.tree_class)
+            ]))
 
             yield rule, wrapper_chain
 
     def create_callback(self, transformer=None):
         callbacks = {}
 
-        default_handler = getattr(transformer, "__default__", None)
+        default_handler = getattr(transformer, '__default__', None)
         if default_handler:
-
             def default_callback(data, children):
                 return default_handler(data, children, None)
-
         else:
             default_callback = self.tree_class
 
         for rule, wrapper_chain in self.rule_builders:
 
-            user_callback_name = (
-                rule.alias or rule.options.template_source or rule.origin.name
-            )
+            user_callback_name = rule.alias or rule.options.template_source or rule.origin.name
             try:
                 f = getattr(transformer, user_callback_name)
-                wrapper = getattr(f, "visit_wrapper", None)
+                wrapper = getattr(f, 'visit_wrapper', None)
                 if wrapper is not None:
                     f = apply_visit_wrapper(f, user_callback_name, wrapper)
                 elif isinstance(transformer, Transformer_InPlace):
@@ -2611,22 +2250,19 @@ class ParseTreeBuilder:
         return callbacks
 
 
+
 class Action:
     def __init__(self, name):
         self.name = name
-
     def __str__(self):
         return self.name
-
     def __repr__(self):
         return str(self)
 
-
-Shift = Action("Shift")
-Reduce = Action("Reduce")
+Shift = Action('Shift')
+Reduce = Action('Reduce')
 
 StateT = TypeVar("StateT")
-
 
 class ParseTableBase(Generic[StateT]):
     states: Dict[StateT, Dict[str, Tuple]]
@@ -2642,78 +2278,56 @@ class ParseTableBase(Generic[StateT]):
         tokens = Enumerator()
 
         states = {
-            state: {
-                tokens.get(token): (
-                    (1, arg.serialize(memo)) if action is Reduce else (0, arg)
-                )
-                for token, (action, arg) in actions.items()
-            }
+            state: {tokens.get(token): ((1, arg.serialize(memo)) if action is Reduce else (0, arg))
+                    for token, (action, arg) in actions.items()}
             for state, actions in self.states.items()
         }
 
         return {
-            "tokens": tokens.reversed(),
-            "states": states,
-            "start_states": self.start_states,
-            "end_states": self.end_states,
+            'tokens': tokens.reversed(),
+            'states': states,
+            'start_states': self.start_states,
+            'end_states': self.end_states,
         }
 
     @classmethod
     def deserialize(cls, data, memo):
-        tokens = data["tokens"]
+        tokens = data['tokens']
         states = {
-            state: {
-                tokens[token]: (
-                    (Reduce, Rule.deserialize(arg, memo))
-                    if action == 1
-                    else (Shift, arg)
-                )
-                for token, (action, arg) in actions.items()
-            }
-            for state, actions in data["states"].items()
+            state: {tokens[token]: ((Reduce, Rule.deserialize(arg, memo)) if action==1 else (Shift, arg))
+                    for token, (action, arg) in actions.items()}
+            for state, actions in data['states'].items()
         }
-        return cls(states, data["start_states"], data["end_states"])
+        return cls(states, data['start_states'], data['end_states'])
 
-
-class ParseTable(ParseTableBase["State"]):
-    # --
+class ParseTable(ParseTableBase['State']):
+    #--
     pass
 
 
 class IntParseTable(ParseTableBase[int]):
-    # --
+    #--
 
     @classmethod
     def from_ParseTable(cls, parse_table: ParseTable):
         enum = list(parse_table.states)
-        state_to_idx: Dict["State", int] = {s: i for i, s in enumerate(enum)}
+        state_to_idx: Dict['State', int] = {s:i for i,s in enumerate(enum)}
         int_states = {}
 
         for s, la in parse_table.states.items():
-            la = {
-                k: (v[0], state_to_idx[v[1]]) if v[0] is Shift else v
-                for k, v in la.items()
-            }
-            int_states[state_to_idx[s]] = la
+            la = {k:(v[0], state_to_idx[v[1]]) if v[0] is Shift else v
+                  for k,v in la.items()}
+            int_states[ state_to_idx[s] ] = la
 
-        start_states = {
-            start: state_to_idx[s] for start, s in parse_table.start_states.items()
-        }
-        end_states = {
-            start: state_to_idx[s] for start, s in parse_table.end_states.items()
-        }
+
+        start_states = {start:state_to_idx[s] for start, s in parse_table.start_states.items()}
+        end_states = {start:state_to_idx[s] for start, s in parse_table.end_states.items()}
         return cls(int_states, start_states, end_states)
 
 
+
 class ParseConf(Generic[StateT]):
-    __slots__ = (
-        "parse_table",
-        "callbacks",
-        "start",
-        "start_state",
-        "end_state",
-        "states",
-    )
+    __slots__ = 'parse_table', 'callbacks', 'start', 'start_state', 'end_state', 'states'
 
     parse_table: ParseTableBase[StateT]
     callbacks: ParserCallbacks
@@ -2723,12 +2337,7 @@ class ParseConf(Generic[StateT]):
     end_state: StateT
     states: Dict[StateT, Dict[str, tuple]]
 
-    def __init__(
-        self,
-        parse_table: ParseTableBase[StateT],
-        callbacks: ParserCallbacks,
-        start: str,
-    ):
+    def __init__(self, parse_table: ParseTableBase[StateT], callbacks: ParserCallbacks, start: str):
         self.parse_table = parse_table
 
         self.start_state = self.parse_table.start_states[start]
@@ -2738,22 +2347,15 @@ class ParseConf(Generic[StateT]):
         self.callbacks = callbacks
         self.start = start
 
-
 class ParserState(Generic[StateT]):
-    __slots__ = "parse_conf", "lexer", "state_stack", "value_stack"
+    __slots__ = 'parse_conf', 'lexer', 'state_stack', 'value_stack'
 
     parse_conf: ParseConf[StateT]
     lexer: LexerThread
     state_stack: List[StateT]
     value_stack: list
 
-    def __init__(
-        self,
-        parse_conf: ParseConf[StateT],
-        lexer: LexerThread,
-        state_stack=None,
-        value_stack=None,
-    ):
+    def __init__(self, parse_conf: ParseConf[StateT], lexer: LexerThread, state_stack=None, value_stack=None):
         self.parse_conf = parse_conf
         self.lexer = lexer
         self.state_stack = state_stack or [self.parse_conf.start_state]
@@ -2768,18 +2370,16 @@ class ParserState(Generic[StateT]):
     def __eq__(self, other) -> bool:
         if not isinstance(other, ParserState):
             return NotImplemented
-        return (
-            len(self.state_stack) == len(other.state_stack)
-            and self.position == other.position
-        )
+        return len(self.state_stack) == len(other.state_stack) and self.position == other.position
 
     def __copy__(self):
         return self.copy()
 
-    def copy(self, deepcopy_values=True) -> "ParserState[StateT]":
+    def copy(self, deepcopy_values=True) -> 'ParserState[StateT]':
         return type(self)(
             self.parse_conf,
-            self.lexer,  ##
+            self.lexer, ##
+
             copy(self.state_stack),
             deepcopy(self.value_stack) if deepcopy_values else copy(self.value_stack),
         )
@@ -2797,9 +2397,7 @@ class ParserState(Generic[StateT]):
                 action, arg = states[state][token.type]
             except KeyError:
                 expected = {s for s in states[state].keys() if s.isupper()}
-                raise UnexpectedToken(
-                    token, expected, state=self, interactive_parser=None
-                )
+                raise UnexpectedToken(token, expected, state=self, interactive_parser=None)
 
             assert arg != end_state
 
@@ -2808,11 +2406,7 @@ class ParserState(Generic[StateT]):
 
                 assert not is_end
                 state_stack.append(arg)
-                value_stack.append(
-                    token
-                    if token.type not in callbacks
-                    else callbacks[token.type](token)
-                )
+                value_stack.append(token if token.type not in callbacks else callbacks[token.type](token))
                 return
             else:
                 ##
@@ -2838,9 +2432,7 @@ class ParserState(Generic[StateT]):
 
 
 class LALR_Parser(Serialize):
-    def __init__(
-        self, parser_conf: ParserConf, debug: bool = False, strict: bool = False
-    ):
+    def __init__(self, parser_conf: ParserConf, debug: bool=False, strict: bool=False):
         analysis = LALR_Analyzer(parser_conf, debug=debug, strict=strict)
         analysis.compute_lalr()
         callbacks = parser_conf.callbacks
@@ -2881,16 +2473,14 @@ class LALR_Parser(Serialize):
                     ##
 
                     if p == s.line_ctr.char_pos:
-                        s.line_ctr.feed(s.text.text[p : p + 1])
+                        s.line_ctr.feed(s.text.text[p:p+1])
 
                 try:
                     return e.interactive_parser.resume_parse()
                 except UnexpectedToken as e2:
-                    if (
-                        isinstance(e, UnexpectedToken)
-                        and e.token.type == e2.token.type == "$END"
-                        and e.interactive_parser == e2.interactive_parser
-                    ):
+                    if (isinstance(e, UnexpectedToken)
+                        and e.token.type == e2.token.type == '$END'
+                        and e.interactive_parser == e2.interactive_parser):
                         ##
 
                         raise e2
@@ -2904,43 +2494,28 @@ class _Parser:
     callbacks: ParserCallbacks
     debug: bool
 
-    def __init__(
-        self,
-        parse_table: ParseTableBase,
-        callbacks: ParserCallbacks,
-        debug: bool = False,
-    ):
+    def __init__(self, parse_table: ParseTableBase, callbacks: ParserCallbacks, debug: bool=False):
         self.parse_table = parse_table
         self.callbacks = callbacks
         self.debug = debug
 
-    def parse(
-        self,
-        lexer: LexerThread,
-        start: str,
-        value_stack=None,
-        state_stack=None,
-        start_interactive=False,
-    ):
+    def parse(self, lexer: LexerThread, start: str, value_stack=None, state_stack=None, start_interactive=False):
         parse_conf = ParseConf(self.parse_table, self.callbacks, start)
         parser_state = ParserState(parse_conf, lexer, state_stack, value_stack)
         if start_interactive:
             return InteractiveParser(self, parser_state, parser_state.lexer)
         return self.parse_from_state(parser_state)
 
-    def parse_from_state(self, state: ParserState, last_token: Optional[Token] = None):
-        # --
+
+    def parse_from_state(self, state: ParserState, last_token: Optional[Token]=None):
+        #--
         try:
             token = last_token
             for token in state.lexer.lex(state):
                 assert token is not None
                 state.feed_token(token)
 
-            end_token = (
-                Token.new_borrow_pos("$END", "", token)
-                if token
-                else Token("$END", "", 0, 1, 1)
-            )
+            end_token = Token.new_borrow_pos('$END', '', token) if token else Token('$END', '', 0, 1, 1)
             return state.feed_token(end_token, True)
         except UnexpectedInput as e:
             try:
@@ -2954,14 +2529,14 @@ class _Parser:
                 print("STATE STACK DUMP")
                 print("----------------")
                 for i, s in enumerate(state.state_stack):
-                    print("%d)" % i, s)
+                    print('%d)' % i , s)
                 print("")
 
             raise
 
 
 class InteractiveParser:
-    # --
+    #--
     def __init__(self, parser, parser_state: ParserState, lexer_thread: LexerThread):
         self.parser = parser
         self.parser_state = parser_state
@@ -2970,37 +2545,32 @@ class InteractiveParser:
 
     @property
     def lexer_state(self) -> LexerThread:
-        warnings.warn(
-            "lexer_state will be removed in subsequent releases. Use lexer_thread instead.",
-            DeprecationWarning,
-        )
+        warnings.warn("lexer_state will be removed in subsequent releases. Use lexer_thread instead.", DeprecationWarning)
         return self.lexer_thread
 
     def feed_token(self, token: Token):
-        # --
-        return self.parser_state.feed_token(token, token.type == "$END")
+        #--
+        return self.parser_state.feed_token(token, token.type == '$END')
 
     def iter_parse(self) -> Iterator[Token]:
-        # --
+        #--
         for token in self.lexer_thread.lex(self.parser_state):
             yield token
             self.result = self.feed_token(token)
 
     def exhaust_lexer(self) -> List[Token]:
-        # --
+        #--
         return list(self.iter_parse())
 
+
     def feed_eof(self, last_token=None):
-        # --
-        eof = (
-            Token.new_borrow_pos("$END", "", last_token)
-            if last_token is not None
-            else self.lexer_thread._Token("$END", "", 0, 1, 1)
-        )
+        #--
+        eof = Token.new_borrow_pos('$END', '', last_token) if last_token is not None else self.lexer_thread._Token('$END', '', 0, 1, 1)
         return self.feed_token(eof)
 
+
     def __copy__(self):
-        # --
+        #--
         return self.copy()
 
     def copy(self, deepcopy_values=True):
@@ -3014,32 +2584,27 @@ class InteractiveParser:
         if not isinstance(other, InteractiveParser):
             return False
 
-        return (
-            self.parser_state == other.parser_state
-            and self.lexer_thread == other.lexer_thread
-        )
+        return self.parser_state == other.parser_state and self.lexer_thread == other.lexer_thread
 
     def as_immutable(self):
-        # --
+        #--
         p = copy(self)
         return ImmutableInteractiveParser(p.parser, p.parser_state, p.lexer_thread)
 
     def pretty(self):
-        # --
+        #--
         out = ["Parser choices:"]
         for k, v in self.choices().items():
-            out.append("\t- %s -> %r" % (k, v))
-        out.append("stack size: %s" % len(self.parser_state.state_stack))
-        return "\n".join(out)
+            out.append('\t- %s -> %r' % (k, v))
+        out.append('stack size: %s' % len(self.parser_state.state_stack))
+        return '\n'.join(out)
 
     def choices(self):
-        # --
-        return self.parser_state.parse_conf.parse_table.states[
-            self.parser_state.position
-        ]
+        #--
+        return self.parser_state.parse_conf.parse_table.states[self.parser_state.position]
 
     def accepts(self):
-        # --
+        #--
         accepts = set()
         conf_no_callbacks = copy(self.parser_state.parse_conf)
         ##
@@ -3048,12 +2613,12 @@ class InteractiveParser:
 
         conf_no_callbacks.callbacks = {}
         for t in self.choices():
-            if t.isupper():  ##
+            if t.isupper(): ##
 
                 new_cursor = self.copy(deepcopy_values=False)
                 new_cursor.parser_state.parse_conf = conf_no_callbacks
                 try:
-                    new_cursor.feed_token(self.lexer_thread._Token(t, ""))
+                    new_cursor.feed_token(self.lexer_thread._Token(t, ''))
                 except UnexpectedToken:
                     pass
                 else:
@@ -3061,14 +2626,13 @@ class InteractiveParser:
         return accepts
 
     def resume_parse(self):
-        # --
-        return self.parser.parse_from_state(
-            self.parser_state, last_token=self.lexer_thread.state.last_token
-        )
+        #--
+        return self.parser.parse_from_state(self.parser_state, last_token=self.lexer_thread.state.last_token)
+
 
 
 class ImmutableInteractiveParser(InteractiveParser):
-    # --
+    #--
 
     result = None
 
@@ -3081,39 +2645,33 @@ class ImmutableInteractiveParser(InteractiveParser):
         return c
 
     def exhaust_lexer(self):
-        # --
+        #--
         cursor = self.as_mutable()
         cursor.exhaust_lexer()
         return cursor.as_immutable()
 
     def as_mutable(self):
-        # --
+        #--
         p = copy(self)
         return InteractiveParser(p.parser, p.parser_state, p.lexer_thread)
 
 
+
 def _wrap_lexer(lexer_class):
-    future_interface = getattr(lexer_class, "__future_interface__", 0)
+    future_interface = getattr(lexer_class, '__future_interface__', 0)
     if future_interface == 2:
         return lexer_class
     elif future_interface == 1:
-
         class CustomLexerWrapper1(Lexer):
             def __init__(self, lexer_conf):
                 self.lexer = lexer_class(lexer_conf)
-
             def lex(self, lexer_state, parser_state):
-                if (
-                    isinstance(lexer_state.text, TextSlice)
-                    and not lexer_state.text.is_complete_text()
-                ):
+                if isinstance(lexer_state.text, TextSlice) and not lexer_state.text.is_complete_text():
                     raise TypeError("Interface=1 Custom Lexer don't support TextSlice")
                 lexer_state.text = lexer_state.text
                 return self.lexer.lex(lexer_state, parser_state)
-
         return CustomLexerWrapper1
     elif future_interface == 0:
-
         class CustomLexerWrapper0(Lexer):
             def __init__(self, lexer_conf):
                 self.lexer = lexer_class(lexer_conf)
@@ -3121,40 +2679,33 @@ def _wrap_lexer(lexer_class):
             def lex(self, lexer_state, parser_state):
                 if isinstance(lexer_state.text, TextSlice):
                     if not lexer_state.text.is_complete_text():
-                        raise TypeError(
-                            "Interface=0 Custom Lexer don't support TextSlice"
-                        )
+                        raise TypeError("Interface=0 Custom Lexer don't support TextSlice")
                     return self.lexer.lex(lexer_state.text.text)
                 return self.lexer.lex(lexer_state.text)
-
         return CustomLexerWrapper0
     else:
-        raise ValueError(
-            f"Unknown __future_interface__ value {future_interface}, integer 0-2 expected"
-        )
+        raise ValueError(f"Unknown __future_interface__ value {future_interface}, integer 0-2 expected")
 
 
 def _deserialize_parsing_frontend(data, memo, lexer_conf, callbacks, options):
-    parser_conf = ParserConf.deserialize(data["parser_conf"], memo)
-    cls = (options and options._plugins.get("LALR_Parser")) or LALR_Parser
-    parser = cls.deserialize(data["parser"], memo, callbacks, options.debug)
+    parser_conf = ParserConf.deserialize(data['parser_conf'], memo)
+    cls = (options and options._plugins.get('LALR_Parser')) or LALR_Parser
+    parser = cls.deserialize(data['parser'], memo, callbacks, options.debug)
     parser_conf.callbacks = callbacks
     return ParsingFrontend(lexer_conf, parser_conf, options, parser=parser)
 
 
-_parser_creators: "Dict[str, Callable[[LexerConf, Any, Any], Any]]" = {}
+_parser_creators: 'Dict[str, Callable[[LexerConf, Any, Any], Any]]' = {}
 
 
 class ParsingFrontend(Serialize):
-    __serialize_fields__ = "lexer_conf", "parser_conf", "parser"
+    __serialize_fields__ = 'lexer_conf', 'parser_conf', 'parser'
 
     lexer_conf: LexerConf
     parser_conf: ParserConf
     options: Any
 
-    def __init__(
-        self, lexer_conf: LexerConf, parser_conf: ParserConf, options, parser=None
-    ):
+    def __init__(self, lexer_conf: LexerConf, parser_conf: ParserConf, options, parser=None):
         self.parser_conf = parser_conf
         self.lexer_conf = lexer_conf
         self.options = options
@@ -3166,16 +2717,16 @@ class ParsingFrontend(Serialize):
             self.parser = parser
         else:
             create_parser = _parser_creators.get(parser_conf.parser_type)
-            assert (
-                create_parser is not None
-            ), "{} is not supported in standalone mode".format(parser_conf.parser_type)
+            assert create_parser is not None, "{} is not supported in standalone mode".format(
+                    parser_conf.parser_type
+                )
             self.parser = create_parser(lexer_conf, parser_conf, options)
 
         ##
 
         lexer_type = lexer_conf.lexer_type
         self.skip_lexer = False
-        if lexer_type in ("dynamic", "dynamic_complete"):
+        if lexer_type in ('dynamic', 'dynamic_complete'):
             assert lexer_conf.postlex is None
             self.skip_lexer = True
             return
@@ -3185,12 +2736,10 @@ class ParsingFrontend(Serialize):
             self.lexer = _wrap_lexer(lexer_type)(lexer_conf)
         elif isinstance(lexer_type, str):
             create_lexer = {
-                "basic": create_basic_lexer,
-                "contextual": create_contextual_lexer,
+                'basic': create_basic_lexer,
+                'contextual': create_contextual_lexer,
             }[lexer_type]
-            self.lexer = create_lexer(
-                lexer_conf, self.parser, lexer_conf.postlex, options
-            )
+            self.lexer = create_lexer(lexer_conf, self.parser, lexer_conf.postlex, options)
         else:
             raise TypeError("Bad value for lexer_type: {lexer_type}")
 
@@ -3201,22 +2750,14 @@ class ParsingFrontend(Serialize):
         if start is None:
             start_decls = self.parser_conf.start
             if len(start_decls) > 1:
-                raise ConfigurationError(
-                    "Lark initialized with more than 1 possible start rule. Must specify which start rule to parse",
-                    start_decls,
-                )
-            (start,) = start_decls
+                raise ConfigurationError("Lark initialized with more than 1 possible start rule. Must specify which start rule to parse", start_decls)
+            start ,= start_decls
         elif start not in self.parser_conf.start:
-            raise ConfigurationError(
-                "Unknown start rule %s. Must be one of %r"
-                % (start, self.parser_conf.start)
-            )
+            raise ConfigurationError("Unknown start rule %s. Must be one of %r" % (start, self.parser_conf.start))
         return start
 
-    def _make_lexer_thread(
-        self, text: Optional[LarkInput]
-    ) -> Union[LarkInput, LexerThread, None]:
-        cls = (self.options and self.options._plugins.get("LexerThread")) or LexerThread
+    def _make_lexer_thread(self, text: Optional[LarkInput]) -> Union[LarkInput, LexerThread, None]:
+        cls = (self.options and self.options._plugins.get('LexerThread')) or LexerThread
         if self.skip_lexer:
             return text
         if text is None:
@@ -3228,43 +2769,35 @@ class ParsingFrontend(Serialize):
     def parse(self, text: Optional[LarkInput], start=None, on_error=None):
         if self.lexer_conf.lexer_type in ("dynamic", "dynamic_complete"):
             if isinstance(text, TextSlice) and not text.is_complete_text():
-                raise TypeError(
-                    f"Lexer {self.lexer_conf.lexer_type} does not support text slices."
-                )
+                raise TypeError(f"Lexer {self.lexer_conf.lexer_type} does not support text slices.")
 
         chosen_start = self._verify_start(start)
-        kw = {} if on_error is None else {"on_error": on_error}
+        kw = {} if on_error is None else {'on_error': on_error}
         stream = self._make_lexer_thread(text)
         return self.parser.parse(stream, chosen_start, **kw)
 
-    def parse_interactive(self, text: Optional[TextOrSlice] = None, start=None):
+    def parse_interactive(self, text: Optional[TextOrSlice]=None, start=None):
         ##
 
         ##
 
         chosen_start = self._verify_start(start)
-        if self.parser_conf.parser_type != "lalr":
-            raise ConfigurationError(
-                "parse_interactive() currently only works with parser='lalr' "
-            )
+        if self.parser_conf.parser_type != 'lalr':
+            raise ConfigurationError("parse_interactive() currently only works with parser='lalr' ")
         stream = self._make_lexer_thread(text)
         return self.parser.parse_interactive(stream, chosen_start)
 
 
 def _validate_frontend_args(parser, lexer) -> None:
-    assert_config(parser, ("lalr", "earley", "cyk"))
-    if not isinstance(lexer, type):  ##
+    assert_config(parser, ('lalr', 'earley', 'cyk'))
+    if not isinstance(lexer, type):     ##
 
         expected = {
-            "lalr": ("basic", "contextual"),
-            "earley": ("basic", "dynamic", "dynamic_complete"),
-            "cyk": ("basic",),
-        }[parser]
-        assert_config(
-            lexer,
-            expected,
-            "Parser %r does not support lexer %%r, expected one of %%s" % parser,
-        )
+            'lalr': ('basic', 'contextual'),
+            'earley': ('basic', 'dynamic', 'dynamic_complete'),
+            'cyk': ('basic', ),
+         }[parser]
+        assert_config(lexer, expected, 'Parser %r does not support lexer %%r, expected one of %%s' % parser)
 
 
 def _get_lexer_callbacks(transformer, terminals):
@@ -3274,7 +2807,6 @@ def _get_lexer_callbacks(transformer, terminals):
         if callback is not None:
             result[terminal.name] = callback
     return result
-
 
 class PostLexConnector:
     def __init__(self, lexer, postlexer):
@@ -3286,33 +2818,27 @@ class PostLexConnector:
         return self.postlexer.process(i)
 
 
+
 def create_basic_lexer(lexer_conf, parser, postlex, options) -> BasicLexer:
-    cls = (options and options._plugins.get("BasicLexer")) or BasicLexer
+    cls = (options and options._plugins.get('BasicLexer')) or BasicLexer
     return cls(lexer_conf)
 
-
-def create_contextual_lexer(
-    lexer_conf: LexerConf, parser, postlex, options
-) -> ContextualLexer:
-    cls = (options and options._plugins.get("ContextualLexer")) or ContextualLexer
+def create_contextual_lexer(lexer_conf: LexerConf, parser, postlex, options) -> ContextualLexer:
+    cls = (options and options._plugins.get('ContextualLexer')) or ContextualLexer
     parse_table: ParseTableBase[int] = parser._parse_table
-    states: Dict[int, Collection[str]] = {
-        idx: list(t.keys()) for idx, t in parse_table.states.items()
-    }
+    states: Dict[int, Collection[str]] = {idx:list(t.keys()) for idx, t in parse_table.states.items()}
     always_accept: Collection[str] = postlex.always_accept if postlex else ()
     return cls(lexer_conf, states, always_accept=always_accept)
 
-
-def create_lalr_parser(
-    lexer_conf: LexerConf, parser_conf: ParserConf, options=None
-) -> LALR_Parser:
+def create_lalr_parser(lexer_conf: LexerConf, parser_conf: ParserConf, options=None) -> LALR_Parser:
     debug = options.debug if options else False
     strict = options.strict if options else False
-    cls = (options and options._plugins.get("LALR_Parser")) or LALR_Parser
+    cls = (options and options._plugins.get('LALR_Parser')) or LALR_Parser
     return cls(parser_conf, debug=debug, strict=strict)
 
+_parser_creators['lalr'] = create_lalr_parser
 
-_parser_creators["lalr"] = create_lalr_parser
+
 
 
 class PostLex(ABC):
@@ -3322,14 +2848,13 @@ class PostLex(ABC):
 
     always_accept: Iterable[str] = ()
 
-
 class LarkOptions(Serialize):
-    # --
+    #--
 
     start: List[str]
     debug: bool
     strict: bool
-    transformer: "Optional[Transformer]"
+    transformer: 'Optional[Transformer]'
     propagate_positions: Union[bool, str]
     maybe_placeholders: bool
     cache: Union[bool, str]
@@ -3347,7 +2872,7 @@ class LarkOptions(Serialize):
     use_bytes: bool
     ordered_sets: bool
     edit_terminals: Optional[Callable[[TerminalDef], TerminalDef]]
-    import_paths: "List[Union[str, Callable[[Union[None, str, PackageResource], str], Tuple[str, str]]]]"
+    import_paths: 'List[Union[str, Callable[[Union[None, str, PackageResource], str], Tuple[str, str]]]]'
     source_path: Optional[str]
 
     OPTIONS_DOC = r"""
@@ -3434,6 +2959,7 @@ class LarkOptions(Serialize):
     if __doc__:
         __doc__ += OPTIONS_DOC
 
+
     ##
 
     ##
@@ -3447,30 +2973,30 @@ class LarkOptions(Serialize):
     ##
 
     _defaults: Dict[str, Any] = {
-        "debug": False,
-        "strict": False,
-        "keep_all_tokens": False,
-        "tree_class": None,
-        "cache": False,
-        "cache_grammar": False,
-        "postlex": None,
-        "parser": "earley",
-        "lexer": "auto",
-        "transformer": None,
-        "start": "start",
-        "priority": "auto",
-        "ambiguity": "auto",
-        "regex": False,
-        "propagate_positions": False,
-        "lexer_callbacks": {},
-        "maybe_placeholders": True,
-        "edit_terminals": None,
-        "g_regex_flags": 0,
-        "use_bytes": False,
-        "ordered_sets": True,
-        "import_paths": [],
-        "source_path": None,
-        "_plugins": {},
+        'debug': False,
+        'strict': False,
+        'keep_all_tokens': False,
+        'tree_class': None,
+        'cache': False,
+        'cache_grammar': False,
+        'postlex': None,
+        'parser': 'earley',
+        'lexer': 'auto',
+        'transformer': None,
+        'start': 'start',
+        'priority': 'auto',
+        'ambiguity': 'auto',
+        'regex': False,
+        'propagate_positions': False,
+        'lexer_callbacks': {},
+        'maybe_placeholders': True,
+        'edit_terminals': None,
+        'g_regex_flags': 0,
+        'use_bytes': False,
+        'ordered_sets': True,
+        'import_paths': [],
+        'source_path': None,
+        '_plugins': {},
     }
 
     def __init__(self, options_dict: Dict[str, Any]) -> None:
@@ -3480,57 +3006,46 @@ class LarkOptions(Serialize):
         for name, default in self._defaults.items():
             if name in o:
                 value = o.pop(name)
-                if isinstance(default, bool) and name not in (
-                    "cache",
-                    "use_bytes",
-                    "propagate_positions",
-                ):
+                if isinstance(default, bool) and name not in ('cache', 'use_bytes', 'propagate_positions'):
                     value = bool(value)
             else:
                 value = default
 
             options[name] = value
 
-        if isinstance(options["start"], str):
-            options["start"] = [options["start"]]
+        if isinstance(options['start'], str):
+            options['start'] = [options['start']]
 
-        self.__dict__["options"] = options
+        self.__dict__['options'] = options
 
-        assert_config(self.parser, ("earley", "lalr", "cyk", None))
 
-        if self.parser == "earley" and self.transformer:
-            raise ConfigurationError(
-                "Cannot specify an embedded transformer when using the Earley algorithm. "
-                "Please use your transformer on the resulting parse tree, or use a different algorithm (i.e. LALR)"
-            )
+        assert_config(self.parser, ('earley', 'lalr', 'cyk', None))
+
+        if self.parser == 'earley' and self.transformer:
+            raise ConfigurationError('Cannot specify an embedded transformer when using the Earley algorithm. '
+                             'Please use your transformer on the resulting parse tree, or use a different algorithm (i.e. LALR)')
 
         if self.cache_grammar and not self.cache:
-            raise ConfigurationError(
-                "cache_grammar cannot be set when cache is disabled"
-            )
+            raise ConfigurationError('cache_grammar cannot be set when cache is disabled')
 
         if o:
             raise ConfigurationError("Unknown options: %s" % o.keys())
 
     def __getattr__(self, name: str) -> Any:
         try:
-            return self.__dict__["options"][name]
+            return self.__dict__['options'][name]
         except KeyError as e:
             raise AttributeError(e)
 
     def __setattr__(self, name: str, value: str) -> None:
-        assert_config(
-            name, self.options.keys(), "%r isn't a valid option. Expected one of: %s"
-        )
+        assert_config(name, self.options.keys(), "%r isn't a valid option. Expected one of: %s")
         self.options[name] = value
 
-    def serialize(self, memo=None) -> Dict[str, Any]:
+    def serialize(self, memo = None) -> Dict[str, Any]:
         return self.options
 
     @classmethod
-    def deserialize(
-        cls, data: Dict[str, Any], memo: Dict[int, Union[TerminalDef, Rule]]
-    ) -> "LarkOptions":
+    def deserialize(cls, data: Dict[str, Any], memo: Dict[int, Union[TerminalDef, Rule]]) -> "LarkOptions":
         return cls(data)
 
 
@@ -3538,47 +3053,35 @@ class LarkOptions(Serialize):
 
 ##
 
-_LOAD_ALLOWED_OPTIONS = {
-    "postlex",
-    "transformer",
-    "lexer_callbacks",
-    "use_bytes",
-    "debug",
-    "g_regex_flags",
-    "regex",
-    "propagate_positions",
-    "tree_class",
-    "_plugins",
-}
+_LOAD_ALLOWED_OPTIONS = {'postlex', 'transformer', 'lexer_callbacks', 'use_bytes', 'debug', 'g_regex_flags', 'regex', 'propagate_positions', 'tree_class', '_plugins'}
 
-_VALID_PRIORITY_OPTIONS = ("auto", "normal", "invert", None)
-_VALID_AMBIGUITY_OPTIONS = ("auto", "resolve", "explicit", "forest")
+_VALID_PRIORITY_OPTIONS = ('auto', 'normal', 'invert', None)
+_VALID_AMBIGUITY_OPTIONS = ('auto', 'resolve', 'explicit', 'forest')
 
 
-_T = TypeVar("_T", bound="Lark")
-
+_T = TypeVar('_T', bound="Lark")
 
 class Lark(Serialize):
-    # --
+    #--
 
     source_path: str
     source_grammar: str
-    grammar: "Grammar"
+    grammar: 'Grammar'
     options: LarkOptions
     lexer: Lexer
-    parser: "ParsingFrontend"
+    parser: 'ParsingFrontend'
     terminals: Collection[TerminalDef]
 
-    __serialize_fields__ = ["parser", "rules", "options"]
+    __serialize_fields__ = ['parser', 'rules', 'options']
 
-    def __init__(self, grammar: "Union[Grammar, str, IO[str]]", **options) -> None:
+    def __init__(self, grammar: 'Union[Grammar, str, IO[str]]', **options) -> None:
         self.options = LarkOptions(options)
         re_module: types.ModuleType
 
         ##
 
         if self.options.cache_grammar:
-            self.__serialize_fields__ = self.__serialize_fields__ + ["grammar"]
+            self.__serialize_fields__ = self.__serialize_fields__ + ['grammar']
 
         ##
 
@@ -3587,9 +3090,7 @@ class Lark(Serialize):
             if _has_regex:
                 re_module = regex
             else:
-                raise ImportError(
-                    "`regex` module must be installed if calling `Lark(regex=True)`."
-                )
+                raise ImportError('`regex` module must be installed if calling `Lark(regex=True)`.')
         else:
             re_module = re
 
@@ -3600,7 +3101,7 @@ class Lark(Serialize):
                 self.source_path = grammar.name  ##
 
             except AttributeError:
-                self.source_path = "<string>"
+                self.source_path = '<string>'
         else:
             self.source_path = self.options.source_path
 
@@ -3620,28 +3121,15 @@ class Lark(Serialize):
             self.source_grammar = grammar
             if self.options.use_bytes:
                 if not grammar.isascii():
-                    raise ConfigurationError(
-                        "Grammar must be ascii only, when use_bytes=True"
-                    )
+                    raise ConfigurationError("Grammar must be ascii only, when use_bytes=True")
 
             if self.options.cache:
-                if self.options.parser != "lalr":
-                    raise ConfigurationError(
-                        "cache only works with parser='lalr' for now"
-                    )
+                if self.options.parser != 'lalr':
+                    raise ConfigurationError("cache only works with parser='lalr' for now")
 
-                unhashable = (
-                    "transformer",
-                    "postlex",
-                    "lexer_callbacks",
-                    "edit_terminals",
-                    "_plugins",
-                )
-                options_str = "".join(
-                    k + str(v) for k, v in options.items() if k not in unhashable
-                )
+                unhashable = ('transformer', 'postlex', 'lexer_callbacks', 'edit_terminals', '_plugins')
+                options_str = ''.join(k+str(v) for k, v in options.items() if k not in unhashable)
                 from . import __version__
-
                 s = grammar + options_str + __version__ + str(sys.version_info[:2])
                 cache_sha256 = sha256_digest(s)
 
@@ -3662,26 +3150,21 @@ class Lark(Serialize):
 
                         username = "unknown"
 
+
                     cache_fn = tempfile.gettempdir() + "/.lark_%s_%s_%s_%s_%s.tmp" % (
-                        "cache_grammar" if self.options.cache_grammar else "cache",
-                        username,
-                        cache_sha256,
-                        *sys.version_info[:2],
-                    )
+                        "cache_grammar" if self.options.cache_grammar else "cache", username, cache_sha256, *sys.version_info[:2])
 
                 old_options = self.options
                 try:
-                    with FS.open(cache_fn, "rb") as f:
-                        logger.debug("Loading grammar from cache: %s", cache_fn)
+                    with FS.open(cache_fn, 'rb') as f:
+                        logger.debug('Loading grammar from cache: %s', cache_fn)
                         ##
 
-                        for name in set(options) - _LOAD_ALLOWED_OPTIONS:
+                        for name in (set(options) - _LOAD_ALLOWED_OPTIONS):
                             del options[name]
-                        file_sha256 = f.readline().rstrip(b"\n")
+                        file_sha256 = f.readline().rstrip(b'\n')
                         cached_used_files = pickle.load(f)
-                        if file_sha256 == cache_sha256.encode(
-                            "utf8"
-                        ) and verify_used_files(cached_used_files):
+                        if file_sha256 == cache_sha256.encode('utf8') and verify_used_files(cached_used_files):
                             cached_parser_data = pickle.load(f)
                             self._load(cached_parser_data, **options)
                             return
@@ -3689,12 +3172,9 @@ class Lark(Serialize):
                     ##
 
                     pass
-                except Exception:  ##
+                except Exception: ##
 
-                    logger.exception(
-                        "Failed to load Lark from cache: %r. We will try to carry on.",
-                        cache_fn,
-                    )
+                    logger.exception("Failed to load Lark from cache: %r. We will try to carry on.", cache_fn)
 
                     ##
 
@@ -3702,71 +3182,54 @@ class Lark(Serialize):
 
                     self.options = old_options
 
+
             ##
 
-            self.grammar, used_files = load_grammar(
-                grammar,
-                self.source_path,
-                self.options.import_paths,
-                self.options.keep_all_tokens,
-            )
+            self.grammar, used_files = load_grammar(grammar, self.source_path, self.options.import_paths, self.options.keep_all_tokens)
         else:
             assert isinstance(grammar, Grammar)
             self.grammar = grammar
 
-        if self.options.lexer == "auto":
-            if self.options.parser == "lalr":
-                self.options.lexer = "contextual"
-            elif self.options.parser == "earley":
+
+        if self.options.lexer == 'auto':
+            if self.options.parser == 'lalr':
+                self.options.lexer = 'contextual'
+            elif self.options.parser == 'earley':
                 if self.options.postlex is not None:
-                    logger.info(
-                        "postlex can't be used with the dynamic lexer, so we use 'basic' instead. "
-                        "Consider using lalr with contextual instead of earley"
-                    )
-                    self.options.lexer = "basic"
+                    logger.info("postlex can't be used with the dynamic lexer, so we use 'basic' instead. "
+                                "Consider using lalr with contextual instead of earley")
+                    self.options.lexer = 'basic'
                 else:
-                    self.options.lexer = "dynamic"
-            elif self.options.parser == "cyk":
-                self.options.lexer = "basic"
+                    self.options.lexer = 'dynamic'
+            elif self.options.parser == 'cyk':
+                self.options.lexer = 'basic'
             else:
                 assert False, self.options.parser
         lexer = self.options.lexer
         if isinstance(lexer, type):
-            assert issubclass(lexer, Lexer)  ##
+            assert issubclass(lexer, Lexer)     ##
 
         else:
-            assert_config(lexer, ("basic", "contextual", "dynamic", "dynamic_complete"))
-            if self.options.postlex is not None and "dynamic" in lexer:
-                raise ConfigurationError(
-                    "Can't use postlex with a dynamic lexer. Use basic or contextual instead"
-                )
+            assert_config(lexer, ('basic', 'contextual', 'dynamic', 'dynamic_complete'))
+            if self.options.postlex is not None and 'dynamic' in lexer:
+                raise ConfigurationError("Can't use postlex with a dynamic lexer. Use basic or contextual instead")
 
-        if self.options.ambiguity == "auto":
-            if self.options.parser == "earley":
-                self.options.ambiguity = "resolve"
+        if self.options.ambiguity == 'auto':
+            if self.options.parser == 'earley':
+                self.options.ambiguity = 'resolve'
         else:
-            assert_config(
-                self.options.parser,
-                ("earley", "cyk"),
-                "%r doesn't support disambiguation. Use one of these parsers instead: %s",
-            )
+            assert_config(self.options.parser, ('earley', 'cyk'), "%r doesn't support disambiguation. Use one of these parsers instead: %s")
 
-        if self.options.priority == "auto":
-            self.options.priority = "normal"
+        if self.options.priority == 'auto':
+            self.options.priority = 'normal'
 
         if self.options.priority not in _VALID_PRIORITY_OPTIONS:
-            raise ConfigurationError(
-                "invalid priority option: %r. Must be one of %r"
-                % (self.options.priority, _VALID_PRIORITY_OPTIONS)
-            )
+            raise ConfigurationError("invalid priority option: %r. Must be one of %r" % (self.options.priority, _VALID_PRIORITY_OPTIONS))
         if self.options.ambiguity not in _VALID_AMBIGUITY_OPTIONS:
-            raise ConfigurationError(
-                "invalid ambiguity option: %r. Must be one of %r"
-                % (self.options.ambiguity, _VALID_AMBIGUITY_OPTIONS)
-            )
+            raise ConfigurationError("invalid ambiguity option: %r. Must be one of %r" % (self.options.ambiguity, _VALID_AMBIGUITY_OPTIONS))
 
         if self.options.parser is None:
-            terminals_to_keep = "*"  ##
+            terminals_to_keep = '*'     ##
 
         elif self.options.postlex is not None:
             terminals_to_keep = set(self.options.postlex.always_accept)
@@ -3775,9 +3238,7 @@ class Lark(Serialize):
 
         ##
 
-        self.terminals, self.rules, self.ignore_tokens = self.grammar.compile(
-            self.options.start, terminals_to_keep
-        )
+        self.terminals, self.rules, self.ignore_tokens = self.grammar.compile(self.options.start, terminals_to_keep)
 
         if self.options.edit_terminals:
             for t in self.terminals:
@@ -3787,7 +3248,7 @@ class Lark(Serialize):
 
         ##
 
-        if self.options.priority == "invert":
+        if self.options.priority == 'invert':
             for rule in self.rules:
                 if rule.options.priority is not None:
                     rule.options.priority = -rule.options.priority
@@ -3809,15 +3270,9 @@ class Lark(Serialize):
         ##
 
         self.lexer_conf = LexerConf(
-            self.terminals,
-            re_module,
-            self.ignore_tokens,
-            self.options.postlex,
-            self.options.lexer_callbacks,
-            self.options.g_regex_flags,
-            use_bytes=self.options.use_bytes,
-            strict=self.options.strict,
-        )
+                self.terminals, re_module, self.ignore_tokens, self.options.postlex,
+                self.options.lexer_callbacks, self.options.g_regex_flags, use_bytes=self.options.use_bytes, strict=self.options.strict
+            )
 
         if self.options.parser:
             self.parser = self._build_parser()
@@ -3825,11 +3280,11 @@ class Lark(Serialize):
             self.lexer = self._build_lexer()
 
         if cache_fn:
-            logger.debug("Saving grammar to cache: %s", cache_fn)
+            logger.debug('Saving grammar to cache: %s', cache_fn)
             try:
-                with FS.open(cache_fn, "wb") as f:
+                with FS.open(cache_fn, 'wb') as f:
                     assert cache_sha256 is not None
-                    f.write(cache_sha256.encode("utf8") + b"\n")
+                    f.write(cache_sha256.encode('utf8') + b'\n')
                     pickle.dump(used_files, f)
                     self.save(f, _LOAD_ALLOWED_OPTIONS)
             except IOError as e:
@@ -3838,11 +3293,10 @@ class Lark(Serialize):
     if __doc__:
         __doc__ += "\n\n" + LarkOptions.OPTIONS_DOC
 
-    def _build_lexer(self, dont_ignore: bool = False) -> BasicLexer:
+    def _build_lexer(self, dont_ignore: bool=False) -> BasicLexer:
         lexer_conf = self.lexer_conf
         if dont_ignore:
             from copy import copy
-
             lexer_conf = copy(lexer_conf)
             lexer_conf.ignore = ()
         return BasicLexer(lexer_conf)
@@ -3851,20 +3305,16 @@ class Lark(Serialize):
         self._callbacks = {}
         ##
 
-        if self.options.ambiguity != "forest":
+        if self.options.ambiguity != 'forest':
             self._parse_tree_builder = ParseTreeBuilder(
-                self.rules,
-                self.options.tree_class or Tree,
-                self.options.propagate_positions,
-                self.options.parser != "lalr" and self.options.ambiguity == "explicit",
-                self.options.maybe_placeholders,
-            )
-            self._callbacks = self._parse_tree_builder.create_callback(
-                self.options.transformer
-            )
-        self._callbacks.update(
-            _get_lexer_callbacks(self.options.transformer, self.terminals)
-        )
+                    self.rules,
+                    self.options.tree_class or Tree,
+                    self.options.propagate_positions,
+                    self.options.parser != 'lalr' and self.options.ambiguity == 'explicit',
+                    self.options.maybe_placeholders
+                )
+            self._callbacks = self._parse_tree_builder.create_callback(self.options.transformer)
+        self._callbacks.update(_get_lexer_callbacks(self.options.transformer, self.terminals))
 
     def _build_parser(self) -> "ParsingFrontend":
         self._prepare_callbacks()
@@ -3875,35 +3325,26 @@ class Lark(Serialize):
             self.options.lexer,
             self.lexer_conf,
             parser_conf,
-            options=self.options,
+            options=self.options
         )
 
     def save(self, f, exclude_options: Collection[str] = ()) -> None:
-        # --
-        if self.options.parser != "lalr":
-            raise NotImplementedError(
-                "Lark.save() is only implemented for the LALR(1) parser."
-            )
+        #--
+        if self.options.parser != 'lalr':
+            raise NotImplementedError("Lark.save() is only implemented for the LALR(1) parser.")
         data, m = self.memo_serialize([TerminalDef, Rule])
         if exclude_options:
-            data["options"] = {
-                n: v for n, v in data["options"].items() if n not in exclude_options
-            }
-        pickle.dump({"data": data, "memo": m}, f, protocol=pickle.HIGHEST_PROTOCOL)
+            data["options"] = {n: v for n, v in data["options"].items() if n not in exclude_options}
+        pickle.dump({'data': data, 'memo': m}, f, protocol=pickle.HIGHEST_PROTOCOL)
 
     @classmethod
     def load(cls: Type[_T], f) -> _T:
-        # --
+        #--
         inst = cls.__new__(cls)
         return inst._load(f)
 
-    def _deserialize_lexer_conf(
-        self,
-        data: Dict[str, Any],
-        memo: Dict[int, Union[TerminalDef, Rule]],
-        options: LarkOptions,
-    ) -> LexerConf:
-        lexer_conf = LexerConf.deserialize(data["lexer_conf"], memo)
+    def _deserialize_lexer_conf(self, data: Dict[str, Any], memo: Dict[int, Union[TerminalDef, Rule]], options: LarkOptions) -> LexerConf:
+        lexer_conf = LexerConf.deserialize(data['lexer_conf'], memo)
         lexer_conf.callbacks = options.lexer_callbacks or {}
         lexer_conf.re_module = regex if options.regex else re
         lexer_conf.use_bytes = options.use_bytes
@@ -3917,85 +3358,68 @@ class Lark(Serialize):
             d = f
         else:
             d = pickle.load(f)
-        memo_json = d["memo"]
-        data = d["data"]
+        memo_json = d['memo']
+        data = d['data']
 
         assert memo_json
-        memo = SerializeMemoizer.deserialize(
-            memo_json, {"Rule": Rule, "TerminalDef": TerminalDef}, {}
-        )
-        if "grammar" in data:
-            self.grammar = Grammar.deserialize(data["grammar"], memo)
-        options = dict(data["options"])
+        memo = SerializeMemoizer.deserialize(memo_json, {'Rule': Rule, 'TerminalDef': TerminalDef}, {})
+        if 'grammar' in data:
+            self.grammar = Grammar.deserialize(data['grammar'], memo)
+        options = dict(data['options'])
         if (set(kwargs) - _LOAD_ALLOWED_OPTIONS) & set(LarkOptions._defaults):
-            raise ConfigurationError(
-                "Some options are not allowed when loading a Parser: {}".format(
-                    set(kwargs) - _LOAD_ALLOWED_OPTIONS
-                )
-            )
+            raise ConfigurationError("Some options are not allowed when loading a Parser: {}"
+                             .format(set(kwargs) - _LOAD_ALLOWED_OPTIONS))
         options.update(kwargs)
         self.options = LarkOptions.deserialize(options, memo)
-        self.rules = [Rule.deserialize(r, memo) for r in data["rules"]]
-        self.source_path = "<deserialized>"
+        self.rules = [Rule.deserialize(r, memo) for r in data['rules']]
+        self.source_path = '<deserialized>'
         _validate_frontend_args(self.options.parser, self.options.lexer)
-        self.lexer_conf = self._deserialize_lexer_conf(
-            data["parser"], memo, self.options
-        )
+        self.lexer_conf = self._deserialize_lexer_conf(data['parser'], memo, self.options)
         self.terminals = self.lexer_conf.terminals
         self._prepare_callbacks()
         self._terminals_dict = {t.name: t for t in self.terminals}
         self.parser = _deserialize_parsing_frontend(
-            data["parser"],
+            data['parser'],
             memo,
             self.lexer_conf,
             self._callbacks,
             self.options,  ##
+
         )
         return self
 
     @classmethod
     def _load_from_dict(cls, data, memo, **kwargs):
         inst = cls.__new__(cls)
-        return inst._load({"data": data, "memo": memo}, **kwargs)
+        return inst._load({'data': data, 'memo': memo}, **kwargs)
 
     @classmethod
-    def open(
-        cls: Type[_T], grammar_filename: str, rel_to: Optional[str] = None, **options
-    ) -> _T:
-        # --
+    def open(cls: Type[_T], grammar_filename: str, rel_to: Optional[str]=None, **options) -> _T:
+        #--
         if rel_to:
             basepath = os.path.dirname(rel_to)
             grammar_filename = os.path.join(basepath, grammar_filename)
-        with open(grammar_filename, encoding="utf8") as f:
+        with open(grammar_filename, encoding='utf8') as f:
             return cls(f, **options)
 
     @classmethod
-    def open_from_package(
-        cls: Type[_T],
-        package: str,
-        grammar_path: str,
-        search_paths: "Sequence[str]" = [""],
-        **options,
-    ) -> _T:
-        # --
+    def open_from_package(cls: Type[_T], package: str, grammar_path: str, search_paths: 'Sequence[str]'=[""], **options) -> _T:
+        #--
         package_loader = FromPackageLoader(package, search_paths)
         full_path, text = package_loader(None, grammar_path)
-        options.setdefault("source_path", full_path)
-        options.setdefault("import_paths", [])
-        options["import_paths"].append(package_loader)
+        options.setdefault('source_path', full_path)
+        options.setdefault('import_paths', [])
+        options['import_paths'].append(package_loader)
         return cls(text, **options)
 
     def __repr__(self):
-        return "Lark(open(%r), parser=%r, lexer=%r, ...)" % (
-            self.source_path,
-            self.options.parser,
-            self.options.lexer,
-        )
+        return 'Lark(open(%r), parser=%r, lexer=%r, ...)' % (self.source_path, self.options.parser, self.options.lexer)
 
-    def lex(self, text: TextOrSlice, dont_ignore: bool = False) -> Iterator[Token]:
-        # --
+
+    def lex(self, text: TextOrSlice, dont_ignore: bool=False) -> Iterator[Token]:
+        #--
         lexer: Lexer
-        if not hasattr(self, "lexer") or dont_ignore:
+        if not hasattr(self, 'lexer') or dont_ignore:
             lexer = self._build_lexer(dont_ignore)
         else:
             lexer = self.lexer
@@ -4006,35 +3430,27 @@ class Lark(Serialize):
         return stream
 
     def get_terminal(self, name: str) -> TerminalDef:
-        # --
+        #--
         return self._terminals_dict[name]
 
-    def parse_interactive(
-        self, text: Optional[LarkInput] = None, start: Optional[str] = None
-    ) -> "InteractiveParser":
-        # --
+    def parse_interactive(self, text: Optional[LarkInput]=None, start: Optional[str]=None) -> 'InteractiveParser':
+        #--
         return self.parser.parse_interactive(text, start=start)
 
-    def parse(
-        self,
-        text: LarkInput,
-        start: Optional[str] = None,
-        on_error: "Optional[Callable[[UnexpectedInput], bool]]" = None,
-    ) -> "ParseTree":
-        # --
-        if on_error is not None and self.options.parser != "lalr":
-            raise NotImplementedError(
-                "The on_error option is only implemented for the LALR(1) parser."
-            )
+    def parse(self, text: LarkInput, start: Optional[str]=None, on_error: 'Optional[Callable[[UnexpectedInput], bool]]'=None) -> 'ParseTree':
+        #--
+        if on_error is not None and self.options.parser != 'lalr':
+            raise NotImplementedError("The on_error option is only implemented for the LALR(1) parser.")
         return self.parser.parse(text, start=start, on_error=on_error)
+
+
 
 
 class DedentError(LarkError):
     pass
 
-
 class Indenter(PostLex, ABC):
-    # --
+    #--
     paren_level: int
     indent_level: List[int]
 
@@ -4049,9 +3465,9 @@ class Indenter(PostLex, ABC):
 
         yield token
 
-        indent_str = token.rsplit("\n", 1)[1]  ##
+        indent_str = token.rsplit('\n', 1)[1] ##
 
-        indent = indent_str.count(" ") + indent_str.count("\t") * self.tab_len
+        indent = indent_str.count(' ') + indent_str.count('\t') * self.tab_len
 
         if indent > self.indent_level[-1]:
             self.indent_level.append(indent)
@@ -4062,10 +3478,7 @@ class Indenter(PostLex, ABC):
                 yield Token.new_borrow_pos(self.DEDENT_type, indent_str, token)
 
             if indent != self.indent_level[-1]:
-                raise DedentError(
-                    "Unexpected dedent to column %s. Expected dedent to %s"
-                    % (indent, self.indent_level[-1])
-                )
+                raise DedentError('Unexpected dedent to column %s. Expected dedent to %s' % (indent, self.indent_level[-1]))
 
     def _process(self, stream):
         token = None
@@ -4083,11 +3496,7 @@ class Indenter(PostLex, ABC):
 
         while len(self.indent_level) > 1:
             self.indent_level.pop()
-            yield (
-                Token.new_borrow_pos(self.DEDENT_type, "", token)
-                if token
-                else Token(self.DEDENT_type, "", 0, 0, 0, 0, 0, 0)
-            )
+            yield Token.new_borrow_pos(self.DEDENT_type, '', token) if token else Token(self.DEDENT_type, '', 0, 0, 0, 0, 0, 0)
 
         assert self.indent_level == [0], self.indent_level
 
@@ -4105,1924 +3514,59 @@ class Indenter(PostLex, ABC):
     @property
     @abstractmethod
     def NL_type(self) -> str:
-        # --
+        #--
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def OPEN_PAREN_types(self) -> List[str]:
-        # --
+        #--
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def CLOSE_PAREN_types(self) -> List[str]:
-        # --
+        #--
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def INDENT_type(self) -> str:
-        # --
+        #--
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def DEDENT_type(self) -> str:
-        # --
+        #--
         raise NotImplementedError()
 
     @property
     @abstractmethod
     def tab_len(self) -> int:
-        # --
+        #--
         raise NotImplementedError()
 
 
 class PythonIndenter(Indenter):
-    # --
+    #--
 
-    NL_type = "_NEWLINE"
-    OPEN_PAREN_types = ["LPAR", "LSQB", "LBRACE"]
-    CLOSE_PAREN_types = ["RPAR", "RSQB", "RBRACE"]
-    INDENT_type = "_INDENT"
-    DEDENT_type = "_DEDENT"
+    NL_type = '_NEWLINE'
+    OPEN_PAREN_types = ['LPAR', 'LSQB', 'LBRACE']
+    CLOSE_PAREN_types = ['RPAR', 'RSQB', 'RBRACE']
+    INDENT_type = '_INDENT'
+    DEDENT_type = '_DEDENT'
     tab_len = 8
 
 
-import base64
-import pickle
-import zlib
-
-DATA = {
-    "parser": {
-        "lexer_conf": {
-            "terminals": [
-                {"@": 0},
-                {"@": 1},
-                {"@": 2},
-                {"@": 3},
-                {"@": 4},
-                {"@": 5},
-                {"@": 6},
-                {"@": 7},
-                {"@": 8},
-                {"@": 9},
-                {"@": 10},
-                {"@": 11},
-                {"@": 12},
-                {"@": 13},
-                {"@": 14},
-                {"@": 15},
-                {"@": 16},
-                {"@": 17},
-                {"@": 18},
-            ],
-            "ignore": [],
-            "g_regex_flags": 0,
-            "use_bytes": False,
-            "lexer_type": "contextual",
-            "__type__": "LexerConf",
-        },
-        "parser_conf": {
-            "rules": [
-                {"@": 19},
-                {"@": 20},
-                {"@": 21},
-                {"@": 22},
-                {"@": 23},
-                {"@": 24},
-                {"@": 25},
-                {"@": 26},
-                {"@": 27},
-                {"@": 28},
-                {"@": 29},
-                {"@": 30},
-                {"@": 31},
-                {"@": 32},
-                {"@": 33},
-                {"@": 34},
-                {"@": 35},
-                {"@": 36},
-                {"@": 37},
-                {"@": 38},
-                {"@": 39},
-                {"@": 40},
-                {"@": 41},
-                {"@": 42},
-                {"@": 43},
-                {"@": 44},
-                {"@": 45},
-                {"@": 46},
-                {"@": 47},
-                {"@": 48},
-                {"@": 49},
-                {"@": 50},
-                {"@": 51},
-                {"@": 52},
-                {"@": 53},
-                {"@": 54},
-                {"@": 55},
-                {"@": 56},
-                {"@": 57},
-                {"@": 58},
-                {"@": 59},
-                {"@": 60},
-                {"@": 61},
-                {"@": 62},
-                {"@": 63},
-                {"@": 64},
-                {"@": 65},
-                {"@": 66},
-                {"@": 67},
-                {"@": 68},
-                {"@": 69},
-                {"@": 70},
-                {"@": 71},
-            ],
-            "start": ["start"],
-            "parser_type": "lalr",
-            "__type__": "ParserConf",
-        },
-        "parser": {
-            "tokens": {
-                0: "$END",
-                1: "PIPE",
-                2: "BACKSLASH",
-                3: "LSQB",
-                4: "LESSTHAN",
-                5: "SEMICOLON",
-                6: "TEXT",
-                7: "LBRACE",
-                8: "block",
-                9: "lookup",
-                10: "function",
-                11: "choice_element",
-                12: "escape",
-                13: "RBRACE",
-                14: "RSQB",
-                15: "MINUS",
-                16: "MORETHAN",
-                17: "DOT",
-                18: "__ANON_0",
-                19: "__choice_star_2",
-                20: "choice",
-                21: "__function_star_3",
-                22: "NAME",
-                23: "COLON",
-                24: "__arg_star_4",
-                25: "arg",
-                26: "arg_element",
-                27: "form",
-                28: "lookup_modifier",
-                29: "__lookup_star_5",
-                30: "label",
-                31: "tag",
-                32: "TAG_MODIFIER",
-                33: "__block_star_1",
-                34: "EQUAL",
-                35: "__start_star_0",
-                36: "start",
-                37: "element",
-                38: "ESCAPED_CHAR",
-                39: "LABEL_MODIFIER",
-            },
-            "states": {
-                0: {
-                    0: (1, {"@": 22}),
-                    1: (1, {"@": 22}),
-                    2: (1, {"@": 22}),
-                    3: (1, {"@": 22}),
-                    4: (1, {"@": 22}),
-                    5: (1, {"@": 22}),
-                    6: (1, {"@": 22}),
-                    7: (1, {"@": 22}),
-                },
-                1: {
-                    0: (1, {"@": 60}),
-                    1: (1, {"@": 60}),
-                    2: (1, {"@": 60}),
-                    3: (1, {"@": 60}),
-                    4: (1, {"@": 60}),
-                    5: (1, {"@": 60}),
-                    6: (1, {"@": 60}),
-                    7: (1, {"@": 60}),
-                },
-                2: {
-                    3: (0, 74),
-                    2: (0, 60),
-                    8: (0, 26),
-                    9: (0, 12),
-                    10: (0, 36),
-                    6: (0, 9),
-                    7: (0, 23),
-                    4: (0, 19),
-                    5: (0, 37),
-                    11: (0, 4),
-                    12: (0, 10),
-                    1: (1, {"@": 42}),
-                    13: (1, {"@": 42}),
-                },
-                3: {14: (1, {"@": 66}), 5: (1, {"@": 66})},
-                4: {
-                    1: (1, {"@": 65}),
-                    13: (1, {"@": 65}),
-                    2: (1, {"@": 65}),
-                    3: (1, {"@": 65}),
-                    4: (1, {"@": 65}),
-                    5: (1, {"@": 65}),
-                    6: (1, {"@": 65}),
-                    7: (1, {"@": 65}),
-                },
-                5: {1: (0, 64), 13: (0, 15)},
-                6: {
-                    1: (1, {"@": 30}),
-                    2: (1, {"@": 30}),
-                    3: (1, {"@": 30}),
-                    4: (1, {"@": 30}),
-                    14: (1, {"@": 30}),
-                    5: (1, {"@": 30}),
-                    6: (1, {"@": 30}),
-                    7: (1, {"@": 30}),
-                },
-                7: {
-                    15: (1, {"@": 54}),
-                    16: (1, {"@": 54}),
-                    17: (1, {"@": 54}),
-                    18: (1, {"@": 54}),
-                },
-                8: {
-                    0: (1, {"@": 21}),
-                    1: (1, {"@": 21}),
-                    2: (1, {"@": 21}),
-                    3: (1, {"@": 21}),
-                    4: (1, {"@": 21}),
-                    5: (1, {"@": 21}),
-                    6: (1, {"@": 21}),
-                    7: (1, {"@": 21}),
-                },
-                9: {
-                    1: (1, {"@": 40}),
-                    13: (1, {"@": 40}),
-                    2: (1, {"@": 40}),
-                    3: (1, {"@": 40}),
-                    4: (1, {"@": 40}),
-                    5: (1, {"@": 40}),
-                    6: (1, {"@": 40}),
-                    7: (1, {"@": 40}),
-                },
-                10: {
-                    1: (1, {"@": 39}),
-                    13: (1, {"@": 39}),
-                    2: (1, {"@": 39}),
-                    3: (1, {"@": 39}),
-                    4: (1, {"@": 39}),
-                    5: (1, {"@": 39}),
-                    6: (1, {"@": 39}),
-                    7: (1, {"@": 39}),
-                },
-                11: {
-                    15: (1, {"@": 52}),
-                    16: (1, {"@": 52}),
-                    17: (1, {"@": 52}),
-                    18: (1, {"@": 52}),
-                },
-                12: {
-                    1: (1, {"@": 38}),
-                    13: (1, {"@": 38}),
-                    2: (1, {"@": 38}),
-                    3: (1, {"@": 38}),
-                    4: (1, {"@": 38}),
-                    5: (1, {"@": 38}),
-                    6: (1, {"@": 38}),
-                    7: (1, {"@": 38}),
-                },
-                13: {
-                    3: (0, 74),
-                    8: (0, 26),
-                    19: (0, 2),
-                    2: (0, 60),
-                    9: (0, 12),
-                    6: (0, 9),
-                    4: (0, 19),
-                    10: (0, 36),
-                    7: (0, 23),
-                    5: (0, 37),
-                    11: (0, 27),
-                    12: (0, 10),
-                    20: (0, 25),
-                    1: (1, {"@": 43}),
-                    13: (1, {"@": 43}),
-                },
-                14: {21: (0, 21), 5: (0, 28), 14: (0, 41)},
-                15: {
-                    1: (1, {"@": 34}),
-                    13: (1, {"@": 34}),
-                    2: (1, {"@": 34}),
-                    3: (1, {"@": 34}),
-                    4: (1, {"@": 34}),
-                    5: (1, {"@": 34}),
-                    6: (1, {"@": 34}),
-                    7: (1, {"@": 34}),
-                    14: (1, {"@": 34}),
-                    0: (1, {"@": 34}),
-                },
-                16: {
-                    15: (1, {"@": 51}),
-                    16: (1, {"@": 51}),
-                    17: (1, {"@": 51}),
-                    18: (1, {"@": 51}),
-                },
-                17: {
-                    1: (1, {"@": 69}),
-                    2: (1, {"@": 69}),
-                    3: (1, {"@": 69}),
-                    4: (1, {"@": 69}),
-                    14: (1, {"@": 69}),
-                    5: (1, {"@": 69}),
-                    6: (1, {"@": 69}),
-                    7: (1, {"@": 69}),
-                },
-                18: {
-                    0: (1, {"@": 27}),
-                    1: (1, {"@": 27}),
-                    2: (1, {"@": 27}),
-                    3: (1, {"@": 27}),
-                    4: (1, {"@": 27}),
-                    5: (1, {"@": 27}),
-                    6: (1, {"@": 27}),
-                    7: (1, {"@": 27}),
-                },
-                19: {22: (0, 32)},
-                20: {
-                    15: (1, {"@": 70}),
-                    16: (1, {"@": 70}),
-                    17: (1, {"@": 70}),
-                    18: (1, {"@": 70}),
-                },
-                21: {5: (0, 52), 14: (0, 67)},
-                22: {
-                    15: (1, {"@": 55}),
-                    16: (1, {"@": 55}),
-                    17: (1, {"@": 55}),
-                    18: (1, {"@": 55}),
-                },
-                23: {
-                    3: (0, 74),
-                    8: (0, 26),
-                    19: (0, 2),
-                    2: (0, 60),
-                    20: (0, 48),
-                    9: (0, 12),
-                    6: (0, 9),
-                    4: (0, 19),
-                    10: (0, 36),
-                    7: (0, 23),
-                    5: (0, 37),
-                    11: (0, 27),
-                    12: (0, 10),
-                    13: (1, {"@": 43}),
-                    1: (1, {"@": 43}),
-                },
-                24: {23: (0, 50), 14: (0, 43)},
-                25: {1: (1, {"@": 62}), 13: (1, {"@": 62})},
-                26: {
-                    1: (1, {"@": 36}),
-                    13: (1, {"@": 36}),
-                    2: (1, {"@": 36}),
-                    3: (1, {"@": 36}),
-                    4: (1, {"@": 36}),
-                    5: (1, {"@": 36}),
-                    6: (1, {"@": 36}),
-                    7: (1, {"@": 36}),
-                },
-                27: {
-                    1: (1, {"@": 64}),
-                    13: (1, {"@": 64}),
-                    2: (1, {"@": 64}),
-                    3: (1, {"@": 64}),
-                    4: (1, {"@": 64}),
-                    5: (1, {"@": 64}),
-                    6: (1, {"@": 64}),
-                    7: (1, {"@": 64}),
-                },
-                28: {
-                    3: (0, 74),
-                    24: (0, 61),
-                    9: (0, 6),
-                    8: (0, 33),
-                    2: (0, 60),
-                    4: (0, 19),
-                    25: (0, 3),
-                    12: (0, 39),
-                    7: (0, 23),
-                    1: (0, 31),
-                    26: (0, 34),
-                    10: (0, 44),
-                    6: (0, 49),
-                    14: (1, {"@": 48}),
-                    5: (1, {"@": 48}),
-                },
-                29: {22: (0, 22)},
-                30: {
-                    0: (1, {"@": 23}),
-                    1: (1, {"@": 23}),
-                    2: (1, {"@": 23}),
-                    3: (1, {"@": 23}),
-                    4: (1, {"@": 23}),
-                    5: (1, {"@": 23}),
-                    6: (1, {"@": 23}),
-                    7: (1, {"@": 23}),
-                },
-                31: {
-                    1: (1, {"@": 33}),
-                    2: (1, {"@": 33}),
-                    3: (1, {"@": 33}),
-                    4: (1, {"@": 33}),
-                    14: (1, {"@": 33}),
-                    5: (1, {"@": 33}),
-                    6: (1, {"@": 33}),
-                    7: (1, {"@": 33}),
-                },
-                32: {
-                    15: (0, 40),
-                    27: (0, 16),
-                    28: (0, 20),
-                    17: (0, 38),
-                    18: (0, 63),
-                    29: (0, 68),
-                    16: (0, 65),
-                    30: (0, 53),
-                    31: (0, 11),
-                },
-                33: {
-                    1: (1, {"@": 28}),
-                    2: (1, {"@": 28}),
-                    3: (1, {"@": 28}),
-                    4: (1, {"@": 28}),
-                    14: (1, {"@": 28}),
-                    5: (1, {"@": 28}),
-                    6: (1, {"@": 28}),
-                    7: (1, {"@": 28}),
-                },
-                34: {
-                    1: (1, {"@": 68}),
-                    2: (1, {"@": 68}),
-                    3: (1, {"@": 68}),
-                    4: (1, {"@": 68}),
-                    14: (1, {"@": 68}),
-                    5: (1, {"@": 68}),
-                    6: (1, {"@": 68}),
-                    7: (1, {"@": 68}),
-                },
-                35: {
-                    0: (1, {"@": 24}),
-                    1: (1, {"@": 24}),
-                    2: (1, {"@": 24}),
-                    3: (1, {"@": 24}),
-                    4: (1, {"@": 24}),
-                    5: (1, {"@": 24}),
-                    6: (1, {"@": 24}),
-                    7: (1, {"@": 24}),
-                },
-                36: {
-                    1: (1, {"@": 37}),
-                    13: (1, {"@": 37}),
-                    2: (1, {"@": 37}),
-                    3: (1, {"@": 37}),
-                    4: (1, {"@": 37}),
-                    5: (1, {"@": 37}),
-                    6: (1, {"@": 37}),
-                    7: (1, {"@": 37}),
-                },
-                37: {
-                    1: (1, {"@": 41}),
-                    13: (1, {"@": 41}),
-                    2: (1, {"@": 41}),
-                    3: (1, {"@": 41}),
-                    4: (1, {"@": 41}),
-                    5: (1, {"@": 41}),
-                    6: (1, {"@": 41}),
-                    7: (1, {"@": 41}),
-                },
-                38: {22: (0, 7)},
-                39: {
-                    1: (1, {"@": 31}),
-                    2: (1, {"@": 31}),
-                    3: (1, {"@": 31}),
-                    4: (1, {"@": 31}),
-                    14: (1, {"@": 31}),
-                    5: (1, {"@": 31}),
-                    6: (1, {"@": 31}),
-                    7: (1, {"@": 31}),
-                },
-                40: {32: (0, 29), 22: (0, 45)},
-                41: {
-                    1: (1, {"@": 45}),
-                    13: (1, {"@": 45}),
-                    2: (1, {"@": 45}),
-                    3: (1, {"@": 45}),
-                    4: (1, {"@": 45}),
-                    5: (1, {"@": 45}),
-                    6: (1, {"@": 45}),
-                    7: (1, {"@": 45}),
-                    14: (1, {"@": 45}),
-                    0: (1, {"@": 45}),
-                },
-                42: {22: (0, 71)},
-                43: {
-                    1: (1, {"@": 46}),
-                    13: (1, {"@": 46}),
-                    2: (1, {"@": 46}),
-                    3: (1, {"@": 46}),
-                    4: (1, {"@": 46}),
-                    5: (1, {"@": 46}),
-                    6: (1, {"@": 46}),
-                    7: (1, {"@": 46}),
-                    14: (1, {"@": 46}),
-                    0: (1, {"@": 46}),
-                },
-                44: {
-                    1: (1, {"@": 29}),
-                    2: (1, {"@": 29}),
-                    3: (1, {"@": 29}),
-                    4: (1, {"@": 29}),
-                    14: (1, {"@": 29}),
-                    5: (1, {"@": 29}),
-                    6: (1, {"@": 29}),
-                    7: (1, {"@": 29}),
-                },
-                45: {
-                    15: (1, {"@": 56}),
-                    16: (1, {"@": 56}),
-                    17: (1, {"@": 56}),
-                    18: (1, {"@": 56}),
-                },
-                46: {
-                    15: (1, {"@": 58}),
-                    16: (1, {"@": 58}),
-                    17: (1, {"@": 58}),
-                    18: (1, {"@": 58}),
-                },
-                47: {
-                    0: (1, {"@": 25}),
-                    1: (1, {"@": 25}),
-                    2: (1, {"@": 25}),
-                    3: (1, {"@": 25}),
-                    4: (1, {"@": 25}),
-                    5: (1, {"@": 25}),
-                    6: (1, {"@": 25}),
-                    7: (1, {"@": 25}),
-                },
-                48: {33: (0, 5), 13: (0, 69), 1: (0, 13)},
-                49: {
-                    1: (1, {"@": 32}),
-                    2: (1, {"@": 32}),
-                    3: (1, {"@": 32}),
-                    4: (1, {"@": 32}),
-                    14: (1, {"@": 32}),
-                    5: (1, {"@": 32}),
-                    6: (1, {"@": 32}),
-                    7: (1, {"@": 32}),
-                },
-                50: {
-                    3: (0, 74),
-                    24: (0, 61),
-                    9: (0, 6),
-                    8: (0, 33),
-                    2: (0, 60),
-                    4: (0, 19),
-                    12: (0, 39),
-                    25: (0, 14),
-                    7: (0, 23),
-                    1: (0, 31),
-                    26: (0, 34),
-                    10: (0, 44),
-                    6: (0, 49),
-                    14: (1, {"@": 48}),
-                    5: (1, {"@": 48}),
-                },
-                51: {},
-                52: {
-                    3: (0, 74),
-                    24: (0, 61),
-                    9: (0, 6),
-                    8: (0, 33),
-                    2: (0, 60),
-                    4: (0, 19),
-                    25: (0, 73),
-                    12: (0, 39),
-                    7: (0, 23),
-                    1: (0, 31),
-                    26: (0, 34),
-                    10: (0, 44),
-                    6: (0, 49),
-                    14: (1, {"@": 48}),
-                    5: (1, {"@": 48}),
-                },
-                53: {
-                    15: (1, {"@": 53}),
-                    16: (1, {"@": 53}),
-                    17: (1, {"@": 53}),
-                    18: (1, {"@": 53}),
-                },
-                54: {34: (0, 42)},
-                55: {
-                    0: (1, {"@": 26}),
-                    1: (1, {"@": 26}),
-                    2: (1, {"@": 26}),
-                    3: (1, {"@": 26}),
-                    4: (1, {"@": 26}),
-                    5: (1, {"@": 26}),
-                    6: (1, {"@": 26}),
-                    7: (1, {"@": 26}),
-                },
-                56: {
-                    1: (1, {"@": 59}),
-                    13: (1, {"@": 59}),
-                    2: (1, {"@": 59}),
-                    3: (1, {"@": 59}),
-                    4: (1, {"@": 59}),
-                    5: (1, {"@": 59}),
-                    6: (1, {"@": 59}),
-                    7: (1, {"@": 59}),
-                    14: (1, {"@": 59}),
-                    0: (1, {"@": 59}),
-                },
-                57: {
-                    3: (0, 74),
-                    35: (0, 72),
-                    36: (0, 51),
-                    12: (0, 35),
-                    5: (0, 55),
-                    10: (0, 0),
-                    2: (0, 60),
-                    9: (0, 30),
-                    1: (0, 18),
-                    4: (0, 19),
-                    8: (0, 8),
-                    7: (0, 23),
-                    37: (0, 1),
-                    6: (0, 47),
-                    0: (1, {"@": 20}),
-                },
-                58: {22: (0, 46)},
-                59: {1: (1, {"@": 63}), 13: (1, {"@": 63})},
-                60: {38: (0, 56)},
-                61: {
-                    3: (0, 74),
-                    2: (0, 60),
-                    1: (0, 31),
-                    10: (0, 44),
-                    12: (0, 39),
-                    7: (0, 23),
-                    4: (0, 19),
-                    6: (0, 49),
-                    26: (0, 17),
-                    9: (0, 6),
-                    8: (0, 33),
-                    14: (1, {"@": 47}),
-                    5: (1, {"@": 47}),
-                },
-                62: {
-                    0: (1, {"@": 61}),
-                    1: (1, {"@": 61}),
-                    2: (1, {"@": 61}),
-                    3: (1, {"@": 61}),
-                    4: (1, {"@": 61}),
-                    5: (1, {"@": 61}),
-                    6: (1, {"@": 61}),
-                    7: (1, {"@": 61}),
-                },
-                63: {39: (0, 54), 34: (0, 58)},
-                64: {
-                    3: (0, 74),
-                    8: (0, 26),
-                    19: (0, 2),
-                    2: (0, 60),
-                    9: (0, 12),
-                    20: (0, 59),
-                    6: (0, 9),
-                    4: (0, 19),
-                    10: (0, 36),
-                    7: (0, 23),
-                    5: (0, 37),
-                    11: (0, 27),
-                    12: (0, 10),
-                    1: (1, {"@": 43}),
-                    13: (1, {"@": 43}),
-                },
-                65: {
-                    1: (1, {"@": 50}),
-                    13: (1, {"@": 50}),
-                    2: (1, {"@": 50}),
-                    3: (1, {"@": 50}),
-                    4: (1, {"@": 50}),
-                    5: (1, {"@": 50}),
-                    6: (1, {"@": 50}),
-                    7: (1, {"@": 50}),
-                    14: (1, {"@": 50}),
-                    0: (1, {"@": 50}),
-                },
-                66: {
-                    1: (1, {"@": 49}),
-                    13: (1, {"@": 49}),
-                    2: (1, {"@": 49}),
-                    3: (1, {"@": 49}),
-                    4: (1, {"@": 49}),
-                    5: (1, {"@": 49}),
-                    6: (1, {"@": 49}),
-                    7: (1, {"@": 49}),
-                    14: (1, {"@": 49}),
-                    0: (1, {"@": 49}),
-                },
-                67: {
-                    1: (1, {"@": 44}),
-                    13: (1, {"@": 44}),
-                    2: (1, {"@": 44}),
-                    3: (1, {"@": 44}),
-                    4: (1, {"@": 44}),
-                    5: (1, {"@": 44}),
-                    6: (1, {"@": 44}),
-                    7: (1, {"@": 44}),
-                    14: (1, {"@": 44}),
-                    0: (1, {"@": 44}),
-                },
-                68: {
-                    15: (0, 40),
-                    27: (0, 16),
-                    16: (0, 66),
-                    28: (0, 70),
-                    17: (0, 38),
-                    18: (0, 63),
-                    30: (0, 53),
-                    31: (0, 11),
-                },
-                69: {
-                    1: (1, {"@": 35}),
-                    13: (1, {"@": 35}),
-                    2: (1, {"@": 35}),
-                    3: (1, {"@": 35}),
-                    4: (1, {"@": 35}),
-                    5: (1, {"@": 35}),
-                    6: (1, {"@": 35}),
-                    7: (1, {"@": 35}),
-                    14: (1, {"@": 35}),
-                    0: (1, {"@": 35}),
-                },
-                70: {
-                    15: (1, {"@": 71}),
-                    16: (1, {"@": 71}),
-                    17: (1, {"@": 71}),
-                    18: (1, {"@": 71}),
-                },
-                71: {
-                    15: (1, {"@": 57}),
-                    16: (1, {"@": 57}),
-                    17: (1, {"@": 57}),
-                    18: (1, {"@": 57}),
-                },
-                72: {
-                    3: (0, 74),
-                    2: (0, 60),
-                    9: (0, 30),
-                    12: (0, 35),
-                    5: (0, 55),
-                    8: (0, 8),
-                    1: (0, 18),
-                    7: (0, 23),
-                    4: (0, 19),
-                    6: (0, 47),
-                    37: (0, 62),
-                    10: (0, 0),
-                    0: (1, {"@": 19}),
-                },
-                73: {14: (1, {"@": 67}), 5: (1, {"@": 67})},
-                74: {22: (0, 24)},
-            },
-            "start_states": {"start": 57},
-            "end_states": {"start": 51},
-        },
-        "__type__": "ParsingFrontend",
-    },
-    "rules": [
-        {"@": 19},
-        {"@": 20},
-        {"@": 21},
-        {"@": 22},
-        {"@": 23},
-        {"@": 24},
-        {"@": 25},
-        {"@": 26},
-        {"@": 27},
-        {"@": 28},
-        {"@": 29},
-        {"@": 30},
-        {"@": 31},
-        {"@": 32},
-        {"@": 33},
-        {"@": 34},
-        {"@": 35},
-        {"@": 36},
-        {"@": 37},
-        {"@": 38},
-        {"@": 39},
-        {"@": 40},
-        {"@": 41},
-        {"@": 42},
-        {"@": 43},
-        {"@": 44},
-        {"@": 45},
-        {"@": 46},
-        {"@": 47},
-        {"@": 48},
-        {"@": 49},
-        {"@": 50},
-        {"@": 51},
-        {"@": 52},
-        {"@": 53},
-        {"@": 54},
-        {"@": 55},
-        {"@": 56},
-        {"@": 57},
-        {"@": 58},
-        {"@": 59},
-        {"@": 60},
-        {"@": 61},
-        {"@": 62},
-        {"@": 63},
-        {"@": 64},
-        {"@": 65},
-        {"@": 66},
-        {"@": 67},
-        {"@": 68},
-        {"@": 69},
-        {"@": 70},
-        {"@": 71},
-    ],
-    "options": {
-        "debug": False,
-        "strict": False,
-        "keep_all_tokens": False,
-        "tree_class": None,
-        "cache": False,
-        "cache_grammar": False,
-        "postlex": None,
-        "parser": "lalr",
-        "lexer": "contextual",
-        "transformer": None,
-        "start": ["start"],
-        "priority": "normal",
-        "ambiguity": "auto",
-        "regex": False,
-        "propagate_positions": False,
-        "lexer_callbacks": {},
-        "maybe_placeholders": False,
-        "edit_terminals": None,
-        "g_regex_flags": 0,
-        "use_bytes": False,
-        "ordered_sets": True,
-        "import_paths": [],
-        "source_path": None,
-        "_plugins": {},
-    },
-    "__type__": "Lark",
-}
-MEMO = {
-    0: {
-        "name": "TAG_MODIFIER",
-        "pattern": {"value": "!", "flags": [], "raw": '"!"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    1: {
-        "name": "LABEL_MODIFIER",
-        "pattern": {
-            "value": "(?:!|\\^)",
-            "flags": [],
-            "raw": None,
-            "_width": [1, 1],
-            "__type__": "PatternRE",
-        },
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    2: {
-        "name": "NAME",
-        "pattern": {
-            "value": "[^\\s\\!<>{}\\[\\]|\\\\:.-]+",
-            "flags": [],
-            "raw": "/[^\\s\\!<>{}\\[\\]|\\\\:.-]+/",
-            "_width": [1, 18446744073709551616],
-            "__type__": "PatternRE",
-        },
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    3: {
-        "name": "TEXT",
-        "pattern": {
-            "value": "[^<>{}\\[\\]|\\\\;]+",
-            "flags": [],
-            "raw": "/[^<>{}\\[\\]|\\\\;]+/",
-            "_width": [1, 18446744073709551616],
-            "__type__": "PatternRE",
-        },
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    4: {
-        "name": "SEMICOLON",
-        "pattern": {"value": ";", "flags": [], "raw": '";"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    5: {
-        "name": "PIPE",
-        "pattern": {"value": "|", "flags": [], "raw": '"|"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    6: {
-        "name": "ESCAPED_CHAR",
-        "pattern": {
-            "value": "[naAdts\\\\;]",
-            "flags": [],
-            "raw": "/[naAdts\\\\;]/",
-            "_width": [1, 1],
-            "__type__": "PatternRE",
-        },
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    7: {
-        "name": "LBRACE",
-        "pattern": {"value": "{", "flags": [], "raw": '"{"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    8: {
-        "name": "RBRACE",
-        "pattern": {"value": "}", "flags": [], "raw": '"}"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    9: {
-        "name": "COLON",
-        "pattern": {"value": ":", "flags": [], "raw": '":"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    10: {
-        "name": "LSQB",
-        "pattern": {"value": "[", "flags": [], "raw": '"["', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    11: {
-        "name": "RSQB",
-        "pattern": {"value": "]", "flags": [], "raw": '"]"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    12: {
-        "name": "LESSTHAN",
-        "pattern": {"value": "<", "flags": [], "raw": '"<"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    13: {
-        "name": "MORETHAN",
-        "pattern": {"value": ">", "flags": [], "raw": '">"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    14: {
-        "name": "DOT",
-        "pattern": {"value": ".", "flags": [], "raw": '"."', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    15: {
-        "name": "MINUS",
-        "pattern": {"value": "-", "flags": [], "raw": '"-"', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    16: {
-        "name": "__ANON_0",
-        "pattern": {
-            "value": "::",
-            "flags": [],
-            "raw": '"::"',
-            "__type__": "PatternStr",
-        },
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    17: {
-        "name": "EQUAL",
-        "pattern": {"value": "=", "flags": [], "raw": '"="', "__type__": "PatternStr"},
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    18: {
-        "name": "BACKSLASH",
-        "pattern": {
-            "value": "\\",
-            "flags": [],
-            "raw": '"\\\\"',
-            "__type__": "PatternStr",
-        },
-        "priority": 0,
-        "__type__": "TerminalDef",
-    },
-    19: {
-        "origin": {"name": "start", "__type__": "NonTerminal"},
-        "expansion": [{"name": "__start_star_0", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    20: {
-        "origin": {"name": "start", "__type__": "NonTerminal"},
-        "expansion": [],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    21: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "block", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    22: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "function", "__type__": "NonTerminal"}],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    23: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "lookup", "__type__": "NonTerminal"}],
-        "order": 2,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    24: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "escape", "__type__": "NonTerminal"}],
-        "order": 3,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    25: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "TEXT", "filter_out": False, "__type__": "Terminal"}],
-        "order": 4,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    26: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "SEMICOLON", "filter_out": False, "__type__": "Terminal"}
-        ],
-        "order": 5,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    27: {
-        "origin": {"name": "element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "PIPE", "filter_out": False, "__type__": "Terminal"}],
-        "order": 6,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    28: {
-        "origin": {"name": "arg_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "block", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    29: {
-        "origin": {"name": "arg_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "function", "__type__": "NonTerminal"}],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    30: {
-        "origin": {"name": "arg_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "lookup", "__type__": "NonTerminal"}],
-        "order": 2,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    31: {
-        "origin": {"name": "arg_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "escape", "__type__": "NonTerminal"}],
-        "order": 3,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    32: {
-        "origin": {"name": "arg_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "TEXT", "filter_out": False, "__type__": "Terminal"}],
-        "order": 4,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    33: {
-        "origin": {"name": "arg_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "PIPE", "filter_out": False, "__type__": "Terminal"}],
-        "order": 5,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    34: {
-        "origin": {"name": "block", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LBRACE", "filter_out": True, "__type__": "Terminal"},
-            {"name": "choice", "__type__": "NonTerminal"},
-            {"name": "__block_star_1", "__type__": "NonTerminal"},
-            {"name": "RBRACE", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    35: {
-        "origin": {"name": "block", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LBRACE", "filter_out": True, "__type__": "Terminal"},
-            {"name": "choice", "__type__": "NonTerminal"},
-            {"name": "RBRACE", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    36: {
-        "origin": {"name": "choice_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "block", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    37: {
-        "origin": {"name": "choice_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "function", "__type__": "NonTerminal"}],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    38: {
-        "origin": {"name": "choice_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "lookup", "__type__": "NonTerminal"}],
-        "order": 2,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    39: {
-        "origin": {"name": "choice_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "escape", "__type__": "NonTerminal"}],
-        "order": 3,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    40: {
-        "origin": {"name": "choice_element", "__type__": "NonTerminal"},
-        "expansion": [{"name": "TEXT", "filter_out": False, "__type__": "Terminal"}],
-        "order": 4,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    41: {
-        "origin": {"name": "choice_element", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "SEMICOLON", "filter_out": False, "__type__": "Terminal"}
-        ],
-        "order": 5,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": True,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    42: {
-        "origin": {"name": "choice", "__type__": "NonTerminal"},
-        "expansion": [{"name": "__choice_star_2", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    43: {
-        "origin": {"name": "choice", "__type__": "NonTerminal"},
-        "expansion": [],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    44: {
-        "origin": {"name": "function", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LSQB", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-            {"name": "COLON", "filter_out": True, "__type__": "Terminal"},
-            {"name": "arg", "__type__": "NonTerminal"},
-            {"name": "__function_star_3", "__type__": "NonTerminal"},
-            {"name": "RSQB", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    45: {
-        "origin": {"name": "function", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LSQB", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-            {"name": "COLON", "filter_out": True, "__type__": "Terminal"},
-            {"name": "arg", "__type__": "NonTerminal"},
-            {"name": "RSQB", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    46: {
-        "origin": {"name": "function", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LSQB", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-            {"name": "RSQB", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 2,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    47: {
-        "origin": {"name": "arg", "__type__": "NonTerminal"},
-        "expansion": [{"name": "__arg_star_4", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    48: {
-        "origin": {"name": "arg", "__type__": "NonTerminal"},
-        "expansion": [],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    49: {
-        "origin": {"name": "lookup", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LESSTHAN", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-            {"name": "__lookup_star_5", "__type__": "NonTerminal"},
-            {"name": "MORETHAN", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    50: {
-        "origin": {"name": "lookup", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "LESSTHAN", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-            {"name": "MORETHAN", "filter_out": True, "__type__": "Terminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    51: {
-        "origin": {"name": "lookup_modifier", "__type__": "NonTerminal"},
-        "expansion": [{"name": "form", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    52: {
-        "origin": {"name": "lookup_modifier", "__type__": "NonTerminal"},
-        "expansion": [{"name": "tag", "__type__": "NonTerminal"}],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    53: {
-        "origin": {"name": "lookup_modifier", "__type__": "NonTerminal"},
-        "expansion": [{"name": "label", "__type__": "NonTerminal"}],
-        "order": 2,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    54: {
-        "origin": {"name": "form", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "DOT", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    55: {
-        "origin": {"name": "tag", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "MINUS", "filter_out": True, "__type__": "Terminal"},
-            {"name": "TAG_MODIFIER", "filter_out": False, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    56: {
-        "origin": {"name": "tag", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "MINUS", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    57: {
-        "origin": {"name": "label", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__ANON_0", "filter_out": True, "__type__": "Terminal"},
-            {"name": "LABEL_MODIFIER", "filter_out": False, "__type__": "Terminal"},
-            {"name": "EQUAL", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    58: {
-        "origin": {"name": "label", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__ANON_0", "filter_out": True, "__type__": "Terminal"},
-            {"name": "EQUAL", "filter_out": True, "__type__": "Terminal"},
-            {"name": "NAME", "filter_out": False, "__type__": "Terminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    59: {
-        "origin": {"name": "escape", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "BACKSLASH", "filter_out": True, "__type__": "Terminal"},
-            {"name": "ESCAPED_CHAR", "filter_out": False, "__type__": "Terminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    60: {
-        "origin": {"name": "__start_star_0", "__type__": "NonTerminal"},
-        "expansion": [{"name": "element", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    61: {
-        "origin": {"name": "__start_star_0", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__start_star_0", "__type__": "NonTerminal"},
-            {"name": "element", "__type__": "NonTerminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    62: {
-        "origin": {"name": "__block_star_1", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "PIPE", "filter_out": True, "__type__": "Terminal"},
-            {"name": "choice", "__type__": "NonTerminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    63: {
-        "origin": {"name": "__block_star_1", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__block_star_1", "__type__": "NonTerminal"},
-            {"name": "PIPE", "filter_out": True, "__type__": "Terminal"},
-            {"name": "choice", "__type__": "NonTerminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    64: {
-        "origin": {"name": "__choice_star_2", "__type__": "NonTerminal"},
-        "expansion": [{"name": "choice_element", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    65: {
-        "origin": {"name": "__choice_star_2", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__choice_star_2", "__type__": "NonTerminal"},
-            {"name": "choice_element", "__type__": "NonTerminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    66: {
-        "origin": {"name": "__function_star_3", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "SEMICOLON", "filter_out": False, "__type__": "Terminal"},
-            {"name": "arg", "__type__": "NonTerminal"},
-        ],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    67: {
-        "origin": {"name": "__function_star_3", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__function_star_3", "__type__": "NonTerminal"},
-            {"name": "SEMICOLON", "filter_out": False, "__type__": "Terminal"},
-            {"name": "arg", "__type__": "NonTerminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    68: {
-        "origin": {"name": "__arg_star_4", "__type__": "NonTerminal"},
-        "expansion": [{"name": "arg_element", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    69: {
-        "origin": {"name": "__arg_star_4", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__arg_star_4", "__type__": "NonTerminal"},
-            {"name": "arg_element", "__type__": "NonTerminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    70: {
-        "origin": {"name": "__lookup_star_5", "__type__": "NonTerminal"},
-        "expansion": [{"name": "lookup_modifier", "__type__": "NonTerminal"}],
-        "order": 0,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-    71: {
-        "origin": {"name": "__lookup_star_5", "__type__": "NonTerminal"},
-        "expansion": [
-            {"name": "__lookup_star_5", "__type__": "NonTerminal"},
-            {"name": "lookup_modifier", "__type__": "NonTerminal"},
-        ],
-        "order": 1,
-        "alias": None,
-        "options": {
-            "keep_all_tokens": False,
-            "expand1": False,
-            "priority": None,
-            "template_source": None,
-            "empty_indices": (),
-            "__type__": "RuleOptions",
-        },
-        "__type__": "Rule",
-    },
-}
+import pickle, zlib, base64
+DATA = (
+{'parser': {'lexer_conf': {'terminals': [{'@': 0}, {'@': 1}, {'@': 2}, {'@': 3}, {'@': 4}, {'@': 5}, {'@': 6}, {'@': 7}, {'@': 8}, {'@': 9}, {'@': 10}, {'@': 11}, {'@': 12}, {'@': 13}, {'@': 14}, {'@': 15}, {'@': 16}, {'@': 17}, {'@': 18}, {'@': 19}, {'@': 20}, {'@': 21}, {'@': 22}], 'ignore': [], 'g_regex_flags': 0, 'use_bytes': False, 'lexer_type': 'contextual', '__type__': 'LexerConf'}, 'parser_conf': {'rules': [{'@': 23}, {'@': 24}, {'@': 25}, {'@': 26}, {'@': 27}, {'@': 28}, {'@': 29}, {'@': 30}, {'@': 31}, {'@': 32}, {'@': 33}, {'@': 34}, {'@': 35}, {'@': 36}, {'@': 37}, {'@': 38}, {'@': 39}, {'@': 40}, {'@': 41}, {'@': 42}, {'@': 43}, {'@': 44}, {'@': 45}, {'@': 46}, {'@': 47}, {'@': 48}, {'@': 49}, {'@': 50}, {'@': 51}, {'@': 52}, {'@': 53}, {'@': 54}, {'@': 55}, {'@': 56}, {'@': 57}, {'@': 58}, {'@': 59}, {'@': 60}, {'@': 61}, {'@': 62}, {'@': 63}, {'@': 64}, {'@': 65}, {'@': 66}, {'@': 67}, {'@': 68}, {'@': 69}, {'@': 70}, {'@': 71}, {'@': 72}, {'@': 73}, {'@': 74}, {'@': 75}, {'@': 76}, {'@': 77}, {'@': 78}, {'@': 79}, {'@': 80}, {'@': 81}, {'@': 82}, {'@': 83}, {'@': 84}, {'@': 85}, {'@': 86}, {'@': 87}, {'@': 88}, {'@': 89}, {'@': 90}, {'@': 91}, {'@': 92}, {'@': 93}, {'@': 94}, {'@': 95}, {'@': 96}], 'start': ['start'], 'parser_type': 'lalr', '__type__': 'ParserConf'}, 'parser': {'tokens': {0: 'FORWARD_SLASH', 1: '__ANON_2', 2: 'PIPE', 3: 'LBRACE', 4: 'RSQB', 5: 'LSQB', 6: 'BACKSLASH', 7: 'LESSTHAN', 8: 'TEXT', 9: 'SEMICOLON', 10: 'old_regex', 11: 'standard_function', 12: 'function', 13: 'block', 14: 'arg_element', 15: 'lookup', 16: '__arg_star_4', 17: 'arg', 18: 'escape', 19: 'DOT', 20: 'MORETHAN', 21: 'MINUS', 22: '__ANON_3', 23: 'RBRACE', 24: '$END', 25: 'NAME', 26: 'TAG_MODIFIER', 27: 'LABEL_MODIFIER', 28: 'EQUAL', 29: '__block_star_1', 30: 'ESCAPED_CHAR', 31: '__ANON_1', 32: '__ANON_0', 33: 'form', 34: 'label', 35: 'lookup_modifier', 36: 'tag', 37: '__choice_star_2', 38: 'choice_element', 39: 'choice', 40: '__lookup_star_6', 41: '__start_star_0', 42: 'start', 43: 'element', 44: 'COLON', 45: '__standard_function_star_3', 46: 'regex_pattern', 47: '__regex_pattern_star_5'}, 'states': {0: {0: (1, {'@': 82}), 1: (1, {'@': 82}), 2: (1, {'@': 82}), 3: (1, {'@': 82}), 4: (1, {'@': 82}), 5: (1, {'@': 82}), 6: (1, {'@': 82}), 7: (1, {'@': 82}), 8: (1, {'@': 82}), 9: (1, {'@': 82})}, 1: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 6: (0, 55), 17: (0, 13), 2: (0, 80), 3: (0, 84), 18: (0, 81), 4: (1, {'@': 57})}, 2: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 6: (0, 55), 2: (0, 80), 3: (0, 84), 17: (0, 14), 18: (0, 81), 4: (1, {'@': 57}), 9: (1, {'@': 57})}, 3: {19: (1, {'@': 70}), 20: (1, {'@': 70}), 21: (1, {'@': 70}), 22: (1, {'@': 70})}, 4: {0: (1, {'@': 53}), 1: (1, {'@': 53}), 2: (1, {'@': 53}), 3: (1, {'@': 53}), 4: (1, {'@': 53}), 5: (1, {'@': 53}), 6: (1, {'@': 53}), 7: (1, {'@': 53}), 8: (1, {'@': 53}), 9: (1, {'@': 53}), 23: (1, {'@': 53}), 24: (1, {'@': 53})}, 5: {2: (1, {'@': 76}), 23: (1, {'@': 76})}, 6: {0: (1, {'@': 58}), 1: (1, {'@': 58}), 2: (1, {'@': 58}), 3: (1, {'@': 58}), 4: (1, {'@': 58}), 5: (1, {'@': 58}), 6: (1, {'@': 58}), 7: (1, {'@': 58}), 8: (1, {'@': 58}), 9: (1, {'@': 58}), 23: (1, {'@': 58}), 24: (1, {'@': 58})}, 7: {0: (1, {'@': 46}), 1: (1, {'@': 46}), 2: (1, {'@': 46}), 9: (1, {'@': 46}), 3: (1, {'@': 46}), 23: (1, {'@': 46}), 5: (1, {'@': 46}), 6: (1, {'@': 46}), 7: (1, {'@': 46}), 8: (1, {'@': 46})}, 8: {0: (1, {'@': 59}), 1: (1, {'@': 59}), 2: (1, {'@': 59}), 3: (1, {'@': 59}), 4: (1, {'@': 59}), 5: (1, {'@': 59}), 6: (1, {'@': 59}), 7: (1, {'@': 59}), 8: (1, {'@': 59}), 9: (1, {'@': 59}), 23: (1, {'@': 59}), 24: (1, {'@': 59})}, 9: {4: (1, {'@': 79}), 9: (1, {'@': 79})}, 10: {0: (1, {'@': 42}), 1: (1, {'@': 42}), 2: (1, {'@': 42}), 9: (1, {'@': 42}), 3: (1, {'@': 42}), 23: (1, {'@': 42}), 5: (1, {'@': 42}), 6: (1, {'@': 42}), 7: (1, {'@': 42}), 8: (1, {'@': 42})}, 11: {4: (0, 6)}, 12: {0: (1, {'@': 77}), 1: (1, {'@': 77}), 2: (1, {'@': 77}), 9: (1, {'@': 77}), 3: (1, {'@': 77}), 23: (1, {'@': 77}), 5: (1, {'@': 77}), 6: (1, {'@': 77}), 7: (1, {'@': 77}), 8: (1, {'@': 77})}, 13: {4: (0, 8)}, 14: {4: (1, {'@': 80}), 9: (1, {'@': 80})}, 15: {2: (1, {'@': 74}), 1: (1, {'@': 74}), 0: (1, {'@': 74}), 3: (1, {'@': 74}), 24: (1, {'@': 74}), 5: (1, {'@': 74}), 6: (1, {'@': 74}), 8: (1, {'@': 74}), 7: (1, {'@': 74}), 9: (1, {'@': 74})}, 16: {0: (1, {'@': 44}), 1: (1, {'@': 44}), 2: (1, {'@': 44}), 9: (1, {'@': 44}), 3: (1, {'@': 44}), 23: (1, {'@': 44}), 5: (1, {'@': 44}), 6: (1, {'@': 44}), 7: (1, {'@': 44}), 8: (1, {'@': 44})}, 17: {25: (0, 50), 26: (0, 53)}, 18: {27: (0, 56), 28: (0, 58)}, 19: {19: (1, {'@': 66}), 20: (1, {'@': 66}), 21: (1, {'@': 66}), 22: (1, {'@': 66})}, 20: {25: (0, 61)}, 21: {0: (1, {'@': 63}), 1: (1, {'@': 63}), 2: (1, {'@': 63}), 3: (1, {'@': 63}), 4: (1, {'@': 63}), 5: (1, {'@': 63}), 6: (1, {'@': 63}), 7: (1, {'@': 63}), 8: (1, {'@': 63}), 9: (1, {'@': 63}), 23: (1, {'@': 63}), 24: (1, {'@': 63})}, 22: {2: (1, {'@': 30}), 1: (1, {'@': 30}), 0: (1, {'@': 30}), 3: (1, {'@': 30}), 24: (1, {'@': 30}), 5: (1, {'@': 30}), 6: (1, {'@': 30}), 8: (1, {'@': 30}), 7: (1, {'@': 30}), 9: (1, {'@': 30})}, 23: {23: (0, 47), 2: (0, 45), 29: (0, 49)}, 24: {19: (1, {'@': 65}), 20: (1, {'@': 65}), 21: (1, {'@': 65}), 22: (1, {'@': 65})}, 25: {25: (0, 54)}, 26: {10: (0, 83), 17: (0, 63), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 6: (0, 55), 2: (0, 80), 3: (0, 84), 18: (0, 81), 9: (1, {'@': 57})}, 27: {25: (0, 65)}, 28: {0: (1, {'@': 45}), 1: (1, {'@': 45}), 2: (1, {'@': 45}), 9: (1, {'@': 45}), 3: (1, {'@': 45}), 23: (1, {'@': 45}), 5: (1, {'@': 45}), 6: (1, {'@': 45}), 7: (1, {'@': 45}), 8: (1, {'@': 45})}, 29: {0: (1, {'@': 40}), 1: (1, {'@': 40}), 2: (1, {'@': 40}), 9: (1, {'@': 40}), 3: (1, {'@': 40}), 23: (1, {'@': 40}), 5: (1, {'@': 40}), 6: (1, {'@': 40}), 7: (1, {'@': 40}), 8: (1, {'@': 40})}, 30: {0: (1, {'@': 55}), 1: (1, {'@': 55}), 2: (1, {'@': 55}), 3: (1, {'@': 55}), 4: (1, {'@': 55}), 5: (1, {'@': 55}), 6: (1, {'@': 55}), 7: (1, {'@': 55}), 8: (1, {'@': 55}), 9: (1, {'@': 55}), 23: (1, {'@': 55}), 24: (1, {'@': 55})}, 31: {0: (1, {'@': 43}), 1: (1, {'@': 43}), 2: (1, {'@': 43}), 9: (1, {'@': 43}), 3: (1, {'@': 43}), 23: (1, {'@': 43}), 5: (1, {'@': 43}), 6: (1, {'@': 43}), 7: (1, {'@': 43}), 8: (1, {'@': 43})}, 32: {19: (1, {'@': 64}), 20: (1, {'@': 64}), 21: (1, {'@': 64}), 22: (1, {'@': 64})}, 33: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 17: (0, 82), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 6: (0, 55), 2: (0, 80), 3: (0, 84), 18: (0, 81), 9: (1, {'@': 57})}, 34: {2: (1, {'@': 73}), 1: (1, {'@': 73}), 0: (1, {'@': 73}), 3: (1, {'@': 73}), 24: (1, {'@': 73}), 5: (1, {'@': 73}), 6: (1, {'@': 73}), 8: (1, {'@': 73}), 7: (1, {'@': 73}), 9: (1, {'@': 73})}, 35: {0: (1, {'@': 41}), 1: (1, {'@': 41}), 2: (1, {'@': 41}), 9: (1, {'@': 41}), 3: (1, {'@': 41}), 23: (1, {'@': 41}), 5: (1, {'@': 41}), 6: (1, {'@': 41}), 7: (1, {'@': 41}), 8: (1, {'@': 41})}, 36: {2: (1, {'@': 90}), 0: (1, {'@': 90}), 30: (1, {'@': 90}), 31: (1, {'@': 90}), 32: (1, {'@': 90}), 25: (1, {'@': 90}), 8: (1, {'@': 90}), 9: (1, {'@': 90})}, 37: {2: (1, {'@': 84}), 0: (1, {'@': 84}), 30: (1, {'@': 84}), 31: (1, {'@': 84}), 32: (1, {'@': 84}), 25: (1, {'@': 84}), 8: (1, {'@': 84}), 9: (1, {'@': 84})}, 38: {19: (1, {'@': 95}), 20: (1, {'@': 95}), 21: (1, {'@': 95}), 22: (1, {'@': 95})}, 39: {2: (1, {'@': 94}), 0: (1, {'@': 94}), 30: (1, {'@': 94}), 31: (1, {'@': 94}), 32: (1, {'@': 94}), 25: (1, {'@': 94}), 8: (1, {'@': 94}), 9: (1, {'@': 94})}, 40: {2: (1, {'@': 91}), 0: (1, {'@': 91}), 30: (1, {'@': 91}), 31: (1, {'@': 91}), 32: (1, {'@': 91}), 25: (1, {'@': 91}), 8: (1, {'@': 91}), 9: (1, {'@': 91})}, 41: {33: (0, 32), 21: (0, 17), 22: (0, 18), 34: (0, 19), 35: (0, 51), 20: (0, 52), 19: (0, 20), 36: (0, 24)}, 42: {2: (1, {'@': 92}), 0: (1, {'@': 92}), 30: (1, {'@': 92}), 31: (1, {'@': 92}), 32: (1, {'@': 92}), 25: (1, {'@': 92}), 8: (1, {'@': 92}), 9: (1, {'@': 92})}, 43: {2: (1, {'@': 93}), 0: (1, {'@': 93}), 30: (1, {'@': 93}), 31: (1, {'@': 93}), 32: (1, {'@': 93}), 25: (1, {'@': 93}), 8: (1, {'@': 93}), 9: (1, {'@': 93})}, 44: {2: (1, {'@': 89}), 0: (1, {'@': 89}), 30: (1, {'@': 89}), 31: (1, {'@': 89}), 32: (1, {'@': 89}), 25: (1, {'@': 89}), 8: (1, {'@': 89}), 9: (1, {'@': 89})}, 45: {10: (0, 83), 11: (0, 71), 37: (0, 46), 7: (0, 25), 8: (0, 16), 5: (0, 27), 15: (0, 10), 0: (0, 7), 1: (0, 70), 38: (0, 12), 39: (0, 85), 13: (0, 29), 6: (0, 55), 18: (0, 31), 3: (0, 84), 9: (0, 28), 12: (0, 35), 2: (1, {'@': 50}), 23: (1, {'@': 50})}, 46: {10: (0, 83), 11: (0, 71), 7: (0, 25), 8: (0, 16), 5: (0, 27), 15: (0, 10), 0: (0, 7), 38: (0, 48), 1: (0, 70), 13: (0, 29), 6: (0, 55), 18: (0, 31), 3: (0, 84), 9: (0, 28), 12: (0, 35), 2: (1, {'@': 49}), 23: (1, {'@': 49})}, 47: {0: (1, {'@': 48}), 1: (1, {'@': 48}), 2: (1, {'@': 48}), 3: (1, {'@': 48}), 4: (1, {'@': 48}), 5: (1, {'@': 48}), 6: (1, {'@': 48}), 7: (1, {'@': 48}), 8: (1, {'@': 48}), 9: (1, {'@': 48}), 23: (1, {'@': 48}), 24: (1, {'@': 48})}, 48: {0: (1, {'@': 78}), 1: (1, {'@': 78}), 2: (1, {'@': 78}), 9: (1, {'@': 78}), 3: (1, {'@': 78}), 23: (1, {'@': 78}), 5: (1, {'@': 78}), 6: (1, {'@': 78}), 7: (1, {'@': 78}), 8: (1, {'@': 78})}, 49: {2: (0, 62), 23: (0, 86)}, 50: {19: (1, {'@': 69}), 20: (1, {'@': 69}), 21: (1, {'@': 69}), 22: (1, {'@': 69})}, 51: {19: (1, {'@': 96}), 20: (1, {'@': 96}), 21: (1, {'@': 96}), 22: (1, {'@': 96})}, 52: {0: (1, {'@': 62}), 1: (1, {'@': 62}), 2: (1, {'@': 62}), 3: (1, {'@': 62}), 4: (1, {'@': 62}), 5: (1, {'@': 62}), 6: (1, {'@': 62}), 7: (1, {'@': 62}), 8: (1, {'@': 62}), 9: (1, {'@': 62}), 23: (1, {'@': 62}), 24: (1, {'@': 62})}, 53: {25: (0, 87)}, 54: {35: (0, 38), 33: (0, 32), 40: (0, 41), 21: (0, 17), 22: (0, 18), 34: (0, 19), 19: (0, 20), 20: (0, 21), 36: (0, 24)}, 55: {30: (0, 79)}, 56: {28: (0, 89)}, 57: {2: (1, {'@': 32}), 1: (1, {'@': 32}), 0: (1, {'@': 32}), 3: (1, {'@': 32}), 24: (1, {'@': 32}), 5: (1, {'@': 32}), 6: (1, {'@': 32}), 8: (1, {'@': 32}), 7: (1, {'@': 32}), 9: (1, {'@': 32})}, 58: {25: (0, 91)}, 59: {2: (1, {'@': 29}), 1: (1, {'@': 29}), 0: (1, {'@': 29}), 3: (1, {'@': 29}), 24: (1, {'@': 29}), 5: (1, {'@': 29}), 6: (1, {'@': 29}), 8: (1, {'@': 29}), 7: (1, {'@': 29}), 9: (1, {'@': 29})}, 60: {2: (1, {'@': 28}), 1: (1, {'@': 28}), 0: (1, {'@': 28}), 3: (1, {'@': 28}), 24: (1, {'@': 28}), 5: (1, {'@': 28}), 6: (1, {'@': 28}), 8: (1, {'@': 28}), 7: (1, {'@': 28}), 9: (1, {'@': 28})}, 61: {19: (1, {'@': 67}), 20: (1, {'@': 67}), 21: (1, {'@': 67}), 22: (1, {'@': 67})}, 62: {10: (0, 83), 11: (0, 71), 37: (0, 46), 7: (0, 25), 8: (0, 16), 5: (0, 27), 15: (0, 10), 0: (0, 7), 1: (0, 70), 38: (0, 12), 13: (0, 29), 6: (0, 55), 18: (0, 31), 39: (0, 5), 3: (0, 84), 9: (0, 28), 12: (0, 35), 2: (1, {'@': 50}), 23: (1, {'@': 50})}, 63: {9: (0, 103)}, 64: {9: (0, 22), 41: (0, 101), 10: (0, 83), 11: (0, 71), 12: (0, 88), 7: (0, 25), 5: (0, 27), 15: (0, 67), 42: (0, 72), 1: (0, 70), 13: (0, 95), 2: (0, 98), 43: (0, 34), 8: (0, 59), 6: (0, 55), 18: (0, 60), 3: (0, 84), 0: (0, 57), 24: (1, {'@': 24})}, 65: {44: (0, 104), 4: (0, 30)}, 66: {0: (1, {'@': 37}), 1: (1, {'@': 37}), 2: (1, {'@': 37}), 3: (1, {'@': 37}), 4: (1, {'@': 37}), 5: (1, {'@': 37}), 6: (1, {'@': 37}), 7: (1, {'@': 37}), 8: (1, {'@': 37}), 9: (1, {'@': 37})}, 67: {2: (1, {'@': 27}), 1: (1, {'@': 27}), 0: (1, {'@': 27}), 3: (1, {'@': 27}), 24: (1, {'@': 27}), 5: (1, {'@': 27}), 6: (1, {'@': 27}), 8: (1, {'@': 27}), 7: (1, {'@': 27}), 9: (1, {'@': 27})}, 68: {0: (1, {'@': 39}), 1: (1, {'@': 39}), 2: (1, {'@': 39}), 3: (1, {'@': 39}), 4: (1, {'@': 39}), 5: (1, {'@': 39}), 6: (1, {'@': 39}), 7: (1, {'@': 39}), 8: (1, {'@': 39}), 9: (1, {'@': 39})}, 69: {45: (0, 93), 4: (0, 96), 9: (0, 97)}, 70: {30: (0, 78), 8: (0, 90), 0: (0, 92), 46: (0, 99), 9: (0, 94), 47: (0, 100), 25: (0, 37), 2: (0, 102), 32: (1, {'@': 61}), 31: (1, {'@': 61})}, 71: {0: (1, {'@': 51}), 1: (1, {'@': 51}), 2: (1, {'@': 51}), 3: (1, {'@': 51}), 4: (1, {'@': 51}), 5: (1, {'@': 51}), 6: (1, {'@': 51}), 7: (1, {'@': 51}), 8: (1, {'@': 51}), 9: (1, {'@': 51}), 23: (1, {'@': 51}), 24: (1, {'@': 51})}, 72: {}, 73: {0: (1, {'@': 34}), 1: (1, {'@': 34}), 2: (1, {'@': 34}), 3: (1, {'@': 34}), 4: (1, {'@': 34}), 5: (1, {'@': 34}), 6: (1, {'@': 34}), 7: (1, {'@': 34}), 8: (1, {'@': 34}), 9: (1, {'@': 34})}, 74: {0: (1, {'@': 33}), 1: (1, {'@': 33}), 2: (1, {'@': 33}), 3: (1, {'@': 33}), 4: (1, {'@': 33}), 5: (1, {'@': 33}), 6: (1, {'@': 33}), 7: (1, {'@': 33}), 8: (1, {'@': 33}), 9: (1, {'@': 33})}, 75: {0: (1, {'@': 81}), 1: (1, {'@': 81}), 2: (1, {'@': 81}), 3: (1, {'@': 81}), 4: (1, {'@': 81}), 5: (1, {'@': 81}), 6: (1, {'@': 81}), 7: (1, {'@': 81}), 8: (1, {'@': 81}), 9: (1, {'@': 81})}, 76: {0: (1, {'@': 35}), 1: (1, {'@': 35}), 2: (1, {'@': 35}), 3: (1, {'@': 35}), 4: (1, {'@': 35}), 5: (1, {'@': 35}), 6: (1, {'@': 35}), 7: (1, {'@': 35}), 8: (1, {'@': 35}), 9: (1, {'@': 35})}, 77: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 14: (0, 0), 1: (0, 70), 12: (0, 73), 13: (0, 74), 15: (0, 76), 6: (0, 55), 2: (0, 80), 3: (0, 84), 18: (0, 81), 4: (1, {'@': 56}), 9: (1, {'@': 56})}, 78: {2: (1, {'@': 88}), 0: (1, {'@': 88}), 30: (1, {'@': 88}), 31: (1, {'@': 88}), 32: (1, {'@': 88}), 25: (1, {'@': 88}), 8: (1, {'@': 88}), 9: (1, {'@': 88})}, 79: {0: (1, {'@': 72}), 1: (1, {'@': 72}), 2: (1, {'@': 72}), 3: (1, {'@': 72}), 4: (1, {'@': 72}), 5: (1, {'@': 72}), 6: (1, {'@': 72}), 7: (1, {'@': 72}), 8: (1, {'@': 72}), 9: (1, {'@': 72}), 23: (1, {'@': 72}), 24: (1, {'@': 72})}, 80: {0: (1, {'@': 38}), 1: (1, {'@': 38}), 2: (1, {'@': 38}), 3: (1, {'@': 38}), 4: (1, {'@': 38}), 5: (1, {'@': 38}), 6: (1, {'@': 38}), 7: (1, {'@': 38}), 8: (1, {'@': 38}), 9: (1, {'@': 38})}, 81: {0: (1, {'@': 36}), 1: (1, {'@': 36}), 2: (1, {'@': 36}), 3: (1, {'@': 36}), 4: (1, {'@': 36}), 5: (1, {'@': 36}), 6: (1, {'@': 36}), 7: (1, {'@': 36}), 8: (1, {'@': 36}), 9: (1, {'@': 36})}, 82: {9: (0, 1)}, 83: {0: (1, {'@': 52}), 1: (1, {'@': 52}), 2: (1, {'@': 52}), 3: (1, {'@': 52}), 4: (1, {'@': 52}), 5: (1, {'@': 52}), 6: (1, {'@': 52}), 7: (1, {'@': 52}), 8: (1, {'@': 52}), 9: (1, {'@': 52}), 23: (1, {'@': 52}), 24: (1, {'@': 52})}, 84: {10: (0, 83), 11: (0, 71), 37: (0, 46), 7: (0, 25), 8: (0, 16), 5: (0, 27), 15: (0, 10), 0: (0, 7), 1: (0, 70), 38: (0, 12), 39: (0, 23), 13: (0, 29), 6: (0, 55), 18: (0, 31), 3: (0, 84), 9: (0, 28), 12: (0, 35), 2: (1, {'@': 50}), 23: (1, {'@': 50})}, 85: {2: (1, {'@': 75}), 23: (1, {'@': 75})}, 86: {0: (1, {'@': 47}), 1: (1, {'@': 47}), 2: (1, {'@': 47}), 3: (1, {'@': 47}), 4: (1, {'@': 47}), 5: (1, {'@': 47}), 6: (1, {'@': 47}), 7: (1, {'@': 47}), 8: (1, {'@': 47}), 9: (1, {'@': 47}), 23: (1, {'@': 47}), 24: (1, {'@': 47})}, 87: {19: (1, {'@': 68}), 20: (1, {'@': 68}), 21: (1, {'@': 68}), 22: (1, {'@': 68})}, 88: {2: (1, {'@': 26}), 1: (1, {'@': 26}), 0: (1, {'@': 26}), 3: (1, {'@': 26}), 24: (1, {'@': 26}), 5: (1, {'@': 26}), 6: (1, {'@': 26}), 8: (1, {'@': 26}), 7: (1, {'@': 26}), 9: (1, {'@': 26})}, 89: {25: (0, 3)}, 90: {2: (1, {'@': 83}), 0: (1, {'@': 83}), 30: (1, {'@': 83}), 31: (1, {'@': 83}), 32: (1, {'@': 83}), 25: (1, {'@': 83}), 8: (1, {'@': 83}), 9: (1, {'@': 83})}, 91: {19: (1, {'@': 71}), 20: (1, {'@': 71}), 21: (1, {'@': 71}), 22: (1, {'@': 71})}, 92: {2: (1, {'@': 85}), 0: (1, {'@': 85}), 30: (1, {'@': 85}), 31: (1, {'@': 85}), 32: (1, {'@': 85}), 25: (1, {'@': 85}), 8: (1, {'@': 85}), 9: (1, {'@': 85})}, 93: {4: (0, 4), 9: (0, 2)}, 94: {2: (1, {'@': 86}), 0: (1, {'@': 86}), 30: (1, {'@': 86}), 31: (1, {'@': 86}), 32: (1, {'@': 86}), 25: (1, {'@': 86}), 8: (1, {'@': 86}), 9: (1, {'@': 86})}, 95: {2: (1, {'@': 25}), 1: (1, {'@': 25}), 0: (1, {'@': 25}), 3: (1, {'@': 25}), 24: (1, {'@': 25}), 5: (1, {'@': 25}), 6: (1, {'@': 25}), 8: (1, {'@': 25}), 7: (1, {'@': 25}), 9: (1, {'@': 25})}, 96: {0: (1, {'@': 54}), 1: (1, {'@': 54}), 2: (1, {'@': 54}), 3: (1, {'@': 54}), 4: (1, {'@': 54}), 5: (1, {'@': 54}), 6: (1, {'@': 54}), 7: (1, {'@': 54}), 8: (1, {'@': 54}), 9: (1, {'@': 54}), 23: (1, {'@': 54}), 24: (1, {'@': 54})}, 97: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 17: (0, 9), 6: (0, 55), 2: (0, 80), 3: (0, 84), 18: (0, 81), 4: (1, {'@': 57}), 9: (1, {'@': 57})}, 98: {2: (1, {'@': 31}), 1: (1, {'@': 31}), 0: (1, {'@': 31}), 3: (1, {'@': 31}), 24: (1, {'@': 31}), 5: (1, {'@': 31}), 6: (1, {'@': 31}), 8: (1, {'@': 31}), 7: (1, {'@': 31}), 9: (1, {'@': 31})}, 99: {32: (0, 26), 31: (0, 33)}, 100: {25: (0, 36), 30: (0, 39), 0: (0, 40), 9: (0, 42), 2: (0, 43), 8: (0, 44), 32: (1, {'@': 60}), 31: (1, {'@': 60})}, 101: {9: (0, 22), 10: (0, 83), 11: (0, 71), 43: (0, 15), 12: (0, 88), 7: (0, 25), 5: (0, 27), 15: (0, 67), 1: (0, 70), 13: (0, 95), 2: (0, 98), 8: (0, 59), 6: (0, 55), 18: (0, 60), 3: (0, 84), 0: (0, 57), 24: (1, {'@': 23})}, 102: {2: (1, {'@': 87}), 0: (1, {'@': 87}), 30: (1, {'@': 87}), 31: (1, {'@': 87}), 32: (1, {'@': 87}), 25: (1, {'@': 87}), 8: (1, {'@': 87}), 9: (1, {'@': 87})}, 103: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 17: (0, 11), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 6: (0, 55), 2: (0, 80), 3: (0, 84), 18: (0, 81), 4: (1, {'@': 57})}, 104: {10: (0, 83), 11: (0, 71), 8: (0, 66), 0: (0, 68), 7: (0, 25), 5: (0, 27), 17: (0, 69), 1: (0, 70), 12: (0, 73), 13: (0, 74), 14: (0, 75), 15: (0, 76), 16: (0, 77), 6: (0, 55), 2: (0, 80), 3: (0, 84), 18: (0, 81), 4: (1, {'@': 57}), 9: (1, {'@': 57})}}, 'start_states': {'start': 64}, 'end_states': {'start': 72}}, '__type__': 'ParsingFrontend'}, 'rules': [{'@': 23}, {'@': 24}, {'@': 25}, {'@': 26}, {'@': 27}, {'@': 28}, {'@': 29}, {'@': 30}, {'@': 31}, {'@': 32}, {'@': 33}, {'@': 34}, {'@': 35}, {'@': 36}, {'@': 37}, {'@': 38}, {'@': 39}, {'@': 40}, {'@': 41}, {'@': 42}, {'@': 43}, {'@': 44}, {'@': 45}, {'@': 46}, {'@': 47}, {'@': 48}, {'@': 49}, {'@': 50}, {'@': 51}, {'@': 52}, {'@': 53}, {'@': 54}, {'@': 55}, {'@': 56}, {'@': 57}, {'@': 58}, {'@': 59}, {'@': 60}, {'@': 61}, {'@': 62}, {'@': 63}, {'@': 64}, {'@': 65}, {'@': 66}, {'@': 67}, {'@': 68}, {'@': 69}, {'@': 70}, {'@': 71}, {'@': 72}, {'@': 73}, {'@': 74}, {'@': 75}, {'@': 76}, {'@': 77}, {'@': 78}, {'@': 79}, {'@': 80}, {'@': 81}, {'@': 82}, {'@': 83}, {'@': 84}, {'@': 85}, {'@': 86}, {'@': 87}, {'@': 88}, {'@': 89}, {'@': 90}, {'@': 91}, {'@': 92}, {'@': 93}, {'@': 94}, {'@': 95}, {'@': 96}], 'options': {'debug': False, 'strict': False, 'keep_all_tokens': False, 'tree_class': None, 'cache': False, 'cache_grammar': False, 'postlex': None, 'parser': 'lalr', 'lexer': 'contextual', 'transformer': None, 'start': ['start'], 'priority': 'normal', 'ambiguity': 'auto', 'regex': False, 'propagate_positions': False, 'lexer_callbacks': {}, 'maybe_placeholders': False, 'edit_terminals': None, 'g_regex_flags': 0, 'use_bytes': False, 'ordered_sets': True, 'import_paths': [], 'source_path': None, '_plugins': {}}, '__type__': 'Lark'}
+)
+MEMO = (
+{0: {'name': 'TAG_MODIFIER', 'pattern': {'value': '!', 'flags': [], 'raw': '"!"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 1: {'name': 'LABEL_MODIFIER', 'pattern': {'value': '(?:!|\\^)', 'flags': [], 'raw': None, '_width': [1, 1], '__type__': 'PatternRE'}, 'priority': 0, '__type__': 'TerminalDef'}, 2: {'name': 'NAME', 'pattern': {'value': '[^\\s\\!<>{}\\[\\]\\/|\\\\:.-]+', 'flags': [], 'raw': '/[^\\s\\!<>{}\\[\\]\\/|\\\\:.-]+/', '_width': [1, 18446744073709551616], '__type__': 'PatternRE'}, 'priority': 0, '__type__': 'TerminalDef'}, 3: {'name': 'TEXT', 'pattern': {'value': '[^<>{}\\[\\]|\\\\;\\/]+', 'flags': [], 'raw': '/[^<>{}\\[\\]|\\\\;\\/]+/', '_width': [1, 18446744073709551616], '__type__': 'PatternRE'}, 'priority': 0, '__type__': 'TerminalDef'}, 4: {'name': 'FORWARD_SLASH', 'pattern': {'value': '/', 'flags': [], 'raw': '"/"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 5: {'name': 'SEMICOLON', 'pattern': {'value': ';', 'flags': [], 'raw': '";"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 6: {'name': 'PIPE', 'pattern': {'value': '|', 'flags': [], 'raw': '"|"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 7: {'name': 'ESCAPED_CHAR', 'pattern': {'value': '[naAdts\\\\;<>{}\\[\\]|:]', 'flags': [], 'raw': '/[naAdts\\\\;<>{}\\[\\]|:]/', '_width': [1, 1], '__type__': 'PatternRE'}, 'priority': 0, '__type__': 'TerminalDef'}, 8: {'name': 'LBRACE', 'pattern': {'value': '{', 'flags': [], 'raw': '"{"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 9: {'name': 'RBRACE', 'pattern': {'value': '}', 'flags': [], 'raw': '"}"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 10: {'name': 'COLON', 'pattern': {'value': ':', 'flags': [], 'raw': '":"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 11: {'name': 'LSQB', 'pattern': {'value': '[', 'flags': [], 'raw': '"["', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 12: {'name': 'RSQB', 'pattern': {'value': ']', 'flags': [], 'raw': '"]"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 13: {'name': '__ANON_0', 'pattern': {'value': '//i:', 'flags': [], 'raw': '"//i:"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 14: {'name': '__ANON_1', 'pattern': {'value': '//:', 'flags': [], 'raw': '"//:"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 15: {'name': '__ANON_2', 'pattern': {'value': '[//', 'flags': [], 'raw': '"[//"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 16: {'name': 'LESSTHAN', 'pattern': {'value': '<', 'flags': [], 'raw': '"<"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 17: {'name': 'MORETHAN', 'pattern': {'value': '>', 'flags': [], 'raw': '">"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 18: {'name': 'DOT', 'pattern': {'value': '.', 'flags': [], 'raw': '"."', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 19: {'name': 'MINUS', 'pattern': {'value': '-', 'flags': [], 'raw': '"-"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 20: {'name': '__ANON_3', 'pattern': {'value': '::', 'flags': [], 'raw': '"::"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 21: {'name': 'EQUAL', 'pattern': {'value': '=', 'flags': [], 'raw': '"="', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 22: {'name': 'BACKSLASH', 'pattern': {'value': '\\', 'flags': [], 'raw': '"\\\\"', '__type__': 'PatternStr'}, 'priority': 0, '__type__': 'TerminalDef'}, 23: {'origin': {'name': 'start', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__start_star_0', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 24: {'origin': {'name': 'start', '__type__': 'NonTerminal'}, 'expansion': [], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 25: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'block', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 26: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'function', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 27: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'lookup', '__type__': 'NonTerminal'}], 'order': 2, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 28: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'escape', '__type__': 'NonTerminal'}], 'order': 3, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 29: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'TEXT', 'filter_out': False, '__type__': 'Terminal'}], 'order': 4, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 30: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}], 'order': 5, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 31: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'PIPE', 'filter_out': False, '__type__': 'Terminal'}], 'order': 6, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 32: {'origin': {'name': 'element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'FORWARD_SLASH', 'filter_out': False, '__type__': 'Terminal'}], 'order': 7, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 33: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'block', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 34: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'function', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 35: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'lookup', '__type__': 'NonTerminal'}], 'order': 2, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 36: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'escape', '__type__': 'NonTerminal'}], 'order': 3, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 37: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'TEXT', 'filter_out': False, '__type__': 'Terminal'}], 'order': 4, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 38: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'PIPE', 'filter_out': False, '__type__': 'Terminal'}], 'order': 5, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 39: {'origin': {'name': 'arg_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'FORWARD_SLASH', 'filter_out': False, '__type__': 'Terminal'}], 'order': 6, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 40: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'block', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 41: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'function', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 42: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'lookup', '__type__': 'NonTerminal'}], 'order': 2, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 43: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'escape', '__type__': 'NonTerminal'}], 'order': 3, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 44: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'TEXT', 'filter_out': False, '__type__': 'Terminal'}], 'order': 4, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 45: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}], 'order': 5, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 46: {'origin': {'name': 'choice_element', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'FORWARD_SLASH', 'filter_out': False, '__type__': 'Terminal'}], 'order': 6, 'alias': None, 'options': {'keep_all_tokens': True, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 47: {'origin': {'name': 'block', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LBRACE', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'choice', '__type__': 'NonTerminal'}, {'name': '__block_star_1', '__type__': 'NonTerminal'}, {'name': 'RBRACE', 'filter_out': True, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 48: {'origin': {'name': 'block', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LBRACE', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'choice', '__type__': 'NonTerminal'}, {'name': 'RBRACE', 'filter_out': True, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 49: {'origin': {'name': 'choice', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__choice_star_2', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 50: {'origin': {'name': 'choice', '__type__': 'NonTerminal'}, 'expansion': [], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 51: {'origin': {'name': 'function', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'standard_function', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 52: {'origin': {'name': 'function', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'old_regex', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 53: {'origin': {'name': 'standard_function', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LSQB', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'COLON', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}, {'name': '__standard_function_star_3', '__type__': 'NonTerminal'}, {'name': 'RSQB', 'filter_out': True, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 54: {'origin': {'name': 'standard_function', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LSQB', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'COLON', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}, {'name': 'RSQB', 'filter_out': True, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 55: {'origin': {'name': 'standard_function', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LSQB', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'RSQB', 'filter_out': True, '__type__': 'Terminal'}], 'order': 2, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 56: {'origin': {'name': 'arg', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__arg_star_4', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 57: {'origin': {'name': 'arg', '__type__': 'NonTerminal'}, 'expansion': [], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 58: {'origin': {'name': 'old_regex', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__ANON_2', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'regex_pattern', '__type__': 'NonTerminal'}, {'name': '__ANON_0', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}, {'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}, {'name': 'RSQB', 'filter_out': True, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 59: {'origin': {'name': 'old_regex', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__ANON_2', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'regex_pattern', '__type__': 'NonTerminal'}, {'name': '__ANON_1', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}, {'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}, {'name': 'RSQB', 'filter_out': True, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 60: {'origin': {'name': 'regex_pattern', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 61: {'origin': {'name': 'regex_pattern', '__type__': 'NonTerminal'}, 'expansion': [], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 62: {'origin': {'name': 'lookup', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LESSTHAN', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}, {'name': '__lookup_star_6', '__type__': 'NonTerminal'}, {'name': 'MORETHAN', 'filter_out': True, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 63: {'origin': {'name': 'lookup', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'LESSTHAN', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'MORETHAN', 'filter_out': True, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 64: {'origin': {'name': 'lookup_modifier', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'form', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 65: {'origin': {'name': 'lookup_modifier', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'tag', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 66: {'origin': {'name': 'lookup_modifier', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'label', '__type__': 'NonTerminal'}], 'order': 2, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 67: {'origin': {'name': 'form', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'DOT', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 68: {'origin': {'name': 'tag', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'MINUS', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'TAG_MODIFIER', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 69: {'origin': {'name': 'tag', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'MINUS', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 70: {'origin': {'name': 'label', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__ANON_3', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'LABEL_MODIFIER', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'EQUAL', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 71: {'origin': {'name': 'label', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__ANON_3', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'EQUAL', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 72: {'origin': {'name': 'escape', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'BACKSLASH', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'ESCAPED_CHAR', 'filter_out': False, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 73: {'origin': {'name': '__start_star_0', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'element', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 74: {'origin': {'name': '__start_star_0', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__start_star_0', '__type__': 'NonTerminal'}, {'name': 'element', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 75: {'origin': {'name': '__block_star_1', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'PIPE', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'choice', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 76: {'origin': {'name': '__block_star_1', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__block_star_1', '__type__': 'NonTerminal'}, {'name': 'PIPE', 'filter_out': True, '__type__': 'Terminal'}, {'name': 'choice', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 77: {'origin': {'name': '__choice_star_2', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'choice_element', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 78: {'origin': {'name': '__choice_star_2', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__choice_star_2', '__type__': 'NonTerminal'}, {'name': 'choice_element', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 79: {'origin': {'name': '__standard_function_star_3', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 80: {'origin': {'name': '__standard_function_star_3', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__standard_function_star_3', '__type__': 'NonTerminal'}, {'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}, {'name': 'arg', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 81: {'origin': {'name': '__arg_star_4', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'arg_element', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 82: {'origin': {'name': '__arg_star_4', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__arg_star_4', '__type__': 'NonTerminal'}, {'name': 'arg_element', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 83: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'TEXT', 'filter_out': False, '__type__': 'Terminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 84: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 85: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'FORWARD_SLASH', 'filter_out': False, '__type__': 'Terminal'}], 'order': 2, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 86: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}], 'order': 3, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 87: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'PIPE', 'filter_out': False, '__type__': 'Terminal'}], 'order': 4, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 88: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'ESCAPED_CHAR', 'filter_out': False, '__type__': 'Terminal'}], 'order': 5, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 89: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, {'name': 'TEXT', 'filter_out': False, '__type__': 'Terminal'}], 'order': 6, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 90: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, {'name': 'NAME', 'filter_out': False, '__type__': 'Terminal'}], 'order': 7, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 91: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, {'name': 'FORWARD_SLASH', 'filter_out': False, '__type__': 'Terminal'}], 'order': 8, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 92: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, {'name': 'SEMICOLON', 'filter_out': False, '__type__': 'Terminal'}], 'order': 9, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 93: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, {'name': 'PIPE', 'filter_out': False, '__type__': 'Terminal'}], 'order': 10, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 94: {'origin': {'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__regex_pattern_star_5', '__type__': 'NonTerminal'}, {'name': 'ESCAPED_CHAR', 'filter_out': False, '__type__': 'Terminal'}], 'order': 11, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 95: {'origin': {'name': '__lookup_star_6', '__type__': 'NonTerminal'}, 'expansion': [{'name': 'lookup_modifier', '__type__': 'NonTerminal'}], 'order': 0, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}, 96: {'origin': {'name': '__lookup_star_6', '__type__': 'NonTerminal'}, 'expansion': [{'name': '__lookup_star_6', '__type__': 'NonTerminal'}, {'name': 'lookup_modifier', '__type__': 'NonTerminal'}], 'order': 1, 'alias': None, 'options': {'keep_all_tokens': False, 'expand1': False, 'priority': None, 'template_source': None, 'empty_indices': (), '__type__': 'RuleOptions'}, '__type__': 'Rule'}}
+)
 Shift = 0
 Reduce = 1
-
-
 def Lark_StandAlone(**kwargs):
-    return Lark._load_from_dict(DATA, MEMO, **kwargs)
+  return Lark._load_from_dict(DATA, MEMO, **kwargs)

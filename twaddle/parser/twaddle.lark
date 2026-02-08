@@ -1,18 +1,18 @@
  # grammar.lark
   start: element*
-  !element: block | function | lookup | escape | TEXT | SEMICOLON | PIPE
-  # we want semicolons to be prioritised as arg separators in arg context
-  # without forcing them to always be escaped
-  # so we define a separate rule - the only difference from a standard element is that
-  # it can't be a semicolon
-  !arg_element: block | function | lookup | escape | TEXT | PIPE
+  !element: block | function | lookup | escape | TEXT | SEMICOLON | PIPE | FORWARD_SLASH
+  !arg_element: block | function | lookup | escape | TEXT | PIPE | FORWARD_SLASH
+  !choice_element: block | function | lookup | escape | TEXT | SEMICOLON | FORWARD_SLASH
 
   block: "{" choice ("|" choice)* "}"
-  !choice_element: block | function | lookup | escape | TEXT | SEMICOLON
   choice: choice_element*
 
-  function: "[" NAME (":" arg (SEMICOLON arg)*)? "]"
+  function: standard_function | old_regex
+  standard_function: "[" NAME (":" arg (SEMICOLON arg)*)? "]"
   arg: arg_element*
+
+  old_regex: "[//" regex_pattern ("//i:" | "//:") arg SEMICOLON arg "]"
+  regex_pattern: (TEXT | NAME | FORWARD_SLASH | SEMICOLON | PIPE | ESCAPED_CHAR)*
 
   lookup: "<" NAME ((lookup_modifier)*)? ">"
   lookup_modifier: form | tag | label
@@ -23,10 +23,11 @@
   label: "::" LABEL_MODIFIER? "=" NAME
   LABEL_MODIFIER: "!" | "^"
 
-  NAME: /[^\s\!<>{}\[\]|\\:.-]+/
+  NAME: /[^\s\!<>{}\[\]\/|\\:.-]+/
 
-  TEXT: /[^<>{}\[\]|\\;]+/
+  TEXT: /[^<>{}\[\]|\\;\/]+/
+  FORWARD_SLASH: "/"
   SEMICOLON: ";"
   PIPE: "|"
   escape: "\\" ESCAPED_CHAR
-  ESCAPED_CHAR: /[naAdts\\;]/
+  ESCAPED_CHAR: /[naAdts\\;<>{}\[\]|:]/

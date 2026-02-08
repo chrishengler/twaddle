@@ -5,6 +5,7 @@ from twaddle.compiler.compiler_objects import (
     IndefiniteArticleObject,
     LookupObject,
     Object,
+    RegexObject,
     RootObject,
     TextObject,
 )
@@ -31,31 +32,31 @@ class TwaddleTransformer(Transformer):
         )
 
     # TERMINALS
-    def NAME(self, token: Token) -> str:
+    def NAME(self, token: Token) -> TextObject:
         print("transformer: NAME")
         return TextObject(token.value)
 
-    def TEXT(self, token: Token) -> str:
+    def TEXT(self, token: Token) -> TextObject:
         print("transformer: TEXT")
         return TextObject(token.value)
 
-    def ARG_TEXT(self, token: Token) -> str:
+    def ARG_TEXT(self, token: Token) -> TextObject:
         print("transformer: ARG_TEXT")
         return TextObject(token.value)
 
-    def LABEL_MODIFIER(self, children) -> str:
+    def LABEL_MODIFIER(self, children) -> TextObject:
         print(f"label modifier: {children=}")
         return children[0]
 
-    def TAG_MODIFIER(self, children) -> str:
+    def TAG_MODIFIER(self, children) -> TextObject:
         print(f"tag modifier: {children=}")
         return children[0]
 
-    def SEMICOLON(self, _children) -> str:
+    def SEMICOLON(self, _children) -> TextObject:
         print("transformer: SEMICOLON")
         return TextObject(";")
 
-    def PIPE(self, _children) -> str:
+    def PIPE(self, _children) -> TextObject:
         print("transformer: PIPE")
         return TextObject("|")
 
@@ -63,9 +64,20 @@ class TwaddleTransformer(Transformer):
         print("transformer: ESCAPED CHAR")
         return children[0]
 
+    def FORWARD_SLASH(self, children) -> TextObject:
+        print("transformer: FORWARD_SLASH")
+        return TextObject("/")
+
+    def REGEX_BOUNDARY(self, children) -> TextObject:
+        print("transformer: REGEX_BOUNDARY")
+        return TextObject("//")
+
     # rules
     def start(self, children) -> RootObject:
-        return children
+        root = RootObject()
+        for child in children:
+            root.append(child)
+        return root
 
     def element(self, children) -> Object:
         print(f"transformer: element {len(children)=}")
@@ -73,6 +85,7 @@ class TwaddleTransformer(Transformer):
 
     def choice_element(self, children) -> Object:
         print(f"transformer: choice element {len(children)=}")
+        return children[0]
 
     def arg_element(self, children) -> Object:
         print("transformer: arg_element")
@@ -81,31 +94,94 @@ class TwaddleTransformer(Transformer):
 
     def block(self, children) -> BlockObject:
         print("transformer: block")
-        block = BlockObject(children)
-        return block
+        choices = [c for c in children if isinstance(c, RootObject)]
+        return BlockObject(choices)
 
     def choice(self, children) -> RootObject:
         print("transformer: choice")
-        return children
+        root = RootObject()
+        for child in children:
+            root.append(child)
+        return root
 
     def function(self, children) -> FunctionObject:
         print("transformer: function")
+        return children[0]
+
+    def standard_function(self, children) -> FunctionObject:
+        print("transformer: standard function")
         name = children[0].text
-        args = children[1:]
+        args = [c for c in children[1:] if isinstance(c, RootObject)]
         return FunctionObject(name, args)
 
     def arg(self, children) -> RootObject:
         print("transformer: arg")
-        return children
+        root = RootObject()
+        for child in children:
+            root.append(child)
+        return root
+
+    @v_args(meta=True)
+    def regex_pattern(self, meta, children) -> str:
+        print("transformer: regex_pattern")
+        parts = list[str]()
+        for child in children:
+            if isinstance(child, TextObject):
+                parts.append(child.text)
+            elif isinstance(child, str):
+                parts.append(child)
+            else:
+                raise TwaddleParserException(
+                    f"Regex pattern with unexpected child token type {type(child)}"
+                )
+        return "".join(parts)
+
+    def old_regex(self, children) -> RegexObject:
+        print("transformer: old_regex")
+        for child in children:
+            print(f"{child} ({type(child)})")
+        if len(children) < 4:
+            raise TwaddleParserException(
+                "Regex requires a pattern, a scope, and a replacement"
+            )
+        # TODO: fill actual values once I confirm that this is being parsed correctly in the first place
+        return RegexObject(children[0], children[1], children[3])
 
     def lookup(self, children) -> LookupObject:
         print("transformer: lookup")
-        dict_name = children[0]
-        if len(children) == 0:
-            return LookupObject(dict_name)
-        modifiers = children[1:]
-        print(f"{modifiers=}")
-        return LookupObject(dict_name)
+        dict_name = children[0].text
+
+        form = None
+        positive_tags = set()
+        negative_tags = set()
+        positive_label = None
+        negative_labels = set()
+        redefine_labels = set()
+
+        for mod in children[1:]:
+            match mod.get("type"):
+                case "form":
+                    form = mod["value"].text
+                case "positive_tag":
+                    positive_tags.add(mod["value"].text)
+                case "negative_tag":
+                    negative_tags.add(mod["value"].text)
+                case "match_label":
+                    positive_label = mod["label"].text
+                case "negative_label":
+                    negative_labels.add(mod["label"].text)
+                case "force_define_label":
+                    redefine_labels.add(mod["label"].text)
+
+        return LookupObject(
+            dict_name,
+            form,
+            positive_tags,
+            negative_tags,
+            positive_label,
+            negative_labels,
+            redefine_labels,
+        )
 
     def lookup_modifier(self, children) -> dict:
         print("transformer: lookup modifier")
@@ -167,11 +243,10 @@ class TwaddleTransformer(Transformer):
                 return TextObject("\t")
             case "s":
                 return TextObject(" ")
-            case "\\":
-                return TextObject("\\")
-            case ";":
-                return TextObject(";")
+            case "\\" | ";" | "<" | ">" | "{" | "}" | "[" | "]" | "|" | ":":
+                return TextObject(char)
             case _:
+                print(meta)
                 raise TwaddleParserException(
                     f"invalid escape sequence \\{char} at line {meta.line}, column {meta.column}"
                 )
