@@ -5,17 +5,17 @@ from typing import OrderedDict
 
 import pytest
 
-from twaddle.compiler.compiler_objects import IndefiniteArticleObject
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary, LookupObject
 from twaddle.lookup.lookup_entry import DictionaryEntry
 from twaddle.lookup.lookup_manager import LookupManager
+from twaddle.parser.parse_objects import IndefiniteArticleObject
 
 
-def relative_path_to_full_path(rel_path: str) -> str:
+def relative_path_to_full_path(rel_path: str) -> Path:
     current_dir = os.path.dirname(os.path.realpath(__file__))
-    return str(Path(os.path.join(current_dir, rel_path)))
+    return Path(os.path.join(current_dir, rel_path))
 
 
 # noinspection SpellCheckingInspection
@@ -240,7 +240,7 @@ def test_lookup_from_object():
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("adj")
-    assert lookup_manager.do_lookup(lookup) == "happy"
+    assert lookup_manager[lookup.dictionary].get(lookup) == "happy"
 
 
 def test_lookup_indefinite_article():
@@ -248,7 +248,7 @@ def test_lookup_indefinite_article():
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("article", form="indefinite")
-    result = lookup_manager.do_lookup(lookup)
+    result = lookup_manager[lookup.dictionary].get(lookup)
     assert isinstance(result, IndefiniteArticleObject)
 
 
@@ -256,17 +256,11 @@ def test_strict_lookup_invalid_tags():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    invalid_pos_lookup = LookupObject(
-        "noun", positive_tags={"invalid"}, strict_mode=True
-    )
-    invalid_neg_lookup = LookupObject(
-        "noun", negative_tags={"invalid"}, strict_mode=True
-    )
-    invalid_with_valid = LookupObject(
-        "noun", positive_tags={"shape", "invalid"}, strict_mode=True
-    )
+    invalid_pos_lookup = LookupObject("noun", positive_tags={"invalid"})
+    invalid_neg_lookup = LookupObject("noun", negative_tags={"invalid"})
+    invalid_with_valid = LookupObject("noun", positive_tags={"shape", "invalid"})
     invalid_with_valid_separate = LookupObject(
-        "noun", positive_tags={"shape"}, negative_tags={"invalid"}, strict_mode=True
+        "noun", positive_tags={"shape"}, negative_tags={"invalid"}
     )
     for lookup in [
         invalid_pos_lookup,
@@ -275,7 +269,7 @@ def test_strict_lookup_invalid_tags():
         invalid_with_valid_separate,
     ]:
         with pytest.raises(TwaddleLookupException) as e_info:
-            lookup_manager.do_lookup(lookup)
+            lookup_manager[lookup.dictionary].get(lookup, strict=True)
         assert (
             str(e_info.value)
             == "[LookupDictionary._strict_class_validation] Invalid class 'invalid'"
@@ -287,11 +281,9 @@ def test_lookup_antimatch_undefined_label():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    strict_lookup = LookupObject(
-        "noun", negative_labels={"undefined"}, strict_mode=True
-    )
+    strict_lookup = LookupObject("noun", negative_labels={"undefined"})
     with pytest.raises(TwaddleLookupException) as e_info:
-        lookup_manager.do_lookup(strict_lookup)
+        lookup_manager[strict_lookup.dictionary].get(strict_lookup, strict=True)
     assert (
         str(e_info.value)
         == "[LookupDictionary._strict_label_validation] Requested antimatch of label "
@@ -304,11 +296,11 @@ def test_standard_compiler_prints_something_when_antimatch_exhausts_all_options(
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
-    assert lookup_manager.do_lookup(lookup) == "hexagon"
+    assert lookup_manager[lookup.dictionary].get(lookup) == "hexagon"
     lookup = LookupObject("noun", positive_tags={"shape"}, negative_labels={"a"})
     # result is random and arbitrary, simply ensure no exception is raised
     # and that _something_ is returned
-    value = lookup_manager.do_lookup(lookup)
+    value = lookup_manager[lookup.dictionary].get(lookup)
     assert value is not None
 
 
@@ -317,12 +309,10 @@ def test_strict_compiler_raises_when_antimatch_exhausts_all_options():
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
-    assert lookup_manager.do_lookup(lookup) == "hexagon"
-    strict_lookup = LookupObject(
-        "noun", positive_tags={"shape"}, negative_labels={"a"}, strict_mode=True
-    )
+    assert lookup_manager[lookup.dictionary].get(lookup, strict=True) == "hexagon"
+    strict_lookup = LookupObject("noun", positive_tags={"shape"}, negative_labels={"a"})
     with pytest.raises(TwaddleLookupException) as e_info:
-        lookup_manager.do_lookup(strict_lookup)
+        lookup_manager[lookup.dictionary].get(strict_lookup, strict=True)
     assert (
         str(e_info.value)
         == "[LookupDictionary._valid_choices_for_strictness_level] no valid choices for"

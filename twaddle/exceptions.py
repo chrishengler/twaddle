@@ -5,13 +5,6 @@ class TwaddleException(Exception):
         super().__init__(message)
 
 
-class TwaddleLexerException(TwaddleException):
-    """Thrown when lexer gets confused"""
-
-    def __init__(self, message: str):
-        super().__init__(message)
-
-
 class TwaddleParserException(TwaddleException):
     """Thrown when parser gets confused"""
 

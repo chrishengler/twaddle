@@ -2,7 +2,6 @@ import re
 from functools import singledispatchmethod
 from typing import Self, Type
 
-from twaddle.compiler.compiler_objects import IndefiniteArticleObject, Object
 from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.interpreter.formatting_object import (
     FormattingObject,
@@ -11,6 +10,7 @@ from twaddle.interpreter.formatting_object import (
     PlainText,
     StrategyChange,
 )
+from twaddle.parser.parse_objects import IndefiniteArticleObject, Object
 
 
 class Formatter:

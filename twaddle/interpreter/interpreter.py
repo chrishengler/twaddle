@@ -4,17 +4,6 @@ from random import randint, randrange
 from re import Match, sub
 from typing import Optional
 
-from twaddle.compiler.compiler import Compiler
-from twaddle.compiler.compiler_objects import (
-    BlockObject,
-    DigitObject,
-    FunctionObject,
-    IndefiniteArticleObject,
-    LookupObject,
-    RegexObject,
-    RootObject,
-    TextObject,
-)
 from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
 from twaddle.interpreter.formatter import Formatter
@@ -24,6 +13,70 @@ from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
+from twaddle.parser.parse_objects import (
+    BlockObject,
+    DigitObject,
+    FunctionObject,
+    IndefiniteArticleObject,
+    LookupObject,
+    RegexObject,
+    RootObject,
+    TextObject,
+)
+from twaddle.parser.transformer import TwaddleTransformer
+from twaddle.parser.twaddle_parser import Lark_StandAlone as TwaddleParser
+from twaddle.parser.twaddle_parser import (
+    UnexpectedCharacters,
+    UnexpectedInput,
+    UnexpectedToken,
+)
+
+parser = TwaddleParser()
+transformer = TwaddleTransformer()
+
+TOKEN_NAMES = {
+    "MORETHAN": "'>'",
+    "LESSTHAN": "'<'",
+    "LBRACE": "'{'",
+    "RBRACE": "'}'",
+    "LSQB": "'['",
+    "RSQB": "']'",
+    "PIPE": "'|'",
+    "SEMICOLON": "';'",
+    "DOT": "'.'",
+    "MINUS": "'-'",
+    "BACKSLASH": "'\\'",
+    "FORWARD_SLASH": "'/'",
+    "COLON": "':'",
+    "TEXT": "text",
+    "NAME": "identifier",
+    "ESCAPED_CHAR": "escape character",
+    "LABEL_MODIFIER": "'!' or '^'",
+    "TAG_MODIFIER": "'!'",
+}
+
+# Examples for matching common parse errors to friendly messages
+PARSE_ERROR_EXAMPLES = {
+    "Unclosed block - missing '}'": [
+        "{a|b",
+        "{a|b|c",
+    ],
+    "Unclosed function - missing ']'": [
+        "[rep:3",
+        "[sync:name;locked",
+    ],
+    "Invalid function name: no whitespace allowed": [
+        "[function name]",
+    ],
+    "Invalid lookup - unclosed or invalid whitespace in identifier": [
+        "<noun",
+        "<noun-tag",
+        "<noun::=label",
+        "<verb.past",
+        "<noun::=a label>",
+        "<noun-some tag>",
+    ],
+}
 
 
 class Interpreter:
@@ -45,15 +98,46 @@ class Interpreter:
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
-        self.compiler = Compiler(strict_mode=strict_mode)
         self.saved_patterns = dict[str, BlockObject]()
         self.copied_blocks = dict[str, Formatter]()
         self.strict_mode = strict_mode
 
     def interpret_external(self, sentence: str) -> str:
         self.clear()
-        compiled_sentence = self.compiler.compile(sentence)
-        return self.interpret_internal(compiled_sentence)
+        try:
+            tree = parser.parse(sentence)
+            transformed_tree = transformer.transform(tree)
+        except UnexpectedInput as err:
+            raise TwaddleInterpreterException(self._format_parse_error(err, sentence))
+        return self.interpret_internal(transformed_tree)
+
+    def _format_parse_error(self, err: UnexpectedInput, sentence: str) -> str:
+        context = err.get_context(sentence)
+
+        # Try to match against known error patterns first
+        label = err.match_examples(parser.parse, PARSE_ERROR_EXAMPLES)
+        if label:
+            return f"{label}\n{context}"
+
+        # Fall back to generic message based on exception type
+        if isinstance(err, UnexpectedToken):
+            token = err.token
+            if token.type == "$END":
+                msg = "Unexpected end of input"
+            else:
+                msg = f"Unexpected '{token.value}'"
+            expected = [e for e in err.expected if not e.startswith("_")]
+            if expected:
+                friendly = [TOKEN_NAMES.get(e, e) for e in expected]
+                msg += f" (expected: {', '.join(friendly)})"
+        elif isinstance(err, UnexpectedCharacters):
+            msg = f"Unexpected character '{err.char}'"
+            if err.allowed:
+                friendly = [TOKEN_NAMES.get(e, e) for e in err.allowed]
+                msg += f" (allowed: {', '.join(friendly)})"
+        else:
+            msg = "Parse error"
+        return f"{msg}\n{context}\nSee the documentation at https://chrishengler.github.io/twaddle/ for help"
 
     def interpret_internal(self, parse_result: RootObject) -> str:
         formatter = Formatter()
@@ -308,7 +392,7 @@ class Interpreter:
     def _(self, lookup: LookupObject):
         formatter = Formatter()
         dictionary: LookupDictionary = self.lookup_manager[lookup.dictionary]
-        formatter.append(dictionary.get(lookup))
+        formatter.append(dictionary.get(lookup, self.strict_mode))
         return formatter
 
     # noinspection SpellCheckingInspection

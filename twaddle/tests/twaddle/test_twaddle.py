@@ -279,7 +279,8 @@ def test_indefinite_article_from_lookup():
 
 def test_strict_mode_error_invalid_class():
     with pytest.raises(TwaddleLookupException) as e_info:
-        strict_runner.run_sentence("<noun-notarealclass>")
+        result = strict_runner.run_sentence("<noun-notarealclass>")
+        print(result)
     assert (
         str(e_info.value)
         == "[LookupDictionary._strict_class_validation] Invalid class 'notarealclass' requested "
@@ -289,7 +290,8 @@ def test_strict_mode_error_invalid_class():
 
 def test_strict_mode_undefined_label():
     with pytest.raises(TwaddleLookupException) as e_info:
-        strict_runner.run_sentence("<noun::!=undefined>")
+        result = strict_runner.run_sentence("<noun::!=undefined>")
+        print(result)
     assert (
         str(e_info.value)
         == "[LookupDictionary._strict_label_validation] Requested antimatch of label "

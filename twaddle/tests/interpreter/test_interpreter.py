@@ -134,10 +134,24 @@ world!"""
 
 
 def test_simple_regex():
+    result = get_standard_interpreter_output("[//a//:a bat;i]")
+    assert result == "i bit"
+    result = get_standard_interpreter_output("[//a//:a;[match][match]]")
+    assert result == "aa"
+
+
+def test_regex_with_i_flag():
+    # allow 'i' flag after closing regex for backwards-compatibility with Rantv3,
+    #  where this presumably served some purpose but don't ask me what it was
     result = get_standard_interpreter_output("[//a//i:a bat;i]")
     assert result == "i bit"
     result = get_standard_interpreter_output("[//a//i:a;[match][match]]")
     assert result == "aa"
+
+
+def test_regex_boundary_in_normal_text():
+    result = get_standard_interpreter_output("hey//there")
+    assert result == "hey//there"
 
 
 def test_hidden():

@@ -1,0 +1,5 @@
+[flake8]
+# Exclude generated parser from linting
+exclude = twaddle/parser/twaddle_parser.py
+max-line-length = 127
+ignore = W605,W503

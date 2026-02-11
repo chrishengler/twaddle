@@ -1,0 +1,32 @@
+ # grammar.lark
+  start: element*
+  !element: block | function | lookup | escape | TEXT | SEMICOLON | PIPE | FORWARD_SLASH
+  !arg_element: block | function | lookup | escape | TEXT | PIPE | FORWARD_SLASH
+  !choice_element: block | function | lookup | escape | TEXT | SEMICOLON | FORWARD_SLASH
+
+  block: "{" choice ("|" choice)* "}"
+  choice: choice_element*
+
+  function: standard_function | old_regex
+  standard_function: "[" NAME (":" arg (SEMICOLON arg)*)? "]"
+  arg: arg_element*
+
+  old_regex: "[//" regex_pattern ("//i:" | "//:") arg SEMICOLON arg "]"
+  regex_pattern: (TEXT | NAME | FORWARD_SLASH | SEMICOLON | PIPE | ESCAPED_CHAR)*
+
+  lookup: "<" NAME ((lookup_modifier)*)? ">"
+  lookup_modifier: form | tag | label
+  form: "." NAME
+  tag: "-" TAG_MODIFIER? NAME
+  TAG_MODIFIER: "!"
+  label: "::" LABEL_MODIFIER? "=" NAME
+  LABEL_MODIFIER: "!" | "^"
+
+  NAME: /[^\s\!<>{}\[\]\/|\\:.-]+/
+
+  TEXT: /[^<>{}\[\]|\\;\/]+/
+  FORWARD_SLASH: "/"
+  SEMICOLON: ";"
+  PIPE: "|"
+  escape: "\\" ESCAPED_CHAR
+  ESCAPED_CHAR: /[naAdts\\;<>{}\[\]|:]/

@@ -50,7 +50,6 @@ class LookupObject(Object):
         positive_label: Optional[str] = None,
         negative_labels: Optional[set[str]] = None,
         redefine_labels: Optional[set[str]] = None,
-        strict_mode: bool = False,
     ):
         Object.__init__(self, ObjectType.LOOKUP)
         self.dictionary = dictionary
@@ -60,7 +59,6 @@ class LookupObject(Object):
         self.positive_label = positive_label or str()
         self.negative_labels = negative_labels or set[str]()
         self.redefine_labels = redefine_labels or set[str]()
-        self.strict_mode = strict_mode
 
 
 class BlockObject(Object):
