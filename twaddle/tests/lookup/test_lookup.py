@@ -281,9 +281,7 @@ def test_lookup_antimatch_undefined_label():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    strict_lookup = LookupObject(
-        "noun", negative_labels={"undefined"}, strict_mode=True
-    )
+    strict_lookup = LookupObject("noun", negative_labels={"undefined"})
     with pytest.raises(TwaddleLookupException) as e_info:
         lookup_manager[strict_lookup.dictionary].get(strict_lookup, strict=True)
     assert (
@@ -312,9 +310,7 @@ def test_strict_compiler_raises_when_antimatch_exhausts_all_options():
     lookup_manager.add_dictionaries_from_folder(path)
     lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
     assert lookup_manager[lookup.dictionary].get(lookup, strict=True) == "hexagon"
-    strict_lookup = LookupObject(
-        "noun", positive_tags={"shape"}, negative_labels={"a"}, strict_mode=True
-    )
+    strict_lookup = LookupObject("noun", positive_tags={"shape"}, negative_labels={"a"})
     with pytest.raises(TwaddleLookupException) as e_info:
         lookup_manager[lookup.dictionary].get(strict_lookup, strict=True)
     assert (
