@@ -1,9 +1,9 @@
 from collections import OrderedDict
 from random import choice
 
-from twaddle.compiler.compiler_objects import IndefiniteArticleObject, LookupObject
 from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup_entry import DictionaryEntry
+from twaddle.parser.parse_objects import IndefiniteArticleObject, LookupObject
 
 
 class LookupDictionary:

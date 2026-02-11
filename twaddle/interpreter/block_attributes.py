@@ -1,7 +1,7 @@
 from typing import Optional
 
-from twaddle.compiler.compiler_objects import RootObject
 from twaddle.interpreter.formatting_object import FormattingStrategy
+from twaddle.parser.parse_objects import RootObject
 
 
 class BlockAttributes:

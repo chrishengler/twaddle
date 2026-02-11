@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-from twaddle.compiler.compiler_objects import (
+from twaddle.exceptions import TwaddleParserException
+from twaddle.parser.parse_objects import (
     BlockObject,
     DigitObject,
     FunctionObject,
@@ -11,7 +12,6 @@ from twaddle.compiler.compiler_objects import (
     RootObject,
     TextObject,
 )
-from twaddle.exceptions import TwaddleParserException
 from twaddle.parser.twaddle_parser import Token, Transformer
 
 

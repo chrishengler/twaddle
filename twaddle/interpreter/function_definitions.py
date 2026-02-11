@@ -2,11 +2,11 @@ from math import prod
 from random import randint
 from typing import Optional
 
-from twaddle.compiler.compiler_objects import RootObject
 from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.block_attributes import BlockAttributeManager
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.regex_state import RegexState
+from twaddle.parser.parse_objects import RootObject
 
 
 def _parse_numbers(args: list[str]) -> list[int | float]:

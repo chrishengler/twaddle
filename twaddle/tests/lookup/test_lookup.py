@@ -5,12 +5,12 @@ from typing import OrderedDict
 
 import pytest
 
-from twaddle.compiler.compiler_objects import IndefiniteArticleObject
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary, LookupObject
 from twaddle.lookup.lookup_entry import DictionaryEntry
 from twaddle.lookup.lookup_manager import LookupManager
+from twaddle.parser.parse_objects import IndefiniteArticleObject
 
 
 def relative_path_to_full_path(rel_path: str) -> Path:
