@@ -14,9 +14,6 @@ from twaddle.parser.twaddle_parser import Token, Transformer
 
 
 class TwaddleTransformer(Transformer):
-    def transform(self, tree):
-        return super().transform(tree)
-
     # default
     def __default__(self, data, children, meta):
         raise TwaddleParserException(

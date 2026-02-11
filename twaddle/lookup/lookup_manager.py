@@ -6,7 +6,7 @@ from twaddle.lookup.lookup_dictionary import LookupDictionary
 
 
 class LookupManager:
-    def __init__(self, strict_mode: bool = False):
+    def __init__(self):
         self.dictionaries = dict[str, LookupDictionary]()
 
     def __getitem__(self, name: str) -> LookupDictionary:
@@ -26,12 +26,10 @@ class LookupManager:
     def add_dictionary_file(self, path: Path):
         new_dictionary = DictionaryFileParser.read_from_path(path)
         if new_dictionary is None:
-            exception = TwaddleDictionaryException(
+            raise TwaddleDictionaryException(
                 f"[LookupManager.add_dictionaries_from_folder] dictionary file {path} could not be read. "
                 "Are name and forms defined?"
             )
-            print(f"{str(exception)=}")
-            raise exception
         self.dictionaries[new_dictionary.name] = new_dictionary
 
     def clear_labels(self):

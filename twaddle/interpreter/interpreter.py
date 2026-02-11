@@ -34,8 +34,6 @@ from twaddle.parser.twaddle_parser import (
 parser = TwaddleParser()
 transformer = TwaddleTransformer()
 
-# Map token names to user-friendly representations
-# See docs/errors.md for full explanations of these terms
 TOKEN_NAMES = {
     "MORETHAN": "'>'",
     "LESSTHAN": "'<'",
@@ -58,7 +56,6 @@ TOKEN_NAMES = {
 }
 
 # Examples for matching common parse errors to friendly messages
-# Extend this dict with more examples as needed
 PARSE_ERROR_EXAMPLES = {
     "Unclosed block - missing '}'": [
         "{a|b",
@@ -101,8 +98,6 @@ class Interpreter:
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
-        # parser = Compiler(strict_mode=strict_mode)
-        # TODO: strict mode handling
         self.saved_patterns = dict[str, BlockObject]()
         self.copied_blocks = dict[str, Formatter]()
         self.strict_mode = strict_mode
