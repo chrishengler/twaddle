@@ -41,12 +41,10 @@ class LookupDictionary:
         return form
 
     def _valid_choices_for_strictness_level(
-        self,
-        valid_choices: list[DictionaryEntry],
-        lookup: LookupObject,
+        self, valid_choices: list[DictionaryEntry], strict: bool
     ) -> list[DictionaryEntry]:
         if not valid_choices:
-            if lookup.strict_mode:
+            if strict:
                 raise TwaddleLookupException(
                     "[LookupDictionary._valid_choices_for_strictness_level] "
                     f"no valid choices for strict mode lookup in dictionary '{self.name}'"
@@ -55,8 +53,7 @@ class LookupDictionary:
         return valid_choices
 
     def _get_valid_choices(
-        self,
-        lookup: LookupObject,
+        self, lookup: LookupObject, strict: bool
     ) -> list[DictionaryEntry]:
         valid_choices: list[DictionaryEntry] = []
         for entry in self.entries:
@@ -64,9 +61,8 @@ class LookupDictionary:
                 continue
             if not lookup.positive_tags or entry.has_all_tags(lookup.positive_tags):
                 valid_choices.append(entry)
-        valid_choices = self._valid_choices_for_strictness_level(valid_choices, lookup)
         valid_choices = self._prune_valid_choices(valid_choices, lookup.negative_labels)
-        valid_choices = self._valid_choices_for_strictness_level(valid_choices, lookup)
+        valid_choices = self._valid_choices_for_strictness_level(valid_choices, strict)
         return valid_choices
 
     def _prune_valid_choices(
@@ -78,12 +74,12 @@ class LookupDictionary:
                     valid_choices.remove(self.labels[label])
         return valid_choices
 
-    def _get(self, lookup: LookupObject) -> str:
+    def _get(self, lookup: LookupObject, strict: bool = False) -> str:
         lookup.form = self._get_form(lookup.form)
         if lookup.positive_label and lookup.positive_label in self.labels:
             return self.labels[lookup.positive_label][lookup.form]
 
-        valid_choices = self._get_valid_choices(lookup)
+        valid_choices = self._get_valid_choices(lookup, strict)
 
         chosen_entry = choice(valid_choices)
         if lookup.redefine_labels:
@@ -118,14 +114,15 @@ class LookupDictionary:
                     )
 
     def _validate_strict_mode(self, lookup: LookupObject):
-        if not lookup.strict_mode:
-            return
         self._strict_class_validation(lookup)
         self._strict_label_validation(lookup)
 
-    def get(self, lookup: LookupObject) -> str | IndefiniteArticleObject:
-        self._validate_strict_mode(lookup)
-        result = self._get(lookup)
+    def get(
+        self, lookup: LookupObject, strict: bool = False
+    ) -> str | IndefiniteArticleObject:
+        if strict:
+            self._validate_strict_mode(lookup)
+        result = self._get(lookup, strict)
         if result in self.special_tokens:
             return self.special_tokens[result]
         return result

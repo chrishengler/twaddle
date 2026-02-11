@@ -1,13 +1,12 @@
 from pathlib import Path
 
-from twaddle.compiler.compiler_objects import LookupObject
 from twaddle.exceptions import TwaddleDictionaryException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 
 
 class LookupManager:
-    def __init__(self):
+    def __init__(self, strict_mode: bool = False):
         self.dictionaries = dict[str, LookupDictionary]()
 
     def __getitem__(self, name: str) -> LookupDictionary:
@@ -38,7 +37,3 @@ class LookupManager:
     def clear_labels(self):
         for dictionary in self.dictionaries.values():
             dictionary.clear_labels()
-
-    def do_lookup(self, lookup: LookupObject):
-        dictionary: LookupDictionary = self.dictionaries[lookup.dictionary]
-        return dictionary.get(lookup)

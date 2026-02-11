@@ -60,9 +60,8 @@ class Interpreter:
 
     def interpret_external(self, sentence: str) -> str:
         self.clear()
-        tree = parser.parse(sentence)
-        print(tree.pretty())
         try:
+            tree = parser.parse(sentence)
             transformed_tree = transformer.transform(tree)
         except UnexpectedInput as err:
             raise TwaddleInterpreterException(err.get_context(sentence))
@@ -323,7 +322,7 @@ class Interpreter:
     def _(self, lookup: LookupObject):
         formatter = Formatter()
         dictionary: LookupDictionary = self.lookup_manager[lookup.dictionary]
-        formatter.append(dictionary.get(lookup))
+        formatter.append(dictionary.get(lookup, self.strict_mode))
         return formatter
 
     # noinspection SpellCheckingInspection
