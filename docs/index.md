@@ -40,6 +40,9 @@ Some more advanced features of Twaddle include:
 - [Regular expressions](regex.md)
 - [Synchronizers](synchronizers.md)
 
+If you encounter errors, see the [error messages guide](errors.md) for
+help understanding what went wrong.
+
 ## How do I get started?
 
 Below is a quick guide as a memory aid for those already familiar with 
