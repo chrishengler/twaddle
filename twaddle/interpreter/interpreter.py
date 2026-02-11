@@ -4,7 +4,6 @@ from random import randint, randrange
 from re import Match, sub
 from typing import Optional
 
-# from twaddle.compiler.compiler import Compiler
 from twaddle.compiler.compiler_objects import (
     BlockObject,
     DigitObject,
@@ -74,7 +73,9 @@ PARSE_ERROR_EXAMPLES = {
     ],
     "Invalid lookup - unclosed or invalid whitespace in identifier": [
         "<noun",
-        "<noun-tag" "<noun::=label" "<verb.past",
+        "<noun-tag",
+        "<noun::=label",
+        "<verb.past",
         "<noun::=a label>",
         "<noun-some tag>",
     ],

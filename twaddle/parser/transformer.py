@@ -10,7 +10,7 @@ from twaddle.compiler.compiler_objects import (
     TextObject,
 )
 from twaddle.exceptions import TwaddleParserException
-from twaddle.parser.twaddle_parser import Token, Transformer, v_args
+from twaddle.parser.twaddle_parser import Token, Transformer
 
 
 class TwaddleTransformer(Transformer):
@@ -99,8 +99,7 @@ class TwaddleTransformer(Transformer):
             root.append(child)
         return root
 
-    @v_args(meta=True)
-    def regex_pattern(self, meta, children) -> str:
+    def regex_pattern(self, children) -> str:
         parts = list[str]()
         for child in children:
             if isinstance(child, TextObject):
@@ -118,7 +117,6 @@ class TwaddleTransformer(Transformer):
             raise TwaddleParserException(
                 "Regex requires a pattern, a scope, and a replacement"
             )
-        # TODO: fill actual values once I confirm that this is being parsed correctly in the first place
         return RegexObject(children[0], children[1], children[3])
 
     def lookup(self, children) -> LookupObject:
@@ -162,22 +160,15 @@ class TwaddleTransformer(Transformer):
     def form(self, children) -> dict:
         return {"type": "form", "value": children[0]}
 
-    @v_args(meta=True)
-    def tag(self, meta, children) -> dict:
+    def tag(self, children) -> dict:
         if len(children) == 1:
             return {"type": "positive_tag", "value": children[0]}
         elif children[0] == "!":
             return {"type": "negative_tag", "value": children[1]}
         else:
-            raise TwaddleParserException(
-                f"Unhandled label modifier '{children[0]} in label at line {meta.line}, column {meta.column}"
-            )
+            raise TwaddleParserException(f"Unhandled tag modifier '{children[0]}'")
 
-    def tag_name(self, children) -> dict:
-        return children[0]
-
-    @v_args(meta=True)
-    def label(self, meta, children) -> dict:
+    def label(self, children) -> dict:
         if len(children) == 1:
             return {"type": "match_label", "label": children[0]}
         else:
@@ -188,14 +179,9 @@ class TwaddleTransformer(Transformer):
             elif modifier == "^":
                 return {"type": "force_define_label", "label": label}
             else:
-                raise TwaddleParserException(
-                    f"Unhandled label modifier '{modifier} in label at line {meta.line}, column {meta.column}"
-                )
+                raise TwaddleParserException(f"Unhandled label modifier '{modifier}'")
 
-    @v_args(meta=True)
-    def escape(
-        self, meta, children
-    ) -> TextObject | IndefiniteArticleObject | DigitObject:
+    def escape(self, children) -> TextObject | IndefiniteArticleObject | DigitObject:
         char = children[0]
         match char:
             case "a":
@@ -213,6 +199,4 @@ class TwaddleTransformer(Transformer):
             case "\\" | ";" | "<" | ">" | "{" | "}" | "[" | "]" | "|" | ":":
                 return TextObject(char)
             case _:
-                raise TwaddleParserException(
-                    f"invalid escape sequence \\{char} at line {meta.line}, column {meta.column}"
-                )
+                raise TwaddleParserException(f"invalid escape sequence \\{char}")
