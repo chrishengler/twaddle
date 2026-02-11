@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 from twaddle.compiler.compiler_objects import (
     BlockObject,
     DigitObject,
@@ -11,6 +13,41 @@ from twaddle.compiler.compiler_objects import (
 )
 from twaddle.exceptions import TwaddleParserException
 from twaddle.parser.twaddle_parser import Token, Transformer
+
+
+@dataclass
+class FormModifier:
+    value: TextObject
+
+
+@dataclass
+class TagModifier:
+    value: TextObject
+    negated: bool = False
+
+
+@dataclass
+class MatchLabelModifier:
+    label: TextObject
+
+
+@dataclass
+class NegativeLabelModifier:
+    label: TextObject
+
+
+@dataclass
+class RedefineLabelModifier:
+    label: TextObject
+
+
+LookupModifier = (
+    FormModifier
+    | TagModifier
+    | MatchLabelModifier
+    | NegativeLabelModifier
+    | RedefineLabelModifier
+)
 
 
 class TwaddleTransformer(Transformer):
@@ -127,19 +164,19 @@ class TwaddleTransformer(Transformer):
         redefine_labels = set()
 
         for mod in children[1:]:
-            match mod.get("type"):
-                case "form":
-                    form = mod["value"].text
-                case "positive_tag":
-                    positive_tags.add(mod["value"].text)
-                case "negative_tag":
-                    negative_tags.add(mod["value"].text)
-                case "match_label":
-                    positive_label = mod["label"].text
-                case "negative_label":
-                    negative_labels.add(mod["label"].text)
-                case "force_define_label":
-                    redefine_labels.add(mod["label"].text)
+            match mod:
+                case FormModifier(value=v):
+                    form = v.text
+                case TagModifier(value=v, negated=False):
+                    positive_tags.add(v.text)
+                case TagModifier(value=v, negated=True):
+                    negative_tags.add(v.text)
+                case MatchLabelModifier(label=lbl):
+                    positive_label = lbl.text
+                case NegativeLabelModifier(label=lbl):
+                    negative_labels.add(lbl.text)
+                case RedefineLabelModifier(label=lbl):
+                    redefine_labels.add(lbl.text)
 
         return LookupObject(
             dict_name,
@@ -151,32 +188,33 @@ class TwaddleTransformer(Transformer):
             redefine_labels,
         )
 
-    def lookup_modifier(self, children) -> dict:
+    def lookup_modifier(self, children) -> LookupModifier:
         return children[0]
 
-    def form(self, children) -> dict:
-        return {"type": "form", "value": children[0]}
+    def form(self, children) -> FormModifier:
+        return FormModifier(children[0])
 
-    def tag(self, children) -> dict:
+    def tag(self, children) -> TagModifier:
         if len(children) == 1:
-            return {"type": "positive_tag", "value": children[0]}
+            return TagModifier(children[0])
         elif children[0] == "!":
-            return {"type": "negative_tag", "value": children[1]}
+            return TagModifier(children[1], negated=True)
         else:
             raise TwaddleParserException(f"Unhandled tag modifier '{children[0]}'")
 
-    def label(self, children) -> dict:
+    def label(
+        self, children
+    ) -> MatchLabelModifier | NegativeLabelModifier | RedefineLabelModifier:
         if len(children) == 1:
-            return {"type": "match_label", "label": children[0]}
+            return MatchLabelModifier(children[0])
+        modifier = children[0]
+        label = children[1]
+        if modifier == "!":
+            return NegativeLabelModifier(label)
+        elif modifier == "^":
+            return RedefineLabelModifier(label)
         else:
-            modifier = children[0]
-            label = children[1]
-            if modifier == "!":
-                return {"type": "negative_label", "label": label}
-            elif modifier == "^":
-                return {"type": "force_define_label", "label": label}
-            else:
-                raise TwaddleParserException(f"Unhandled label modifier '{modifier}'")
+            raise TwaddleParserException(f"Unhandled label modifier '{modifier}'")
 
     def escape(self, children) -> TextObject | IndefiniteArticleObject | DigitObject:
         char = children[0]
