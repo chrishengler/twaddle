@@ -1,15 +1,15 @@
 from typing import Optional
 
 from twaddle.interpreter.formatting_object import FormattingStrategy
-from twaddle.parser.parse_objects import RootObject
+from twaddle.parser.nodes import RootNode
 
 
 class BlockAttributes:
     def __init__(self):
         self.repetitions: int = 1
-        self.separator: RootObject | None = None
-        self.first: RootObject | None = None
-        self.last: RootObject | None = None
+        self.separator: RootNode | None = None
+        self.first: RootNode | None = None
+        self.last: RootNode | None = None
         self.synchronizer: str | None = None
         self.synchronizer_type: str | None = None
         self.hidden: bool = False
@@ -19,14 +19,14 @@ class BlockAttributes:
         self.abbreviate: bool = False
         self.abbreviation_case: Optional[FormattingStrategy] = None
         self.max_decimals: Optional[int] = None
-        self.while_predicate: Optional[RootObject] = None
+        self.while_predicate: Optional[RootNode] = None
         self.while_iteration = 0
         self.max_while_iterations = 100
 
 
 class BlockAttributeManager:
     def __init__(self):
-        self.saved_blocks = dict[str, RootObject]()
+        self.saved_blocks = dict[str, RootNode]()
         self.current_attributes = BlockAttributes()
 
     def get_attributes(self) -> BlockAttributes:

@@ -13,15 +13,15 @@ from twaddle.interpreter.regex_state import RegexState
 from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.parser.parse_objects import (
-    BlockObject,
-    DigitObject,
-    FunctionObject,
-    IndefiniteArticleObject,
-    LookupObject,
-    RegexObject,
-    RootObject,
-    TextObject,
+from twaddle.parser.nodes import (
+    BlockNode,
+    DigitNode,
+    FunctionNode,
+    IndefiniteArticleNode,
+    LookupNode,
+    RegexNode,
+    RootNode,
+    TextNode,
 )
 from twaddle.parser.transformer import TwaddleTransformer
 from twaddle.parser.twaddle_parser import Lark_StandAlone as TwaddleParser
@@ -98,7 +98,7 @@ class Interpreter:
         self.lookup_manager = lookup_manager
         self.synchronizer_manager = SynchronizerManager()
         self.block_attribute_manager = BlockAttributeManager()
-        self.saved_patterns = dict[str, BlockObject]()
+        self.saved_patterns = dict[str, BlockNode]()
         self.copied_blocks = dict[str, Formatter]()
         self.strict_mode = strict_mode
 
@@ -139,9 +139,9 @@ class Interpreter:
             msg = "Parse error"
         return f"{msg}\n{context}\nSee the documentation at https://chrishengler.github.io/twaddle/ for help"
 
-    def interpret_internal(self, parse_result: RootObject) -> str:
+    def interpret_internal(self, parse_result: RootNode) -> str:
         formatter = Formatter()
-        for obj in parse_result:
+        for obj in parse_result.contents:
             resulting_formatter = self.run(obj)
             if resulting_formatter:
                 formatter += resulting_formatter
@@ -198,8 +198,8 @@ class Interpreter:
         formatter = Formatter()
         return formatter
 
-    @run.register(RootObject)
-    def _(self, root: RootObject):
+    @run.register(RootNode)
+    def _(self, root: RootNode):
         formatter = Formatter()
         for item in root.contents:
             item_result = self.run(item)
@@ -207,8 +207,8 @@ class Interpreter:
                 formatter += item_result
         return formatter
 
-    @run.register(BlockObject)
-    def _(self, block: BlockObject):
+    @run.register(BlockNode)
+    def _(self, block: BlockNode):
         formatter = Formatter()
         attributes: BlockAttributes = self.block_attribute_manager.get_attributes()
         if attributes.repetitions > 1 and attributes.while_predicate:
@@ -299,7 +299,7 @@ class Interpreter:
         output_formatter.append(abbreviation)
         return output_formatter.resolve()
 
-    def _handle_special_functions(self, func: FunctionObject):
+    def _handle_special_functions(self, func: FunctionNode):
         match func.func:
             case "clear":
                 self.force_clear()
@@ -318,7 +318,7 @@ class Interpreter:
                     "marked special but no special handling defined"
                 )
 
-    def _save_pattern(self, block: BlockObject, name: str):
+    def _save_pattern(self, block: BlockNode, name: str):
         self.saved_patterns[name] = block
 
     def _load_pattern(self, evaluated_args: list[str]) -> Formatter:
@@ -351,7 +351,7 @@ class Interpreter:
             )
         return block
 
-    def _handle_if(self, func: FunctionObject) -> Formatter:
+    def _handle_if(self, func: FunctionNode) -> Formatter:
         num_args = len(func.args)
         if num_args not in [2, 3]:
             raise TwaddleInterpreterException(
@@ -366,8 +366,8 @@ class Interpreter:
         else:
             return Formatter()
 
-    @run.register(FunctionObject)
-    def _(self, func: FunctionObject):
+    @run.register(FunctionNode)
+    def _(self, func: FunctionNode):
         formatter = Formatter()
         if func.func in self.SPECIAL_FUNCTIONS:
             return self._handle_special_functions(func)
@@ -384,31 +384,31 @@ class Interpreter:
             )
         return formatter
 
-    @run.register(TextObject)
-    def _(self, text: TextObject):
+    @run.register(TextNode)
+    def _(self, text: TextNode):
         return Formatter.from_text(text.text)
 
-    @run.register(LookupObject)
-    def _(self, lookup: LookupObject):
+    @run.register(LookupNode)
+    def _(self, lookup: LookupNode):
         formatter = Formatter()
         dictionary: LookupDictionary = self.lookup_manager[lookup.dictionary]
         formatter.append(dictionary.get(lookup, self.strict_mode))
         return formatter
 
     # noinspection SpellCheckingInspection
-    @run.register(IndefiniteArticleObject)
-    def _(self, indef: IndefiniteArticleObject):
+    @run.register(IndefiniteArticleNode)
+    def _(self, indef: IndefiniteArticleNode):
         formatter = Formatter()
         formatter.add_indefinite_article(indef.default_upper)
         return formatter
 
     # noinspection PyUnusedLocal
-    @run.register(DigitObject)
-    def _(self, digit: DigitObject):
+    @run.register(DigitNode)
+    def _(self, digit: DigitNode):
         return Formatter.from_text(str(randint(0, 9)))
 
-    @run.register(RegexObject)
-    def _(self, regex: RegexObject):
+    @run.register(RegexNode)
+    def _(self, regex: RegexNode):
         # noinspection SpellCheckingInspection
 
         def repl(matchobj: Match[str]):

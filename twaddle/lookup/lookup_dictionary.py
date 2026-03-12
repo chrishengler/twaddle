@@ -3,11 +3,14 @@ from random import choice
 
 from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup_entry import DictionaryEntry
-from twaddle.parser.parse_objects import IndefiniteArticleObject, LookupObject
+from twaddle.parser.nodes import IndefiniteArticleNode, LookupNode
 
 
 class LookupDictionary:
-    special_tokens = {"{a}": IndefiniteArticleObject()}
+    special_tokens = {
+        "{a}": IndefiniteArticleNode(False),
+        "{A}": IndefiniteArticleNode(True),
+    }
 
     def __init__(self, name: str, forms: list[str]):
         self.name = name
@@ -53,7 +56,7 @@ class LookupDictionary:
         return valid_choices
 
     def _get_valid_choices(
-        self, lookup: LookupObject, strict: bool
+        self, lookup: LookupNode, strict: bool
     ) -> list[DictionaryEntry]:
         valid_choices: list[DictionaryEntry] = []
         for entry in self.entries:
@@ -74,10 +77,10 @@ class LookupDictionary:
                     valid_choices.remove(self.labels[label])
         return valid_choices
 
-    def _get(self, lookup: LookupObject, strict: bool = False) -> str:
-        lookup.form = self._get_form(lookup.form)
+    def _get(self, lookup: LookupNode, strict: bool = False) -> str:
+        form = self._get_form(lookup.form)
         if lookup.positive_label and lookup.positive_label in self.labels:
-            return self.labels[lookup.positive_label][lookup.form]
+            return self.labels[lookup.positive_label][form]
 
         valid_choices = self._get_valid_choices(lookup, strict)
 
@@ -87,9 +90,9 @@ class LookupDictionary:
                 self.labels[label] = chosen_entry
         elif lookup.positive_label:
             self.labels[lookup.positive_label] = chosen_entry
-        return chosen_entry[lookup.form]
+        return chosen_entry[form]
 
-    def _strict_class_validation(self, lookup: LookupObject):
+    def _strict_class_validation(self, lookup: LookupNode):
         all_tags: list[str] = []
         if lookup.positive_tags:
             for tag in lookup.positive_tags:
@@ -104,7 +107,7 @@ class LookupDictionary:
                     f"for dictionary '{self.name}' in strict mode"
                 )
 
-    def _strict_label_validation(self, lookup: LookupObject):
+    def _strict_label_validation(self, lookup: LookupNode):
         if lookup.negative_labels:
             for label in lookup.negative_labels:
                 if label not in self.labels:
@@ -113,13 +116,13 @@ class LookupDictionary:
                         f"'{label}', not defined for dictionary '{self.name}'"
                     )
 
-    def _validate_strict_mode(self, lookup: LookupObject):
+    def _validate_strict_mode(self, lookup: LookupNode):
         self._strict_class_validation(lookup)
         self._strict_label_validation(lookup)
 
     def get(
-        self, lookup: LookupObject, strict: bool = False
-    ) -> str | IndefiniteArticleObject:
+        self, lookup: LookupNode, strict: bool = False
+    ) -> str | IndefiniteArticleNode:
         if strict:
             self._validate_strict_mode(lookup)
         result = self._get(lookup, strict)

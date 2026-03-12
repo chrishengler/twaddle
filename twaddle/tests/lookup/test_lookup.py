@@ -7,10 +7,10 @@ import pytest
 
 from twaddle.exceptions import TwaddleDictionaryException, TwaddleLookupException
 from twaddle.lookup.dictionary_file_parser import DictionaryFileParser
-from twaddle.lookup.lookup_dictionary import LookupDictionary, LookupObject
+from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_entry import DictionaryEntry
 from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.parser.parse_objects import IndefiniteArticleObject
+from twaddle.parser.nodes import IndefiniteArticleNode, LookupNode
 
 
 def relative_path_to_full_path(rel_path: str) -> Path:
@@ -39,13 +39,10 @@ def test_dictionary():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["hexagon", "hexagons"])
     assert len(dictionary.entries) == 1
-    lookup = LookupObject(dictionary="noun", form="singular")
-    assert dictionary._get(lookup) == "hexagon"
-    lookup.form = "plural"
-    assert dictionary._get(lookup) == "hexagons"
+    assert dictionary._get(LookupNode(dictionary="noun", form="singular")) == "hexagon"
+    assert dictionary._get(LookupNode(dictionary="noun", form="plural")) == "hexagons"
     with pytest.raises(TwaddleLookupException) as e_info:
-        lookup.form = "invalid"
-        dictionary._get(lookup)
+        dictionary._get(LookupNode(dictionary="noun", form="invalid"))
     assert (
         str(e_info.value)
         == "[LookupDictionary.get] dictionary 'noun' has no form 'invalid'"
@@ -57,61 +54,86 @@ def test_tag_requirement():
     dictionary.add(["thing", "things"], {"tag1"})
     dictionary.add(["hexagon", "hexagons"], {"tag2"})
     for _ in range(0, 5):
-        lookup = LookupObject("noun")
-        lookup.form = "plural"
-        lookup.positive_tags = {"tag1"}
-        assert dictionary._get(lookup) == "things"
-        lookup.form = "singular"
-        lookup.positive_tags = {"tag2"}
-        assert dictionary._get(lookup) == "hexagon"
-        lookup.form = "plural"
-        lookup.positive_tags = set[str]()
-        lookup.negative_tags = {"tag1"}
-        assert dictionary._get(lookup) == "hexagons"
+        assert (
+            dictionary._get(LookupNode("noun", form="plural", positive_tags={"tag1"}))
+            == "things"
+        )
+        assert (
+            dictionary._get(LookupNode("noun", form="singular", positive_tags={"tag2"}))
+            == "hexagon"
+        )
+        assert (
+            dictionary._get(LookupNode("noun", form="plural", negative_tags={"tag1"}))
+            == "hexagons"
+        )
 
 
 def test_label_positive():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], {"tag1"})
     dictionary.add(["hexagon", "hexagons"], {"tag2"})
-    lookup = LookupObject(
-        dictionary="noun",
-        form="singular",
-        positive_tags={"tag1"},
-        positive_label="tests",
+    assert (
+        dictionary._get(
+            LookupNode(
+                dictionary="noun",
+                form="singular",
+                positive_tags={"tag1"},
+                positive_label="tests",
+            )
+        )
+        == "thing"
     )
-    assert dictionary._get(lookup) == "thing"
     for _ in range(0, 5):
-        lookup.positive_tags = set[str]()
-        assert dictionary._get(lookup) == "thing"
+        assert (
+            dictionary._get(
+                LookupNode(
+                    dictionary="noun",
+                    form="singular",
+                    positive_label="tests",
+                )
+            )
+            == "thing"
+        )
 
 
 def test_labels_negative():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], {"tag1"})
     dictionary.add(["hexagon", "hexagons"], {"tag2"})
-    positive_tag_lookup = LookupObject(
-        dictionary="noun",
-        form="singular",
-        positive_tags={"tag1"},
-        positive_label="tests",
-    )
-    assert dictionary._get(positive_tag_lookup) == "thing"
-    for _ in range(0, 5):
-        negative_tag_lookup = LookupObject(
-            dictionary="noun", form="singular", negative_labels={"tests"}
+    assert (
+        dictionary._get(
+            LookupNode(
+                dictionary="noun",
+                form="singular",
+                positive_tags={"tag1"},
+                positive_label="tests",
+            )
         )
-        assert dictionary._get(negative_tag_lookup) == "hexagon"
+        == "thing"
+    )
+    for _ in range(0, 5):
+        assert (
+            dictionary._get(
+                LookupNode(
+                    dictionary="noun", form="singular", negative_labels={"tests"}
+                )
+            )
+            == "hexagon"
+        )
         # just to check no problems with undefined labels
-        negative_tag_lookup.negative_labels = {"hat"}
-        assert dictionary._get(negative_tag_lookup)
+        assert dictionary._get(
+            LookupNode(dictionary="noun", form="singular", negative_labels={"hat"})
+        )
     dictionary.clear_labels()
     results_after_clearing = list[str]()
     for _ in range(0, 50):
-        negative_tag_lookup = LookupObject(
-            dictionary="noun", form="singular", negative_labels={"tests"}
+        results_after_clearing.append(
+            dictionary._get(
+                LookupNode(
+                    dictionary="noun", form="singular", negative_labels={"tests"}
+                )
+            )
         )
-        results_after_clearing.append(dictionary._get(negative_tag_lookup))
     assert "thing" in results_after_clearing
 
 
@@ -119,35 +141,52 @@ def test_label_overwrite():
     dictionary = LookupDictionary("noun", ["singular", "plural"])
     dictionary.add(["thing", "things"], {"tag1"})
     dictionary.add(["hexagon", "hexagons"], {"tag2"})
-    first_positive_label_lookup = LookupObject(
-        dictionary="noun",
-        form="singular",
-        positive_tags={"tag1"},
-        positive_label="tests",
+    assert (
+        dictionary._get(
+            LookupNode(
+                dictionary="noun",
+                form="singular",
+                positive_tags={"tag1"},
+                positive_label="tests",
+            )
+        )
+        == "thing"
     )
-    second_positive_label_lookup = LookupObject(
-        dictionary="noun",
-        form="singular",
-        positive_tags={"tag1"},
-        positive_label="moretests",
+    assert (
+        dictionary._get(
+            LookupNode(
+                dictionary="noun",
+                form="singular",
+                positive_tags={"tag1"},
+                positive_label="moretests",
+            )
+        )
+        == "thing"
     )
-    assert dictionary._get(first_positive_label_lookup) == "thing"
-    assert dictionary._get(second_positive_label_lookup) == "thing"
-    first_positive_label_lookup.positive_tags = set[str]()
-    second_positive_label_lookup.positive_tags = set[str]()
+    # labels are now set; look up by label only (no tag requirement)
+    first_by_label = LookupNode(
+        dictionary="noun", form="singular", positive_label="tests"
+    )
+    second_by_label = LookupNode(
+        dictionary="noun", form="singular", positive_label="moretests"
+    )
     for _ in range(0, 5):
-        assert dictionary._get(first_positive_label_lookup) == "thing"
-        assert dictionary._get(second_positive_label_lookup) == "thing"
-    redefine_label_lookup = LookupObject(
-        dictionary="noun",
-        form="singular",
-        positive_tags={"tag2"},
-        redefine_labels={"tests", "moretests"},
+        assert dictionary._get(first_by_label) == "thing"
+        assert dictionary._get(second_by_label) == "thing"
+    assert (
+        dictionary._get(
+            LookupNode(
+                dictionary="noun",
+                form="singular",
+                positive_tags={"tag2"},
+                redefine_labels={"tests", "moretests"},
+            )
+        )
+        == "hexagon"
     )
-    assert dictionary._get(redefine_label_lookup) == "hexagon"
     for _ in range(0, 5):
-        assert dictionary._get(first_positive_label_lookup) == "hexagon"
-        assert dictionary._get(second_positive_label_lookup) == "hexagon"
+        assert dictionary._get(first_by_label) == "hexagon"
+        assert dictionary._get(second_by_label) == "hexagon"
 
 
 def test_dictionary_attributes_from_lines():
@@ -165,14 +204,11 @@ def test_dictionary_read_from_file_simple():
     path = relative_path_to_full_path("../resources/valid_dicts/example.dic")
     dictionary = factory.read_from_path(path)
     assert isinstance(dictionary, LookupDictionary)
-    lookup = LookupObject("adj")
     assert dictionary.name == "adj"
     assert dictionary.forms == ["adj", "ness"]
-    assert dictionary._get(lookup) == "happy"
-    lookup.form = "ness"
-    assert dictionary._get(lookup) == "happiness"
-    lookup.form = None
-    assert dictionary._get(lookup) == "happy"
+    assert dictionary._get(LookupNode("adj")) == "happy"
+    assert dictionary._get(LookupNode("adj", form="ness")) == "happiness"
+    assert dictionary._get(LookupNode("adj")) == "happy"
 
 
 def test_dictionary_read_from_file_with_classes():
@@ -184,12 +220,12 @@ def test_dictionary_read_from_file_with_classes():
     assert dictionary is not None
     assert dictionary.name == "noun"
     assert dictionary.forms == ["singular", "plural"]
-    lookup = LookupObject("noun", positive_tags={"shape"})
-    assert dictionary._get(lookup) == "hexagon"
-    lookup.positive_tags = {"animal"}
-    assert dictionary._get(lookup) == "dog"
-    lookup.positive_tags = {"building", "large"}
-    assert dictionary._get(lookup) == "factory"
+    assert dictionary._get(LookupNode("noun", positive_tags={"shape"})) == "hexagon"
+    assert dictionary._get(LookupNode("noun", positive_tags={"animal"})) == "dog"
+    assert (
+        dictionary._get(LookupNode("noun", positive_tags={"building", "large"}))
+        == "factory"
+    )
 
 
 def test_load_empty_file_raise_exception():
@@ -229,17 +265,18 @@ def test_dictionary_manager():
     assert len(lookup_manager.dictionaries) == 4
     noun_dictionary: LookupDictionary = lookup_manager["noun"]
     adj_dictionary: LookupDictionary = lookup_manager["adj"]
-    lookup = LookupObject("noun", form="plural", positive_tags={"shape"})
-    assert noun_dictionary._get(lookup) == "hexagons"
-    lookup = LookupObject("adj")
-    assert adj_dictionary._get(lookup) == "happy"
+    assert (
+        noun_dictionary._get(LookupNode("noun", form="plural", positive_tags={"shape"}))
+        == "hexagons"
+    )
+    assert adj_dictionary._get(LookupNode("adj")) == "happy"
 
 
 def test_lookup_from_object():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    lookup = LookupObject("adj")
+    lookup = LookupNode("adj")
     assert lookup_manager[lookup.dictionary].get(lookup) == "happy"
 
 
@@ -247,19 +284,20 @@ def test_lookup_indefinite_article():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    lookup = LookupObject("article", form="indefinite")
+    lookup = LookupNode("article", form="indefinite")
     result = lookup_manager[lookup.dictionary].get(lookup)
-    assert isinstance(result, IndefiniteArticleObject)
+    assert isinstance(result, IndefiniteArticleNode)
+    assert result.default_upper is False
 
 
 def test_strict_lookup_invalid_tags():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    invalid_pos_lookup = LookupObject("noun", positive_tags={"invalid"})
-    invalid_neg_lookup = LookupObject("noun", negative_tags={"invalid"})
-    invalid_with_valid = LookupObject("noun", positive_tags={"shape", "invalid"})
-    invalid_with_valid_separate = LookupObject(
+    invalid_pos_lookup = LookupNode("noun", positive_tags={"invalid"})
+    invalid_neg_lookup = LookupNode("noun", negative_tags={"invalid"})
+    invalid_with_valid = LookupNode("noun", positive_tags={"shape", "invalid"})
+    invalid_with_valid_separate = LookupNode(
         "noun", positive_tags={"shape"}, negative_tags={"invalid"}
     )
     for lookup in [
@@ -281,7 +319,7 @@ def test_lookup_antimatch_undefined_label():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    strict_lookup = LookupObject("noun", negative_labels={"undefined"})
+    strict_lookup = LookupNode("noun", negative_labels={"undefined"})
     with pytest.raises(TwaddleLookupException) as e_info:
         lookup_manager[strict_lookup.dictionary].get(strict_lookup, strict=True)
     assert (
@@ -295,12 +333,17 @@ def test_standard_compiler_prints_something_when_antimatch_exhausts_all_options(
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
-    assert lookup_manager[lookup.dictionary].get(lookup) == "hexagon"
-    lookup = LookupObject("noun", positive_tags={"shape"}, negative_labels={"a"})
+    assert (
+        lookup_manager[LookupNode("noun").dictionary].get(
+            LookupNode("noun", positive_tags={"shape"}, positive_label="a")
+        )
+        == "hexagon"
+    )
     # result is random and arbitrary, simply ensure no exception is raised
     # and that _something_ is returned
-    value = lookup_manager[lookup.dictionary].get(lookup)
+    value = lookup_manager["noun"].get(
+        LookupNode("noun", positive_tags={"shape"}, negative_labels={"a"})
+    )
     assert value is not None
 
 
@@ -308,17 +351,17 @@ def test_strict_compiler_raises_when_antimatch_exhausts_all_options():
     path = relative_path_to_full_path("../resources/valid_dicts")
     lookup_manager = LookupManager()
     lookup_manager.add_dictionaries_from_folder(path)
-    lookup = LookupObject("noun", positive_tags={"shape"}, positive_label="a")
-    assert lookup_manager[lookup.dictionary].get(lookup, strict=True) == "hexagon"
-    strict_lookup = LookupObject("noun", positive_tags={"shape"}, negative_labels={"a"})
+    assert (
+        lookup_manager["noun"].get(
+            LookupNode("noun", positive_tags={"shape"}, positive_label="a"), strict=True
+        )
+        == "hexagon"
+    )
+    strict_lookup = LookupNode("noun", positive_tags={"shape"}, negative_labels={"a"})
     with pytest.raises(TwaddleLookupException) as e_info:
-        lookup_manager[lookup.dictionary].get(strict_lookup, strict=True)
+        lookup_manager["noun"].get(strict_lookup, strict=True)
     assert (
         str(e_info.value)
         == "[LookupDictionary._valid_choices_for_strictness_level] no valid choices for"
         " strict mode lookup in dictionary 'noun'"
     )
-
-
-if __name__ == "__main__":
-    test_lookup_from_object()

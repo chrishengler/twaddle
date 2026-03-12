@@ -10,7 +10,7 @@ from twaddle.interpreter.formatting_object import (
     PlainText,
     StrategyChange,
 )
-from twaddle.parser.parse_objects import IndefiniteArticleObject, Object
+from twaddle.parser.nodes import IndefiniteArticleNode, Node
 
 
 class Formatter:
@@ -18,13 +18,13 @@ class Formatter:
     alphabetic_regex = re.compile(r"[^\W_]+", re.UNICODE)
 
     def __init__(self):
-        self.output_stack = list[Object | FormattingObject]()
+        self.output_stack = list[Node | FormattingObject]()
         self.sentence = str()
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
     def _reset_(self):
-        self.output_stack = list[Object | FormattingObject]()
+        self.output_stack = list[Node | FormattingObject]()
         self.sentence = str()
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
@@ -57,8 +57,8 @@ class Formatter:
     def _(self, item: FormattingStrategy) -> Self:
         self.output_stack.append(StrategyChange(self._get_previous_object_(), item))
 
-    @append.register(IndefiniteArticleObject)
-    def _(self, item: IndefiniteArticleObject) -> Self:
+    @append.register(IndefiniteArticleNode)
+    def _(self, item: IndefiniteArticleNode) -> Self:
         self.add_indefinite_article(item.default_upper)
 
     @append.register(IndefiniteArticle)
