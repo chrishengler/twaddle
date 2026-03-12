@@ -1,44 +1,44 @@
 from dataclasses import dataclass
 
 from twaddle.exceptions import TwaddleParserException
-from twaddle.parser.parse_objects import (
-    BlockObject,
-    DigitObject,
-    FunctionObject,
-    IndefiniteArticleObject,
-    LookupObject,
-    Object,
-    RegexObject,
-    RootObject,
-    TextObject,
+from twaddle.parser.nodes import (
+    BlockNode,
+    DigitNode,
+    FunctionNode,
+    IndefiniteArticleNode,
+    LookupNode,
+    Node,
+    RegexNode,
+    RootNode,
+    TextNode,
 )
 from twaddle.parser.twaddle_parser import Token, Transformer
 
 
 @dataclass
 class FormModifier:
-    value: TextObject
+    value: TextNode
 
 
 @dataclass
 class TagModifier:
-    value: TextObject
+    value: TextNode
     negated: bool = False
 
 
 @dataclass
 class MatchLabelModifier:
-    label: TextObject
+    label: TextNode
 
 
 @dataclass
 class NegativeLabelModifier:
-    label: TextObject
+    label: TextNode
 
 
 @dataclass
 class RedefineLabelModifier:
-    label: TextObject
+    label: TextNode
 
 
 LookupModifier = (
@@ -63,80 +63,71 @@ class TwaddleTransformer(Transformer):
         )
 
     # TERMINALS
-    def NAME(self, token: Token) -> TextObject:
-        return TextObject(token.value)
+    def NAME(self, token: Token) -> TextNode:
+        return TextNode(token.value)
 
-    def TEXT(self, token: Token) -> TextObject:
-        return TextObject(token.value)
+    def TEXT(self, token: Token) -> TextNode:
+        return TextNode(token.value)
 
-    def ARG_TEXT(self, token: Token) -> TextObject:
-        return TextObject(token.value)
+    def ARG_TEXT(self, token: Token) -> TextNode:
+        return TextNode(token.value)
 
-    def LABEL_MODIFIER(self, children) -> TextObject:
+    def LABEL_MODIFIER(self, children) -> TextNode:
         return children[0]
 
-    def TAG_MODIFIER(self, children) -> TextObject:
+    def TAG_MODIFIER(self, children) -> TextNode:
         return children[0]
 
-    def SEMICOLON(self, _children) -> TextObject:
-        return TextObject(";")
+    def SEMICOLON(self, _children) -> TextNode:
+        return TextNode(";")
 
-    def PIPE(self, _children) -> TextObject:
-        return TextObject("|")
+    def PIPE(self, _children) -> TextNode:
+        return TextNode("|")
 
     def ESCAPED_CHAR(self, children) -> str:
         return children[0]
 
-    def FORWARD_SLASH(self, children) -> TextObject:
-        return TextObject("/")
+    def FORWARD_SLASH(self, children) -> TextNode:
+        return TextNode("/")
 
-    def REGEX_BOUNDARY(self, children) -> TextObject:
-        return TextObject("//")
+    def REGEX_BOUNDARY(self, children) -> TextNode:
+        return TextNode("//")
 
     # rules
-    def start(self, children) -> RootObject:
-        root = RootObject()
-        for child in children:
-            root.append(child)
-        return root
+    def start(self, children) -> RootNode:
+        return RootNode(children)
 
-    def element(self, children) -> Object:
+    def element(self, children) -> Node:
         return children[0]
 
-    def choice_element(self, children) -> Object:
+    def choice_element(self, children) -> Node:
         return children[0]
 
-    def arg_element(self, children) -> Object:
+    def arg_element(self, children) -> Node:
         return children[0]
 
-    def block(self, children) -> BlockObject:
-        choices = [c for c in children if isinstance(c, RootObject)]
-        return BlockObject(choices)
+    def block(self, children) -> BlockNode:
+        choices = [c for c in children if isinstance(c, RootNode)]
+        return BlockNode(choices)
 
-    def choice(self, children) -> RootObject:
-        root = RootObject()
-        for child in children:
-            root.append(child)
-        return root
+    def choice(self, children) -> RootNode:
+        return RootNode(children)
 
-    def function(self, children) -> FunctionObject:
+    def function(self, children) -> FunctionNode:
         return children[0]
 
-    def standard_function(self, children) -> FunctionObject:
+    def standard_function(self, children) -> FunctionNode:
         name = children[0].text
-        args = [c for c in children[1:] if isinstance(c, RootObject)]
-        return FunctionObject(name, args)
+        args = [c for c in children[1:] if isinstance(c, RootNode)]
+        return FunctionNode(name, args)
 
-    def arg(self, children) -> RootObject:
-        root = RootObject()
-        for child in children:
-            root.append(child)
-        return root
+    def arg(self, children) -> RootNode:
+        return RootNode(children)
 
     def regex_pattern(self, children) -> str:
         parts = list[str]()
         for child in children:
-            if isinstance(child, TextObject):
+            if isinstance(child, TextNode):
                 parts.append(child.text)
             elif isinstance(child, str):
                 parts.append(child)
@@ -146,14 +137,14 @@ class TwaddleTransformer(Transformer):
                 )
         return "".join(parts)
 
-    def old_regex(self, children) -> RegexObject:
+    def old_regex(self, children) -> RegexNode:
         if len(children) < 4:
             raise TwaddleParserException(
                 "Regex requires a pattern, a scope, and a replacement"
             )
-        return RegexObject(children[0], children[1], children[3])
+        return RegexNode(regex=children[0], scope=children[1], replacement=children[3])
 
-    def lookup(self, children) -> LookupObject:
+    def lookup(self, children) -> LookupNode:
         dict_name = children[0].text
 
         form = None
@@ -178,7 +169,7 @@ class TwaddleTransformer(Transformer):
                 case RedefineLabelModifier(label=lbl):
                     redefine_labels.add(lbl.text)
 
-        return LookupObject(
+        return LookupNode(
             dict_name,
             form,
             positive_tags,
@@ -216,22 +207,22 @@ class TwaddleTransformer(Transformer):
         else:
             raise TwaddleParserException(f"Unhandled label modifier '{modifier}'")
 
-    def escape(self, children) -> TextObject | IndefiniteArticleObject | DigitObject:
+    def escape(self, children) -> TextNode | IndefiniteArticleNode | DigitNode:
         char = children[0]
         match char:
             case "a":
-                return IndefiniteArticleObject(default_upper_case=False)
+                return IndefiniteArticleNode(default_upper=False)
             case "A":
-                return IndefiniteArticleObject(default_upper_case=True)
+                return IndefiniteArticleNode(default_upper=True)
             case "d":
-                return DigitObject()
+                return DigitNode()
             case "n":
-                return TextObject("\n")
+                return TextNode("\n")
             case "t":
-                return TextObject("\t")
+                return TextNode("\t")
             case "s":
-                return TextObject(" ")
+                return TextNode(" ")
             case "\\" | ";" | "<" | ">" | "{" | "}" | "[" | "]" | "|" | ":":
-                return TextObject(char)
+                return TextNode(char)
             case _:
                 raise TwaddleParserException(f"invalid escape sequence \\{char}")

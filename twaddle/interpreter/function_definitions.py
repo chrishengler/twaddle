@@ -6,7 +6,7 @@ from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.block_attributes import BlockAttributeManager
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.regex_state import RegexState
-from twaddle.parser.parse_objects import RootObject
+from twaddle.parser.nodes import RootNode
 
 
 def _parse_numbers(args: list[str]) -> list[int | float]:
@@ -56,7 +56,7 @@ def _format_number(value: int | float, max_decimals: Optional[int]) -> str:
 def repeat(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -69,7 +69,7 @@ def repeat(
 def separator(
     _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    raw_args: list[RootObject],
+    raw_args: list[RootNode],
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
@@ -81,7 +81,7 @@ def separator(
 def first(
     _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    raw_args: list[RootObject],
+    raw_args: list[RootNode],
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
@@ -93,7 +93,7 @@ def first(
 def last(
     _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    raw_args: list[RootObject],
+    raw_args: list[RootNode],
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
@@ -105,7 +105,7 @@ def last(
 def save(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -117,7 +117,7 @@ def save(
 def copy(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -129,7 +129,7 @@ def copy(
 def sync(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -141,7 +141,7 @@ def sync(
 def abbreviate(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     block_attribute_manager.current_attributes.abbreviate = True
     if len(evaluated_args) == 0:
@@ -176,7 +176,7 @@ def abbreviate(
 def case(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -202,7 +202,7 @@ def case(
 def match(
     _evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     return RegexState.match
 
@@ -210,7 +210,7 @@ def match(
 def rand(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -224,7 +224,7 @@ def rand(
 def reverse(
     _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     block_attribute_manager.current_attributes.reverse = True
 
@@ -232,7 +232,7 @@ def reverse(
 def hide(
     _evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     block_attribute_manager.current_attributes.hidden = True
     return ""
@@ -241,7 +241,7 @@ def hide(
 def add(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -256,7 +256,7 @@ def add(
 def subtract(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -272,7 +272,7 @@ def subtract(
 def multiply(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -287,7 +287,7 @@ def multiply(
 def divide(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ):
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -315,7 +315,7 @@ def boolean_helper(evaluated_arg: str) -> bool:
 def boolean(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 1:
         raise TwaddleFunctionException(
@@ -328,7 +328,7 @@ def boolean(
 def less_than(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -341,7 +341,7 @@ def less_than(
 def greater_than(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -354,7 +354,7 @@ def greater_than(
 def equal_to(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -370,7 +370,7 @@ def equal_to(
 def logical_and(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -383,7 +383,7 @@ def logical_and(
 def logical_not(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 1:
         raise TwaddleFunctionException(
@@ -396,7 +396,7 @@ def logical_not(
 def logical_or(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -409,7 +409,7 @@ def logical_or(
 def logical_xor(
     evaluated_args: list[str],
     _block_attribute_manager: BlockAttributeManager,
-    _raw_args: list[RootObject],
+    _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -422,7 +422,7 @@ def logical_xor(
 def while_loop(
     evaluated_args: list[str],
     block_attribute_manager: BlockAttributeManager,
-    raw_args: list[RootObject],
+    raw_args: list[RootNode],
 ):
     if len(raw_args) not in [1, 2]:
         raise TwaddleFunctionException(

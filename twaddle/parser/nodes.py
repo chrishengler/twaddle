@@ -12,7 +12,7 @@ class TextNode:
     text: str
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=False)
 class LookupNode:
     dictionary: str
     form: Optional[str] = None
@@ -25,7 +25,7 @@ class LookupNode:
 
 @dataclass(frozen=True)
 class BlockNode:
-    choices: tuple[RootNode]
+    choices: list[RootNode]
 
 
 @dataclass(frozen=True)
