@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from random import choice
+from typing import Optional
 
 from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup_entry import DictionaryEntry
@@ -60,7 +61,9 @@ class LookupDictionary:
     ) -> list[DictionaryEntry]:
         valid_choices: list[DictionaryEntry] = []
         for entry in self.entries:
-            if entry.has_any_tag_of(lookup.negative_tags):
+            if lookup.negative_tags is not None and entry.has_any_tag_of(
+                lookup.negative_tags
+            ):
                 continue
             if not lookup.positive_tags or entry.has_all_tags(lookup.positive_tags):
                 valid_choices.append(entry)
@@ -69,7 +72,9 @@ class LookupDictionary:
         return valid_choices
 
     def _prune_valid_choices(
-        self, valid_choices: list[DictionaryEntry], labels_negative: set[str]
+        self,
+        valid_choices: list[DictionaryEntry],
+        labels_negative: Optional[set[str]] = None,
     ) -> list[DictionaryEntry]:
         if labels_negative:
             for label in labels_negative:
