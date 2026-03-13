@@ -3,7 +3,7 @@ from random import randint
 from typing import Optional
 
 from twaddle.exceptions import TwaddleFunctionException
-from twaddle.interpreter.block_attributes import BlockAttributeManager
+from twaddle.interpreter.context import TwaddleContext
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.regex_state import RegexState
 from twaddle.parser.nodes import RootNode
@@ -55,7 +55,7 @@ def _format_number(value: int | float, max_decimals: Optional[int]) -> str:
 
 def repeat(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
@@ -63,110 +63,100 @@ def repeat(
             "[function_definitions#repeat] repeat requires exactly one argument"
         )
     repetitions = int(evaluated_args[0])
-    block_attribute_manager.current_attributes.repetitions = repetitions
+    context.block_attributes.repetitions = repetitions
 
 
 def separator(
     _evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     raw_args: list[RootNode],
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#separator] separator requires exactly one argument"
         )
-    block_attribute_manager.current_attributes.separator = raw_args[0]
+    context.block_attributes.separator = raw_args[0]
 
 
 def first(
     _evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     raw_args: list[RootNode],
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#first] first requires exactly one argument"
         )
-    block_attribute_manager.current_attributes.first = raw_args[0]
+    context.block_attributes.first = raw_args[0]
 
 
 def last(
     _evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     raw_args: list[RootNode],
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#last] last requires exactly one argument"
         )
-    block_attribute_manager.current_attributes.last = raw_args[0]
+    context.block_attributes.last = raw_args[0]
 
 
 def save(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#save] save requires exactly one argument"
         )
-    block_attribute_manager.save_block(evaluated_args[0])
+    context.block_attributes.save_as = evaluated_args[0]
 
 
 def copy(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#copy] copy requires exactly one argument"
         )
-    block_attribute_manager.copy_block(evaluated_args[0])
+    context.block_attributes.copy_as = evaluated_args[0]
 
 
 def sync(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
             "[function_definitions#sync] sync requires at least one argument"
         )
-    block_attribute_manager.set_synchronizer(evaluated_args)
+    context.block_attributes.set_synchronizer(evaluated_args)
 
 
 def abbreviate(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
-    block_attribute_manager.current_attributes.abbreviate = True
+    context.block_attributes.abbreviate = True
     if len(evaluated_args) == 0:
-        block_attribute_manager.current_attributes.abbreviation_case = (
-            FormattingStrategy.UPPER
-        )
+        context.block_attributes.abbreviation_case = FormattingStrategy.UPPER
         return
     case = evaluated_args[0].strip().lower()
     match case:
         case "retain":
-            block_attribute_manager.current_attributes.abbreviation_case = (
-                FormattingStrategy.NONE
-            )
+            context.block_attributes.abbreviation_case = FormattingStrategy.NONE
         case "upper":
-            block_attribute_manager.current_attributes.abbreviation_case = (
-                FormattingStrategy.UPPER
-            )
+            context.block_attributes.abbreviation_case = FormattingStrategy.UPPER
         case "lower":
-            block_attribute_manager.current_attributes.abbreviation_case = (
-                FormattingStrategy.LOWER
-            )
+            context.block_attributes.abbreviation_case = FormattingStrategy.LOWER
         case "first":
-            block_attribute_manager.current_attributes.abbreviation_case = (
-                FormattingStrategy.TITLE
-            )
+            context.block_attributes.abbreviation_case = FormattingStrategy.TITLE
         case _:
             raise TwaddleFunctionException(
                 "[function_definitions#abbreviate] invalid case " f"argument '{case}'"
@@ -175,7 +165,7 @@ def abbreviate(
 
 def case(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 1:
@@ -201,7 +191,7 @@ def case(
 # noinspection PyUnusedLocal
 def match(
     _evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     return RegexState.match
@@ -209,7 +199,7 @@ def match(
 
 def rand(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -223,24 +213,24 @@ def rand(
 
 def reverse(
     _evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
-    block_attribute_manager.current_attributes.reverse = True
+    context.block_attributes.reverse = True
 
 
 def hide(
     _evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
-    block_attribute_manager.current_attributes.hidden = True
+    context.block_attributes.hidden = True
     return ""
 
 
 def add(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 2:
@@ -248,14 +238,12 @@ def add(
             "[function_definitions#add] add requires at least two numbers"
         )
     parsed_numbers = _parse_numbers(evaluated_args)
-    return _format_number(
-        sum(parsed_numbers), block_attribute_manager.current_attributes.max_decimals
-    )
+    return _format_number(sum(parsed_numbers), context.block_attributes.max_decimals)
 
 
 def subtract(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 2:
@@ -264,14 +252,12 @@ def subtract(
         )
     parsed_numbers = _parse_numbers(evaluated_args)
     parsed_numbers = [parsed_numbers[0]] + [-value for value in parsed_numbers[1:]]
-    return _format_number(
-        sum(parsed_numbers), block_attribute_manager.current_attributes.max_decimals
-    )
+    return _format_number(sum(parsed_numbers), context.block_attributes.max_decimals)
 
 
 def multiply(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) < 2:
@@ -279,14 +265,12 @@ def multiply(
             "[function_definitions#multiply] multiply requires at least two numbers"
         )
     parsed_numbers = _parse_numbers(evaluated_args)
-    return _format_number(
-        prod(parsed_numbers), block_attribute_manager.current_attributes.max_decimals
-    )
+    return _format_number(prod(parsed_numbers), context.block_attributes.max_decimals)
 
 
 def divide(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
     if len(evaluated_args) != 2:
@@ -300,7 +284,7 @@ def divide(
         )
     return _format_number(
         parsed_numbers[0] / parsed_numbers[1],
-        block_attribute_manager.current_attributes.max_decimals,
+        context.block_attributes.max_decimals,
     )
 
 
@@ -314,7 +298,7 @@ def boolean_helper(evaluated_arg: str) -> bool:
 
 def boolean(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 1:
@@ -327,7 +311,7 @@ def boolean(
 
 def less_than(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -340,7 +324,7 @@ def less_than(
 
 def greater_than(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -353,7 +337,7 @@ def greater_than(
 
 def equal_to(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -369,7 +353,7 @@ def equal_to(
 
 def logical_and(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -382,7 +366,7 @@ def logical_and(
 
 def logical_not(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 1:
@@ -395,7 +379,7 @@ def logical_not(
 
 def logical_or(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -408,7 +392,7 @@ def logical_or(
 
 def logical_xor(
     evaluated_args: list[str],
-    _block_attribute_manager: BlockAttributeManager,
+    _context: TwaddleContext,
     _raw_args: list[RootNode],
 ) -> str:
     if len(evaluated_args) != 2:
@@ -421,7 +405,7 @@ def logical_xor(
 
 def while_loop(
     evaluated_args: list[str],
-    block_attribute_manager: BlockAttributeManager,
+    context: TwaddleContext,
     raw_args: list[RootNode],
 ):
     if len(raw_args) not in [1, 2]:
@@ -436,13 +420,11 @@ def while_loop(
                     "[function_definitions#while] max iterations must be int,"
                     f" got {raw_args[1]}, evaluated to {evaluated_args[1]}"
                 )
-            block_attribute_manager.current_attributes.max_while_iterations = (
-                max_iterations
-            )
+            context.block_attributes.max_while_iterations = max_iterations
         except TwaddleFunctionException:
             raise TwaddleFunctionException(
                 "[function_definitions#while] max iterations must be int,"
                 f" got {raw_args[1]}, evaluated to {evaluated_args[1]}"
             )
 
-    block_attribute_manager.current_attributes.while_predicate = raw_args[0]
+    context.block_attributes.while_predicate = raw_args[0]

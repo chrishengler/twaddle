@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from random import randrange, shuffle
 
-from twaddle.exceptions import TwaddleInterpreterException
-
 
 class Synchronizer(ABC):
     def __init__(self, num_choices: int):
@@ -58,32 +56,8 @@ class CyclicDeckSynchronizer(Synchronizer):
         return self.deck[self.pos]
 
 
-class SynchronizerManager:
-
-    sync_types = {
-        "locked": LockedSynchronizer,
-        "deck": DeckSynchronizer,
-        "cdeck": CyclicDeckSynchronizer,
-    }
-
-    def __init__(self):
-        self.synchronizers = dict[str, Synchronizer]()
-
-    def synchronizer_exists(self, name: str) -> bool:
-        return name in self.synchronizers
-
-    def create_synchronizer(
-        self, name: str, sync_type: str, length: int
-    ) -> Synchronizer:
-        self.synchronizers[name] = SynchronizerManager.sync_types[sync_type](length)
-        return self.synchronizers[name]
-
-    def get_synchronizer(self, name: str) -> Synchronizer:
-        if not self.synchronizer_exists(name):
-            raise TwaddleInterpreterException(
-                f"[SynchronizerManager.get_synchronizer] tried to access non-existing synchronizer {name}"
-            )
-        return self.synchronizers[name]
-
-    def clear(self):
-        self.synchronizers.clear()
+sync_types = {
+    "locked": LockedSynchronizer,
+    "deck": DeckSynchronizer,
+    "cdeck": CyclicDeckSynchronizer,
+}

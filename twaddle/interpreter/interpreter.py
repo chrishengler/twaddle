@@ -5,12 +5,13 @@ from re import Match, sub
 from typing import Optional
 
 from twaddle.exceptions import TwaddleInterpreterException
-from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
+from twaddle.interpreter.block_attributes import BlockAttributes
+from twaddle.interpreter.context import TwaddleContext
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.function_definitions import boolean_helper
 from twaddle.interpreter.function_dict import function_definitions
 from twaddle.interpreter.regex_state import RegexState
-from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
+from twaddle.interpreter.synchronizer import Synchronizer
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
 from twaddle.parser.nodes import (
@@ -91,13 +92,12 @@ class Interpreter:
         persistent_clipboard: bool = False,
         strict_mode: bool = False,
     ):
+        self.context = TwaddleContext(lookup_manager=lookup_manager)
         self.persistent_labels = persistent_labels
         self.persistent_synchronizers = persistent_synchronizers
         self.persistent_patterns = persistent_patterns
         self.persistent_clipboard = persistent_clipboard
-        self.lookup_manager = lookup_manager
-        self.synchronizer_manager = SynchronizerManager()
-        self.block_attribute_manager = BlockAttributeManager()
+        self.context.lookup_manager = lookup_manager
         self.saved_patterns = dict[str, BlockNode]()
         self.copied_blocks = dict[str, Formatter]()
         self.strict_mode = strict_mode
@@ -150,20 +150,20 @@ class Interpreter:
 
     def clear(self):
         if not self.persistent_labels:
-            self.lookup_manager.clear_labels()
+            self.context.lookup_manager.clear_labels()
         if not self.persistent_synchronizers:
-            self.synchronizer_manager.clear()
+            self.context.clear()
         if not self.persistent_patterns:
             self.saved_patterns.clear()
         if not self.persistent_clipboard:
             self.copied_blocks.clear()
-        self.block_attribute_manager.clear()
+        self.context.consume_block_attributes()
 
     def force_clear(self):
-        self.lookup_manager.clear_labels()
-        self.synchronizer_manager.clear()
+        self.context.lookup_manager.clear_labels()
+        self.context.clear()
         self.saved_patterns.clear()
-        self.block_attribute_manager.clear()
+        self.context.block_attributes = BlockAttributes()
         self.copied_blocks.clear()
 
     def _get_synchronizer_for_block(
@@ -171,10 +171,8 @@ class Interpreter:
     ) -> Optional[Synchronizer]:
         if attributes.synchronizer is None:
             return None
-        if self.synchronizer_manager.synchronizer_exists(attributes.synchronizer):
-            synchronizer = self.synchronizer_manager.get_synchronizer(
-                attributes.synchronizer
-            )
+        if self.context.synchronizer_exists(attributes.synchronizer):
+            synchronizer = self.context.get_synchronizer(attributes.synchronizer)
             if self.strict_mode and synchronizer.num_choices != num_choices:
                 raise TwaddleInterpreterException(
                     f"[Interpreter._get_synchronizer_for_block] Invalid number of choices ({num_choices}) "
@@ -186,7 +184,7 @@ class Interpreter:
                 "[Interpreter.run](RantBlockObject) tried to define new synchronizer "
                 "without defining synchronizer type"
             )
-        return self.synchronizer_manager.create_synchronizer(
+        return self.context.create_synchronizer(
             attributes.synchronizer,
             attributes.synchronizer_type,
             num_choices,
@@ -210,7 +208,7 @@ class Interpreter:
     @run.register(BlockNode)
     def _(self, block: BlockNode):
         formatter = Formatter()
-        attributes: BlockAttributes = self.block_attribute_manager.get_attributes()
+        attributes: BlockAttributes = self.context.consume_block_attributes()
         if attributes.repetitions > 1 and attributes.while_predicate:
             raise TwaddleInterpreterException(
                 "Cannot apply repeat and while to same block "
@@ -374,9 +372,7 @@ class Interpreter:
         evaluated_args = [self.run(arg).resolve() for arg in func.args]
         if func.func in function_definitions:
             formatter.append(
-                function_definitions[func.func](
-                    evaluated_args, self.block_attribute_manager, func.args
-                )
+                function_definitions[func.func](evaluated_args, self.context, func.args)
             )
         else:
             raise TwaddleInterpreterException(
@@ -391,7 +387,7 @@ class Interpreter:
     @run.register(LookupNode)
     def _(self, lookup: LookupNode):
         formatter = Formatter()
-        dictionary: LookupDictionary = self.lookup_manager[lookup.dictionary]
+        dictionary: LookupDictionary = self.context.lookup_manager[lookup.dictionary]
         formatter.append(dictionary.get(lookup, self.strict_mode))
         return formatter
 
