@@ -5,7 +5,6 @@ from typing import Optional
 from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.context import TwaddleContext
 from twaddle.interpreter.formatting_object import FormattingStrategy
-from twaddle.interpreter.regex_state import RegexState
 from twaddle.parser.nodes import RootNode
 
 
@@ -191,10 +190,10 @@ def case(
 # noinspection PyUnusedLocal
 def match(
     _evaluated_args: list[str],
-    _context: TwaddleContext,
+    context: TwaddleContext,
     _raw_args: list[RootNode],
 ):
-    return RegexState.match
+    return context.current_regex_match if context.current_regex_match else ""
 
 
 def rand(

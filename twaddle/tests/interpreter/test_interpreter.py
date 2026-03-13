@@ -194,7 +194,7 @@ def test_clear_synchronizer_persistence():
     sync_interpreter = Interpreter(LookupManager(), persistent_synchronizers=True)
     results = [sync_interpreter.interpret_external("[sync:test;locked]{a|b|c}")]
     for _ in range(0, 10):
-        sync_interpreter.force_clear()
+        sync_interpreter.context.force_clear()
         results.append(sync_interpreter.interpret_external("[sync:test;locked]{a|b|c}"))
     assert len(set(results)) > 1
 
