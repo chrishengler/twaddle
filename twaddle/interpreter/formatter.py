@@ -1,6 +1,6 @@
 import re
 from functools import singledispatchmethod
-from typing import Self, Type
+from typing import Optional, Self
 
 from twaddle.exceptions import TwaddleInterpreterException
 from twaddle.interpreter.formatting_object import (
@@ -10,7 +10,7 @@ from twaddle.interpreter.formatting_object import (
     PlainText,
     StrategyChange,
 )
-from twaddle.parser.nodes import IndefiniteArticleNode, Node
+from twaddle.parser.nodes import IndefiniteArticleNode
 
 
 class Formatter:
@@ -18,25 +18,25 @@ class Formatter:
     alphabetic_regex = re.compile(r"[^\W_]+", re.UNICODE)
 
     def __init__(self):
-        self.output_stack = list[Node | FormattingObject]()
+        self.output_stack = list[FormattingObject]()
         self.sentence = str()
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
     def _reset_(self):
-        self.output_stack = list[Node | FormattingObject]()
+        self.output_stack = list[FormattingObject]()
         self.sentence = str()
         self.current_strategy = FormattingStrategy.NONE
         self.indefinite_article_waiting = False
 
     @classmethod
-    def from_text(cls, text: str) -> Self:
+    def from_text(cls, text: str) -> "Formatter":
         formatter = Formatter()
         formatter.append(text)
         return formatter
 
     @singledispatchmethod
-    def append(self, arg) -> Self:
+    def append(self, arg) -> "Formatter":
         if arg is None:
             formatter = Formatter()
             return formatter
@@ -51,19 +51,22 @@ class Formatter:
         self.output_stack.append(PlainText(previous, item))
         if self.indefinite_article_waiting:
             self._replace_indefinite_articles(item)
-        return
+        return self
 
     @append.register(FormattingStrategy)
     def _(self, item: FormattingStrategy) -> Self:
         self.output_stack.append(StrategyChange(self._get_previous_object_(), item))
+        return self
 
     @append.register(IndefiniteArticleNode)
     def _(self, item: IndefiniteArticleNode) -> Self:
         self.add_indefinite_article(item.default_upper)
+        return self
 
     @append.register(IndefiniteArticle)
     def _(self, item: IndefiniteArticle) -> Self:
         self.add_indefinite_article(item.default_upper)
+        return self
 
     @append.register(PlainText)
     def _(self, item: PlainText) -> Self:
@@ -71,16 +74,18 @@ class Formatter:
         self.output_stack.append(PlainText(previous, item.text))
         if self.indefinite_article_waiting:
             self._replace_indefinite_articles(item.text)
+        return self
 
     @append.register(FormattingObject)
     def _(self, item: FormattingObject) -> Self:
         item.previous = self._get_previous_object_()
         self.output_stack.append(item)
+        return self
 
     def append_formatter(self, formatter: Self):
         self.output_stack += formatter.output_stack
 
-    def _get_previous_object_(self) -> Type[FormattingObject] | None:
+    def _get_previous_object_(self) -> Optional[FormattingObject]:
         if len(self.output_stack):
             return self.output_stack[-1]
         return None
