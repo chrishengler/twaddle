@@ -1,49 +1,30 @@
+from dataclasses import dataclass
 from typing import Optional
 
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.parser.nodes import RootNode
 
 
+@dataclass
 class BlockAttributes:
-    def __init__(self):
-        self.repetitions: int = 1
-        self.separator: RootNode | None = None
-        self.first: RootNode | None = None
-        self.last: RootNode | None = None
-        self.synchronizer: str | None = None
-        self.synchronizer_type: str | None = None
-        self.hidden: bool = False
-        self.reverse: bool = False
-        self.save_as: Optional[str] = None
-        self.copy_as: Optional[str] = None
-        self.abbreviate: bool = False
-        self.abbreviation_case: Optional[FormattingStrategy] = None
-        self.max_decimals: Optional[int] = None
-        self.while_predicate: Optional[RootNode] = None
-        self.while_iteration = 0
-        self.max_while_iterations = 100
-
-
-class BlockAttributeManager:
-    def __init__(self):
-        self.saved_blocks = dict[str, RootNode]()
-        self.current_attributes = BlockAttributes()
-
-    def get_attributes(self) -> BlockAttributes:
-        attributes = self.current_attributes
-        self.current_attributes = BlockAttributes()
-        return attributes
+    repetitions: int = 1
+    separator: Optional[RootNode] = None
+    first: Optional[RootNode] = None
+    last: Optional[RootNode] = None
+    synchronizer: Optional[str] = None
+    synchronizer_type: Optional[str] = None
+    hidden: bool = False
+    reverse: bool = False
+    save_as: Optional[str] = None
+    copy_as: Optional[str] = None
+    abbreviate: bool = False
+    abbreviation_case: Optional[FormattingStrategy] = None
+    max_decimals: Optional[int] = None
+    while_predicate: Optional[RootNode] = None
+    while_iteration = 0
+    max_while_iterations = 100
 
     def set_synchronizer(self, args: list[str]):
-        self.current_attributes.synchronizer = args[0]
+        self.synchronizer = args[0]
         if len(args) > 1:
-            self.current_attributes.synchronizer_type = args[1]
-
-    def save_block(self, name: str):
-        self.current_attributes.save_as = name
-
-    def copy_block(self, name: str):
-        self.current_attributes.copy_as = name
-
-    def clear(self):
-        self.current_attributes = BlockAttributes()
+            self.synchronizer_type = args[1]

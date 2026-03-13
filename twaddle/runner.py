@@ -89,4 +89,4 @@ class TwaddleRunner:
         return self.interpreter.interpret_external(sentence)
 
     def clear(self) -> None:
-        self.interpreter.force_clear()
+        self.interpreter.context.force_clear()

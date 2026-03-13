@@ -5,12 +5,12 @@ from re import Match, sub
 from typing import Optional
 
 from twaddle.exceptions import TwaddleInterpreterException
-from twaddle.interpreter.block_attributes import BlockAttributeManager, BlockAttributes
+from twaddle.interpreter.block_attributes import BlockAttributes
+from twaddle.interpreter.context import TwaddleContext
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.function_definitions import boolean_helper
 from twaddle.interpreter.function_dict import function_definitions
-from twaddle.interpreter.regex_state import RegexState
-from twaddle.interpreter.synchronizer import Synchronizer, SynchronizerManager
+from twaddle.interpreter.synchronizer import Synchronizer
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
 from twaddle.parser.nodes import (
@@ -91,19 +91,19 @@ class Interpreter:
         persistent_clipboard: bool = False,
         strict_mode: bool = False,
     ):
-        self.persistent_labels = persistent_labels
-        self.persistent_synchronizers = persistent_synchronizers
-        self.persistent_patterns = persistent_patterns
-        self.persistent_clipboard = persistent_clipboard
-        self.lookup_manager = lookup_manager
-        self.synchronizer_manager = SynchronizerManager()
-        self.block_attribute_manager = BlockAttributeManager()
-        self.saved_patterns = dict[str, BlockNode]()
-        self.copied_blocks = dict[str, Formatter]()
-        self.strict_mode = strict_mode
+        self.context = TwaddleContext(
+            persistent_clipboard=persistent_clipboard,
+            persistent_labels=persistent_labels,
+            persistent_patterns=persistent_patterns,
+            persistent_synchronizers=persistent_synchronizers,
+            strict_mode=strict_mode,
+            lookup_manager=lookup_manager,
+        )
+        self.context.saved_patterns = dict[str, BlockNode]()
+        self.context.copied_blocks = dict[str, Formatter]()
 
     def interpret_external(self, sentence: str) -> str:
-        self.clear()
+        self.context.reset_for_new_sentence()
         try:
             tree = parser.parse(sentence)
             transformed_tree = transformer.transform(tree)
@@ -148,34 +148,14 @@ class Interpreter:
         result = formatter.resolve()
         return result
 
-    def clear(self):
-        if not self.persistent_labels:
-            self.lookup_manager.clear_labels()
-        if not self.persistent_synchronizers:
-            self.synchronizer_manager.clear()
-        if not self.persistent_patterns:
-            self.saved_patterns.clear()
-        if not self.persistent_clipboard:
-            self.copied_blocks.clear()
-        self.block_attribute_manager.clear()
-
-    def force_clear(self):
-        self.lookup_manager.clear_labels()
-        self.synchronizer_manager.clear()
-        self.saved_patterns.clear()
-        self.block_attribute_manager.clear()
-        self.copied_blocks.clear()
-
     def _get_synchronizer_for_block(
         self, attributes: BlockAttributes, num_choices: int
     ) -> Optional[Synchronizer]:
         if attributes.synchronizer is None:
             return None
-        if self.synchronizer_manager.synchronizer_exists(attributes.synchronizer):
-            synchronizer = self.synchronizer_manager.get_synchronizer(
-                attributes.synchronizer
-            )
-            if self.strict_mode and synchronizer.num_choices != num_choices:
+        if self.context.synchronizer_exists(attributes.synchronizer):
+            synchronizer = self.context.get_synchronizer(attributes.synchronizer)
+            if self.context.strict_mode and synchronizer.num_choices != num_choices:
                 raise TwaddleInterpreterException(
                     f"[Interpreter._get_synchronizer_for_block] Invalid number of choices ({num_choices}) "
                     f"for synchronizer '{attributes.synchronizer}', initialised with {synchronizer.num_choices}"
@@ -186,7 +166,7 @@ class Interpreter:
                 "[Interpreter.run](RantBlockObject) tried to define new synchronizer "
                 "without defining synchronizer type"
             )
-        return self.synchronizer_manager.create_synchronizer(
+        return self.context.create_synchronizer(
             attributes.synchronizer,
             attributes.synchronizer_type,
             num_choices,
@@ -210,7 +190,7 @@ class Interpreter:
     @run.register(BlockNode)
     def _(self, block: BlockNode):
         formatter = Formatter()
-        attributes: BlockAttributes = self.block_attribute_manager.get_attributes()
+        attributes: BlockAttributes = self.context.consume_block_attributes()
         if attributes.repetitions > 1 and attributes.while_predicate:
             raise TwaddleInterpreterException(
                 "Cannot apply repeat and while to same block "
@@ -258,9 +238,9 @@ class Interpreter:
                 formatter.append_formatter(self.run(attributes.separator))
 
         if name := attributes.save_as:
-            self.saved_patterns[name] = block
+            self.context.saved_patterns[name] = block
         if name := attributes.copy_as:
-            self.copied_blocks[name] = copy(formatter)
+            self.context.copied_blocks[name] = copy(formatter)
         if attributes.hidden:
             return Formatter()
         if attributes.reverse:
@@ -302,7 +282,7 @@ class Interpreter:
     def _handle_special_functions(self, func: FunctionNode):
         match func.func:
             case "clear":
-                self.force_clear()
+                self.context.force_clear()
                 return Formatter()
             case "load":
                 evaluated_args = [self.run(arg).resolve() for arg in func.args]
@@ -319,7 +299,7 @@ class Interpreter:
                 )
 
     def _save_pattern(self, block: BlockNode, name: str):
-        self.saved_patterns[name] = block
+        self.context.saved_patterns[name] = block
 
     def _load_pattern(self, evaluated_args: list[str]) -> Formatter:
         if not len(evaluated_args):
@@ -327,7 +307,7 @@ class Interpreter:
                 "[Interpreter._handle_special_functions] Tried "
                 "to load pattern without specifying name"
             )
-        if not (block := self.saved_patterns.get(evaluated_args[0])):
+        if not (block := self.context.saved_patterns.get(evaluated_args[0])):
             if len(evaluated_args) > 1:
                 return Formatter.from_text(evaluated_args[1])
             raise TwaddleInterpreterException(
@@ -342,7 +322,7 @@ class Interpreter:
                 "[Interpreter._handle_special_functions] Tried "
                 "to paste block result without specifying name"
             )
-        if not (block := self.copied_blocks.get(evaluated_args[0])):
+        if not (block := self.context.copied_blocks.get(evaluated_args[0])):
             if len(evaluated_args) > 1:
                 return Formatter.from_text(evaluated_args[1])
             raise TwaddleInterpreterException(
@@ -374,9 +354,7 @@ class Interpreter:
         evaluated_args = [self.run(arg).resolve() for arg in func.args]
         if func.func in function_definitions:
             formatter.append(
-                function_definitions[func.func](
-                    evaluated_args, self.block_attribute_manager, func.args
-                )
+                function_definitions[func.func](evaluated_args, self.context, func.args)
             )
         else:
             raise TwaddleInterpreterException(
@@ -391,8 +369,8 @@ class Interpreter:
     @run.register(LookupNode)
     def _(self, lookup: LookupNode):
         formatter = Formatter()
-        dictionary: LookupDictionary = self.lookup_manager[lookup.dictionary]
-        formatter.append(dictionary.get(lookup, self.strict_mode))
+        dictionary: LookupDictionary = self.context.lookup_manager[lookup.dictionary]
+        formatter.append(dictionary.get(lookup, self.context.strict_mode))
         return formatter
 
     # noinspection SpellCheckingInspection
@@ -412,7 +390,7 @@ class Interpreter:
         # noinspection SpellCheckingInspection
 
         def repl(matchobj: Match[str]):
-            RegexState.match = matchobj.group()
+            self.context.current_regex_match = matchobj.group()
             return self.run(regex.replacement).resolve()
 
         return Formatter.from_text(
