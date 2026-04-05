@@ -211,18 +211,18 @@ def test_patter_persistence():
 
 # noinspection SpellCheckingInspection,PyPep8
 def test_regex():
-    assert standard_runner.run_sentence("[//a//i:a;\\a <noun-shape>]") == "a hexagon"
+    assert standard_runner.run_sentence(r"[//a//i:a;\a <noun-shape>]") == "a hexagon"
     assert (
         standard_runner.run_sentence("[//hexagon//:hexagon;a [match] has 6 sides]")
         == "a hexagon has 6 sides"
     )
     assert (
-        standard_runner.run_sentence("[//^\w\w[aou]?//i:this;{[match]tab}]")
+        standard_runner.run_sentence(r"[//^\w\w[aou]?//i:this;{[match]tab}]")
         == "thtabis"
     )
     assert (
         standard_runner.run_sentence(
-            "[//tab.*//i:[//^\w\w[aou]?//i:this;{[match]tab}];tab]"
+            r"[//tab.*//i:[//^\w\w[aou]?//i:this;{[match]tab}];tab]"
         )
         == "thtab"
     )
@@ -246,18 +246,18 @@ def test_complex_sentence():
     )
     assert (
         standard_runner.run_sentence(
-            "[case:title]the <noun-building-small::=a> and \\a [//hat//:hat;<noun-building::!=a>]"
+            r"[case:title]the <noun-building-small::=a> and \a [//hat//:hat;<noun-building::!=a>]"
         )
         == "The Shed And A Factory"
     )
     assert (
         standard_runner.run_sentence(
-            "[//s\w//:suspicious slimy slithery snakes;ss[match]]"
+            r"[//s\w//:suspicious slimy slithery snakes;ss[match]]"
         )
         == "sssussspicious ssslimy ssslithery sssnakes"
     )
     assert (
-        standard_runner.run_sentence("[//[3-5]//:[rep:3][sep:\\n]{123456};x]")
+        standard_runner.run_sentence(r"[//[3-5]//:[rep:3][sep:\n]{123456};x]")
         == """12xxx6
 12xxx6
 12xxx6"""
@@ -265,7 +265,7 @@ def test_complex_sentence():
 
 
 def test_indefinite_article_at_block_end():
-    assert standard_runner.run_sentence("{\\a} cat and {\\a} egg") == "a cat and an egg"
+    assert standard_runner.run_sentence(r"{\a} cat and {\a} egg") == "a cat and an egg"
 
 
 def test_indefinite_article_from_lookup():
