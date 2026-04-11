@@ -83,8 +83,6 @@ PARSE_ERROR_EXAMPLES = {
 
 
 class Interpreter(InterpreterDecoratorProtocol):
-    SPECIAL_FUNCTIONS = ["clear", "load", "paste", "if"]
-
     def __init__(
         self,
         lookup_manager: LookupManager,
@@ -289,78 +287,12 @@ class Interpreter(InterpreterDecoratorProtocol):
         output_formatter.append(abbreviation)
         return output_formatter.resolve()
 
-    def _handle_special_functions(self, func: FunctionNode):
-        match func.func:
-            case "clear":
-                self.context.force_clear()
-                return Formatter()
-            case "load":
-                evaluated_args = [self.run(arg).resolve() for arg in func.args]
-                return self._load_pattern(evaluated_args)
-            case "paste":
-                evaluated_args = [self.run(arg).resolve() for arg in func.args]
-                return self._paste_block(evaluated_args)
-            case "if":
-                return self._handle_if(func)
-            case _:
-                raise TwaddleInterpreterException(
-                    f"[Interpreter] function '{func.func}' "
-                    "marked special but no special handling defined"
-                )
-
     def _save_pattern(self, block: BlockNode, name: str):
         self.context.saved_patterns[name] = RootNode(contents=[block])
-
-    def _load_pattern(self, evaluated_args: list[str]) -> Formatter:
-        if not len(evaluated_args):
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions] Tried "
-                "to load pattern without specifying name"
-            )
-        if not (block := self.context.saved_patterns.get(evaluated_args[0])):
-            if len(evaluated_args) > 1:
-                return Formatter.from_text(evaluated_args[1])
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions#load] Tried "
-                f"to load unknown pattern '{evaluated_args[0]}'"
-            )
-        return self.run(block)
-
-    def _paste_block(self, evaluated_args: list[str]) -> Formatter:
-        if not len(evaluated_args):
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions] Tried "
-                "to paste block result without specifying name"
-            )
-        if not (block := self.context.copied_blocks.get(evaluated_args[0])):
-            if len(evaluated_args) > 1:
-                return Formatter.from_text(evaluated_args[1])
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions#paste] Tried "
-                f"to paste result of unknown block '{evaluated_args[0]}'"
-            )
-        return block
-
-    def _handle_if(self, func: FunctionNode) -> Formatter:
-        num_args = len(func.args)
-        if num_args not in [2, 3]:
-            raise TwaddleInterpreterException(
-                f"[Interpreter._handle_if] if requires either two or three arguments, got {num_args}"
-            )
-        predicate_result = self.run(func.args[0]).resolve()
-        predicate_bool = boolean_helper(predicate_result)
-        if predicate_bool:
-            return self.run(func.args[1])
-        elif num_args == 3:
-            return self.run(func.args[2])
-        else:
-            return Formatter()
 
     @run.register(FunctionNode)
     def _(self, func: FunctionNode):
         formatter = Formatter()
-        if func.func in self.SPECIAL_FUNCTIONS:
-            return self._handle_special_functions(func)
         if func.func in FunctionRegistry.function_lookup:
             formatter.append(
                 FunctionRegistry.handle(func.func, func.args, self.context, self)

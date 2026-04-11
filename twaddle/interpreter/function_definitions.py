@@ -1,3 +1,4 @@
+from copy import copy as shallow_copy
 from math import prod
 from random import randint
 from typing import Optional
@@ -6,6 +7,7 @@ from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.context import TwaddleContext
 
 # from twaddle.interpreter.formatter import Formatter
+from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.function_registry import FunctionRegistry, evaluate_args
 from twaddle.interpreter.interpreter_decorator_protocol import (
@@ -169,6 +171,30 @@ def save(
 
 
 @FunctionRegistry.register(
+    name="load",
+    min_args=1,
+    max_args=2,
+    description=(
+        "Takes one or two arguments, `name` (required) and `fallback` (optional). "
+        "Loads a previously-saved pattern `name` and evaluates it at this location. "
+        "If no such pattern saved, `fallback` is evaluated instead. If no such pattern "
+        "saved and no `fallback` provided, an error occurs."
+    ),
+)
+def load(
+    raw_args: list[RootNode],
+    context: TwaddleContext,
+    interpreter: InterpreterDecoratorProtocol,
+):
+    name = interpreter.evaluate(raw_args[0])
+    if not (pattern := context.saved_patterns.get(name)):
+        if len(raw_args) > 1:
+            return Formatter.from_text(interpreter.evaluate(raw_args[1])).resolve()
+        raise TwaddleFunctionException(f"Tried to load unknown pattern '{name}'")
+    return interpreter.evaluate(pattern)
+
+
+@FunctionRegistry.register(
     name="copy",
     min_args=1,
     max_args=1,
@@ -178,7 +204,8 @@ def save(
     ),
 )
 @evaluate_args
-def copy(
+# change name to avoid confusion with copy from copy
+def twaddle_copy(
     evaluated_args: list[str],
     context: TwaddleContext,
     interpreter: InterpreterDecoratorProtocol,
@@ -188,6 +215,32 @@ def copy(
             "[function_definitions#copy] copy requires exactly one argument"
         )
     context.block_attributes.copy_as = evaluated_args[0]
+
+
+@FunctionRegistry.register(
+    name="paste",
+    min_args=1,
+    max_args=2,
+    description=(
+        "Takes one or two arguments, `name` (required) and `fallback` (optional). "
+        "Loads a previously-saved block `name` at this location. "
+        "If no such block saved, `fallback` is evaluated instead. If no such block "
+        "saved and no `fallback` provided, an error occurs."
+    ),
+)
+def paste(
+    raw_args: list[RootNode],
+    context: TwaddleContext,
+    interpreter: InterpreterDecoratorProtocol,
+):
+    name = interpreter.evaluate(raw_args[0])
+    if not (block := context.copied_blocks.get(name)):
+        if len(raw_args) > 1:
+            return Formatter.from_text(interpreter.evaluate(raw_args[1])).resolve()
+        raise TwaddleFunctionException(
+            f"Tried to paste result of unknown block '{name}'"
+        )
+    return shallow_copy(block).resolve()
 
 
 @FunctionRegistry.register(
@@ -367,7 +420,10 @@ def add(
             "[function_definitions#add] add requires at least two numbers"
         )
     parsed_numbers = _parse_numbers(evaluated_args)
-    return _format_number(sum(parsed_numbers), context.block_attributes.max_decimals)
+    print(f" add {parsed_numbers=}")
+    result = _format_number(sum(parsed_numbers), context.block_attributes.max_decimals)
+    print(f"add {result=}")
+    return result
 
 
 @FunctionRegistry.register(
@@ -636,10 +692,6 @@ def while_loop(
     context: TwaddleContext,
     interpreter: InterpreterDecoratorProtocol,
 ):
-    if len(raw_args) not in [1, 2]:
-        raise TwaddleFunctionException(
-            f"[function_definitions#while] while requires either one or two arguments, got {len(raw_args)}"
-        )
     if len(raw_args) == 2:
         max_iterations = _parse_numbers([interpreter.evaluate(raw_args[1])])[0]
         if not isinstance(max_iterations, int):
@@ -650,3 +702,45 @@ def while_loop(
         context.block_attributes.max_while_iterations = max_iterations
 
     context.block_attributes.while_predicate = raw_args[0]
+
+
+@FunctionRegistry.register(
+    name="if",
+    min_args=2,
+    max_args=3,
+    description=(
+        "Takes either two or three arguments, `predicate` (required), `if-branch` (required), "
+        "and `else-branch` (optional). If `predicate` evaluates as truthy, `if-branch` will be"
+        "evaluated. If `predicate` evaluates as falsey, `else-branch` will be evaluated if provided,"
+        "else function returns empty string. All arguments may be full Twaddle sentences using any "
+        "Twaddle functionality. The arguments `if-branch` and `else-branch` are evaluated lazily."
+    ),
+)
+def twaddle_if(
+    raw_args: list[RootNode],
+    context: TwaddleContext,
+    interpreter: InterpreterDecoratorProtocol,
+):
+    predicate_result = interpreter.evaluate(raw_args[0])
+    if boolean_helper(predicate_result):
+        return interpreter.evaluate(raw_args[1])
+    elif len(raw_args) == 3:
+        return interpreter.evaluate(raw_args[2])
+    return str()
+
+
+@FunctionRegistry.register(
+    name="clear",
+    min_args=0,
+    max_args=0,
+    description=(
+        "Clears all saved patterns, copied blocks, synchronizers, and labels. "
+        "Effectively resetting the interpreter."
+    ),
+)
+def clear(
+    raw_args: list[RootNode],
+    context: TwaddleContext,
+    interpreter: InterpreterDecoratorProtocol,
+):
+    context.force_clear()

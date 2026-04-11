@@ -5,7 +5,6 @@ from .function_definitions import (
     add,
     boolean,
     case,
-    copy,
     divide,
     equal_to,
     first,
@@ -26,6 +25,7 @@ from .function_definitions import (
     separator,
     subtract,
     sync,
+    twaddle_copy,
     while_loop,
 )
 
@@ -36,7 +36,7 @@ function_definitions: dict[str, FunctionType] = {
     "and": logical_and,
     "bool": boolean,
     "case": case,
-    "copy": copy,
+    "copy": twaddle_copy,
     "divide": divide,
     "div": divide,
     "eq": equal_to,
