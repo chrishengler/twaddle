@@ -74,7 +74,7 @@ def _format_number(value: int | float, max_decimals: Optional[int]) -> str:
 def repeat(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -97,7 +97,7 @@ def repeat(
 def separator(
     raw_args: list[RootNode],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
@@ -118,7 +118,7 @@ def separator(
 def first(
     raw_args: list[RootNode],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
@@ -139,7 +139,7 @@ def first(
 def last(
     raw_args: list[RootNode],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(raw_args) < 1:
         raise TwaddleFunctionException(
@@ -161,7 +161,7 @@ def last(
 def save(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -208,7 +208,7 @@ def load(
 def twaddle_copy(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -259,7 +259,7 @@ def paste(
 def sync(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -282,7 +282,7 @@ def sync(
 def abbreviate(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     context.block_attributes.abbreviate = True
     if len(evaluated_args) == 0:
@@ -316,8 +316,8 @@ def abbreviate(
 @evaluate_args
 def case(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 1:
         raise TwaddleFunctionException(
@@ -347,9 +347,9 @@ def case(
 )
 # noinspection PyUnusedLocal
 def match(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _interpreter: InterpreterDecoratorProtocol,
 ):
     return context.current_regex_match if context.current_regex_match else ""
 
@@ -363,8 +363,8 @@ def match(
 @evaluate_args
 def rand(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -382,9 +382,9 @@ def rand(
     description="A block function. Takes no arguments. Causes the result of the next block to be printed in reverse.",
 )
 def reverse(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _interpreter: InterpreterDecoratorProtocol,
 ):
     context.block_attributes.reverse = True
 
@@ -396,9 +396,9 @@ def reverse(
     description="A block function. Takes no arguments. Causes the next block to be evaluated but not printed.",
 )
 def hide(
-    evaluated_args: list[str],
+    _evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     context.block_attributes.hidden = True
     return ""
@@ -413,7 +413,7 @@ def hide(
 def add(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -439,7 +439,7 @@ def add(
 def subtract(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -460,7 +460,7 @@ def subtract(
 def multiply(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) < 2:
         raise TwaddleFunctionException(
@@ -481,7 +481,7 @@ def multiply(
 def divide(
     evaluated_args: list[str],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _: InterpreterDecoratorProtocol,
 ):
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -516,8 +516,8 @@ def boolean_helper(evaluated_arg: str) -> bool:
 @evaluate_args
 def boolean(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 1:
         raise TwaddleFunctionException(
@@ -537,8 +537,8 @@ def boolean(
 @evaluate_args
 def less_than(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -558,8 +558,8 @@ def less_than(
 @evaluate_args
 def greater_than(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -582,8 +582,8 @@ def greater_than(
 @evaluate_args
 def equal_to(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -605,8 +605,8 @@ def equal_to(
 @evaluate_args
 def logical_and(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -625,8 +625,8 @@ def logical_and(
 @evaluate_args
 def logical_not(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 1:
         raise TwaddleFunctionException(
@@ -645,8 +645,8 @@ def logical_not(
 @evaluate_args
 def logical_or(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -665,8 +665,8 @@ def logical_or(
 @evaluate_args
 def logical_xor(
     evaluated_args: list[str],
-    context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _context: TwaddleContext,
+    _interpreter: InterpreterDecoratorProtocol,
 ) -> str:
     if len(evaluated_args) != 2:
         raise TwaddleFunctionException(
@@ -718,7 +718,7 @@ def while_loop(
 )
 def twaddle_if(
     raw_args: list[RootNode],
-    context: TwaddleContext,
+    _: TwaddleContext,
     interpreter: InterpreterDecoratorProtocol,
 ):
     predicate_result = interpreter.evaluate(raw_args[0])
@@ -739,8 +739,8 @@ def twaddle_if(
     ),
 )
 def clear(
-    raw_args: list[RootNode],
+    _raw_args: list[RootNode],
     context: TwaddleContext,
-    interpreter: InterpreterDecoratorProtocol,
+    _interpreter: InterpreterDecoratorProtocol,
 ):
     context.force_clear()
