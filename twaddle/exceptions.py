@@ -38,3 +38,10 @@ class TwaddleFunctionException(TwaddleException):
 
     def __init__(self, message: str):
         super().__init__(message)
+
+
+class TwaddleFunctionRegistryException(TwaddleException):
+    """Thrown when a problem is encountered in the function registry"""
+
+    def __init__(self, message: str):
+        super().__init__(message)
