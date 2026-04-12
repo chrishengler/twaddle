@@ -152,7 +152,7 @@ def last(
     max_args=1,
     description=(
         "A block function. Takes one argument, `name`. "
-        "Saves the pattern of the next block for later retrieval with `load`."
+        "Saves the next block as a pattern for later retrieval with `load`."
     ),
 )
 @evaluate_args

@@ -89,9 +89,19 @@ class FunctionRegistry:
         return decorator
 
     @classmethod
-    def list_methods(cls):
-        for entry in set(cls.function_lookup.values()):
-            print(f"{entry.name}: {entry.description}")
+    def list_functions(cls):
+        def function_info(entry: FunctionEntry) -> dict:
+            return {
+                "name": entry.name,
+                "aliases": entry.aliases,
+                "description": entry.description,
+            }
+
+        return {
+            "functions": [
+                function_info(entry) for entry in set(cls.function_lookup.values())
+            ]
+        }
 
     @classmethod
     def handle(
