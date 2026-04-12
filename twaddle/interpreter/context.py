@@ -6,7 +6,7 @@ from twaddle.interpreter.block_attributes import BlockAttributes
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.synchronizer import Synchronizer, sync_types
 from twaddle.lookup.lookup_manager import LookupManager
-from twaddle.parser.nodes import BlockNode
+from twaddle.parser.nodes import RootNode
 
 
 @dataclass
@@ -17,7 +17,7 @@ class TwaddleContext:
     persistent_clipboard: bool = False
     strict_mode: bool = False
 
-    saved_patterns = dict[str, BlockNode]()
+    saved_patterns = dict[str, RootNode]()
     copied_blocks = dict[str, Formatter]()
     lookup_manager: LookupManager = field(default_factory=LookupManager)
     block_attributes: BlockAttributes = field(default_factory=BlockAttributes)

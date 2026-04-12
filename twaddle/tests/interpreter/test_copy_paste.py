@@ -1,6 +1,6 @@
 import pytest
 
-from twaddle.exceptions import TwaddleInterpreterException
+from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.interpreter import Interpreter
 from twaddle.lookup.lookup_manager import LookupManager
 
@@ -17,12 +17,9 @@ def test_paste_copyd_block():
 
 
 def test_paste_uncopyd_block():
-    with pytest.raises(TwaddleInterpreterException) as e_info:
+    with pytest.raises(TwaddleFunctionException) as e_info:
         get_standard_interpreter_output("[paste:nonexistent]")
-    assert (
-        str(e_info.value)
-        == "[Interpreter._handle_special_functions#paste] Tried to paste result of unknown block 'nonexistent'"
-    )
+    assert str(e_info.value) == "Tried to paste result of unknown block 'nonexistent'"
 
 
 def test_copy_multiple_blocks():
@@ -34,12 +31,9 @@ def test_copy_multiple_blocks():
 
 def test_copy_paste_fails_between_non_persistent_sentences():
     get_standard_interpreter_output("[copy:a]{hello}")
-    with pytest.raises(TwaddleInterpreterException) as e_info:
+    with pytest.raises(TwaddleFunctionException) as e_info:
         get_standard_interpreter_output("[paste:a]")
-    assert (
-        str(e_info.value)
-        == "[Interpreter._handle_special_functions#paste] Tried to paste result of unknown block 'a'"
-    )
+    assert str(e_info.value) == "Tried to paste result of unknown block 'a'"
 
 
 def test_copy_paste_persistence():

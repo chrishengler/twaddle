@@ -9,7 +9,10 @@ from twaddle.interpreter.block_attributes import BlockAttributes
 from twaddle.interpreter.context import TwaddleContext
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.function_definitions import boolean_helper
-from twaddle.interpreter.function_dict import function_definitions
+from twaddle.interpreter.function_registry import FunctionRegistry
+from twaddle.interpreter.interpreter_decorator_protocol import (
+    InterpreterDecoratorProtocol,
+)
 from twaddle.interpreter.synchronizer import Synchronizer
 from twaddle.lookup.lookup_dictionary import LookupDictionary
 from twaddle.lookup.lookup_manager import LookupManager
@@ -79,9 +82,7 @@ PARSE_ERROR_EXAMPLES = {
 }
 
 
-class Interpreter:
-    SPECIAL_FUNCTIONS = ["clear", "load", "paste", "if"]
-
+class Interpreter(InterpreterDecoratorProtocol):
     def __init__(
         self,
         lookup_manager: LookupManager,
@@ -99,7 +100,7 @@ class Interpreter:
             strict_mode=strict_mode,
             lookup_manager=lookup_manager,
         )
-        self.context.saved_patterns = dict[str, BlockNode]()
+        self.context.saved_patterns = dict[str, RootNode]()
         self.context.copied_blocks = dict[str, Formatter]()
 
     def interpret_external(self, sentence: str) -> str:
@@ -172,6 +173,13 @@ class Interpreter:
             num_choices,
         )
 
+    def evaluate(self, root: RootNode) -> str:
+        # mostly just here to avoid trouble using a Protocol that needs
+        # a specific version of a @singledispatchmethod
+        # used by decorator for evaluating arguments of functions which
+        # need evaluated rather than raw args
+        return self.run(root).resolve()
+
     # noinspection PyUnusedLocal
     @singledispatchmethod
     def run(self, _arg: None) -> Formatter:
@@ -238,7 +246,7 @@ class Interpreter:
                 formatter.append_formatter(self.run(attributes.separator))
 
         if name := attributes.save_as:
-            self.context.saved_patterns[name] = block
+            self._save_pattern(block, name)
         if name := attributes.copy_as:
             self.context.copied_blocks[name] = copy(formatter)
         if attributes.hidden:
@@ -279,82 +287,15 @@ class Interpreter:
         output_formatter.append(abbreviation)
         return output_formatter.resolve()
 
-    def _handle_special_functions(self, func: FunctionNode):
-        match func.func:
-            case "clear":
-                self.context.force_clear()
-                return Formatter()
-            case "load":
-                evaluated_args = [self.run(arg).resolve() for arg in func.args]
-                return self._load_pattern(evaluated_args)
-            case "paste":
-                evaluated_args = [self.run(arg).resolve() for arg in func.args]
-                return self._paste_block(evaluated_args)
-            case "if":
-                return self._handle_if(func)
-            case _:
-                raise TwaddleInterpreterException(
-                    f"[Interpreter] function '{func.func}' "
-                    "marked special but no special handling defined"
-                )
-
     def _save_pattern(self, block: BlockNode, name: str):
-        self.context.saved_patterns[name] = block
-
-    def _load_pattern(self, evaluated_args: list[str]) -> Formatter:
-        if not len(evaluated_args):
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions] Tried "
-                "to load pattern without specifying name"
-            )
-        if not (block := self.context.saved_patterns.get(evaluated_args[0])):
-            if len(evaluated_args) > 1:
-                return Formatter.from_text(evaluated_args[1])
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions#load] Tried "
-                f"to load unknown pattern '{evaluated_args[0]}'"
-            )
-        return self.run(block)
-
-    def _paste_block(self, evaluated_args: list[str]) -> Formatter:
-        if not len(evaluated_args):
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions] Tried "
-                "to paste block result without specifying name"
-            )
-        if not (block := self.context.copied_blocks.get(evaluated_args[0])):
-            if len(evaluated_args) > 1:
-                return Formatter.from_text(evaluated_args[1])
-            raise TwaddleInterpreterException(
-                "[Interpreter._handle_special_functions#paste] Tried "
-                f"to paste result of unknown block '{evaluated_args[0]}'"
-            )
-        return block
-
-    def _handle_if(self, func: FunctionNode) -> Formatter:
-        num_args = len(func.args)
-        if num_args not in [2, 3]:
-            raise TwaddleInterpreterException(
-                f"[Interpreter._handle_if] if requires either two or three arguments, got {num_args}"
-            )
-        predicate_result = self.run(func.args[0]).resolve()
-        predicate_bool = boolean_helper(predicate_result)
-        if predicate_bool:
-            return self.run(func.args[1])
-        elif num_args == 3:
-            return self.run(func.args[2])
-        else:
-            return Formatter()
+        self.context.saved_patterns[name] = RootNode(contents=[block])
 
     @run.register(FunctionNode)
     def _(self, func: FunctionNode):
         formatter = Formatter()
-        if func.func in self.SPECIAL_FUNCTIONS:
-            return self._handle_special_functions(func)
-        evaluated_args = [self.run(arg).resolve() for arg in func.args]
-        if func.func in function_definitions:
+        if func.func in FunctionRegistry.function_lookup:
             formatter.append(
-                function_definitions[func.func](evaluated_args, self.context, func.args)
+                FunctionRegistry.handle(func.func, func.args, self.context, self)
             )
         else:
             raise TwaddleInterpreterException(
