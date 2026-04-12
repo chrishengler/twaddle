@@ -117,7 +117,7 @@ class TestRegistration:
 
 class TestHandle:
     def test_handle_calls_registered_function(self):
-        @FunctionRegistry.register(name="echo")
+        @FunctionRegistry.register(name="echo", min_args=0)
         def echo(args, context, interpreter):
             return "called"
 
@@ -129,7 +129,7 @@ class TestHandle:
     def test_handle_passes_raw_args(self):
         raw = make_raw_args("hello")
 
-        @FunctionRegistry.register(name="grab")
+        @FunctionRegistry.register(name="grab", min_args=0)
         def grab(args, context, interpreter):
             return args
 

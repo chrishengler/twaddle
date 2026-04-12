@@ -31,7 +31,7 @@ class FunctionEntry:
         name: str,
         aliases: Optional[list[str]],
         min_args: int,
-        max_args: int,
+        max_args: Optional[int],
         description: str,
         handler: Callable,
     ):
@@ -57,6 +57,11 @@ class FunctionRegistry:
                         f"Tried to add function '{name}'({entry.handler}()) "
                         f"but a function '{name}'({existing.handler}()) is already defined"
                     )
+        if entry.max_args and entry.min_args > entry.max_args:
+            raise TwaddleFunctionRegistryException(
+                f"Trying to add function {entry.name} with minimum args ({entry.min_args}) "
+                f" greater than maximum args ({entry.max_args})"
+            )
         for name in all_names:
             cls.function_lookup[name] = entry
 
@@ -98,4 +103,17 @@ class FunctionRegistry:
     ):
         if name in cls.function_lookup:
             handler = cls.function_lookup[name]
+            num_args = len(args)
+            if num_args < handler.min_args or (
+                handler.max_args and num_args > handler.max_args
+            ):
+                errstr = f"Tried to call function {name} with {num_args} arguments. The function takes "
+                if not handler.max_args:
+                    errstr += f"at least {handler.min_args}"
+                elif handler.max_args > handler.min_args:
+                    errstr += f"{handler.min_args}-{handler.max_args}"
+                else:
+                    errstr += f"exactly {handler.min_args}"
+                errstr += " argument(s)."
+                raise TwaddleFunctionRegistryException(errstr)
             return handler.handler(args, context, interpreter)

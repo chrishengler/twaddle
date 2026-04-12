@@ -5,8 +5,6 @@ from typing import Optional
 
 from twaddle.exceptions import TwaddleFunctionException
 from twaddle.interpreter.context import TwaddleContext
-
-# from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.formatter import Formatter
 from twaddle.interpreter.formatting_object import FormattingStrategy
 from twaddle.interpreter.function_registry import FunctionRegistry, evaluate_args
@@ -420,10 +418,7 @@ def add(
             "[function_definitions#add] add requires at least two numbers"
         )
     parsed_numbers = _parse_numbers(evaluated_args)
-    print(f" add {parsed_numbers=}")
-    result = _format_number(sum(parsed_numbers), context.block_attributes.max_decimals)
-    print(f"add {result=}")
-    return result
+    return _format_number(sum(parsed_numbers), context.block_attributes.max_decimals)
 
 
 @FunctionRegistry.register(
