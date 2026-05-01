@@ -5,6 +5,12 @@ dictionary files within a folder specified when creating the
 TwaddleRunner. Each user can provide a vocabulary appropriate for
 their purposes by adding dictionary files to a folder of their choice.
 
+Within an interactive Python session you can call the `list_dictionaries`
+function on your TwaddleRunner to receive documentation of the loaded 
+dictionaries (`name` names the dictionary, `forms` lists the valid
+forms for the dictionary, and `example` shows an example entry in 
+each form).
+
 ## Default dictionary
 
 If you want to just get started experimenting without writing your own 
