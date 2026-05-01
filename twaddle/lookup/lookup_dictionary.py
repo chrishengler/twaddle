@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from random import choice
+from typing import Optional
 
 from twaddle.exceptions import TwaddleLookupException
 from twaddle.lookup.lookup_entry import DictionaryEntry
@@ -129,3 +130,12 @@ class LookupDictionary:
         if result in self.special_tokens:
             return self.special_tokens[result]
         return result
+
+    def dictionary_doc(self) -> Optional[dict]:
+        if len(self.entries) == 0:
+            return None
+        return {
+            "name": self.name,
+            "forms": self.forms,
+            "example": {form: self.entries[0][form] for form in self.forms},
+        }

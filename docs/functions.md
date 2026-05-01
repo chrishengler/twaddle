@@ -1,8 +1,11 @@
 # Functions 
 
-Twaddle offers a handful of functions. Most of these are related to behaviour
+Twaddle offers a number of functions. Most of these are related to behaviour
 in [looping](loops.md) or [branching](branching.md) and are described in more 
 depth in the related documentation. 
+
+Documentation for all Twaddle functions can be retrieved within an interactive
+Python session by calling the `list_functions` function on your TwaddleRunner.
 
 ## Syntax
 

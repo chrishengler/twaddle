@@ -18,11 +18,10 @@ def main():
 
     while True:
         try:
-            sentence = input(">")
+            sentence = input("> ")
             print(twaddle.run_sentence(sentence))
         except TwaddleException as te:
             print(f"Twaddle encountered an error:\n{str(te)}")
-            twaddle.clear()
         except EOFError:
             quit()
 

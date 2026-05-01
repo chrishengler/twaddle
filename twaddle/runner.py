@@ -2,6 +2,7 @@ from importlib.resources import as_file
 from importlib.resources.abc import Traversable
 from pathlib import Path
 
+from twaddle.interpreter.function_registry import FunctionRegistry
 from twaddle.interpreter.interpreter import Interpreter
 from twaddle.lookup.lookup_manager import LookupManager
 
@@ -84,6 +85,18 @@ class TwaddleRunner:
             if not isinstance(path, Path):
                 path = Path(path)
             self.lookup_manager.add_dictionary_file(path)
+
+    def list_dictionaries(self) -> dict:
+        return {
+            "dictionaries": [
+                doc
+                for dictionary in self.lookup_manager.dictionaries.values()
+                if (doc := dictionary.dictionary_doc()) is not None
+            ]
+        }
+
+    def list_functions(self) -> dict:
+        return FunctionRegistry.list_functions()
 
     def run_sentence(self, sentence: str) -> str:
         return self.interpreter.interpret_external(sentence)
