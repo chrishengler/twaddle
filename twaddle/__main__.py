@@ -15,14 +15,14 @@ def main():
     twaddle = TwaddleRunner(path)
 
     print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")
+    print(twaddle.list_dictionaries())
 
     while True:
         try:
-            sentence = input(">")
+            sentence = input("> ")
             print(twaddle.run_sentence(sentence))
         except TwaddleException as te:
             print(f"Twaddle encountered an error:\n{str(te)}")
-            twaddle.clear()
         except EOFError:
             quit()
 
