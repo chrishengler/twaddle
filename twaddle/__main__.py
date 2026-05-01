@@ -15,7 +15,6 @@ def main():
     twaddle = TwaddleRunner(path)
 
     print("hello. I'm your friendly nonsense generator. Hit Ctrl-D to exit.")
-    print(twaddle.list_dictionaries())
 
     while True:
         try:
